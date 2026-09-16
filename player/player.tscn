@@ -6,27 +6,32 @@
 [ext_resource type="Script" uid="uid://ckouwtkw57tmm" path="res://player/player_state.gd" id="4_yw30f"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ltcvw"]
+radius = 0.35
+height = 1.9
 
 [node name="Player" type="CharacterBody3D" unique_id=1930534967]
 script = ExtResource("1_oul6g")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=2029131471]
+position = Vector3(0, 0.95, 0)
 shape = SubResource("CapsuleShape3D_ltcvw")
 
 [node name="Head" type="Node3D" parent="." unique_id=1231295268]
+position = Vector3(0, 1.65, 0)
 
-[node name="Neck" type="Node3D" parent="Head" unique_id=1253715606]
+[node name="Camera3D" type="Camera3D" parent="Head" unique_id=287350200]
+current = true
 
-[node name="Camera3D" type="Camera3D" parent="Head/Neck" unique_id=287350200]
+[node name="Visuals" type="Node3D" parent="." unique_id=1549703221]
 
 [node name="PlayerInput" type="Node" parent="." unique_id=1003773154]
 script = ExtResource("2_rkbax")
+
+[node name="PlayerState" type="Node" parent="." unique_id=1085758552]
+script = ExtResource("4_yw30f")
 
 [node name="PlayerMovement" type="Node" parent="." unique_id=902360245 node_paths=PackedStringArray("player", "input", "state")]
 script = ExtResource("3_g1dw6")
 player = NodePath("..")
 input = NodePath("../PlayerInput")
 state = NodePath("../PlayerState")
-
-[node name="PlayerState" type="Node" parent="." unique_id=1085758552]
-script = ExtResource("4_yw30f")
