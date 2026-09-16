@@ -1,10 +1,9 @@
 class_name PlayerMovement
 extends Node
 
-@export_group("References")
-@export var player: CharacterBody3D
-@export var input: PlayerInput
-@export var state: PlayerState
+@onready var player: CharacterBody3D = $".."
+@onready var input: PlayerInput = $"../PlayerInput"
+@onready var state: PlayerState = $"../PlayerState"
 
 @export_group("Ground Movement")
 @export var walk_speed: float = 7.0
@@ -109,7 +108,6 @@ var current_capsule_height: float = 1.9
 var current_head_height: float = 1.65
 var wall_normal: Vector3 = Vector3.ZERO
 var wall_side: float = 0.0
-var slide_camera_roll_sign: float = 1.0
 var dash_vertical_velocity: float = 0.0
 var is_dashing: bool = false
 var is_wall_running: bool = false
