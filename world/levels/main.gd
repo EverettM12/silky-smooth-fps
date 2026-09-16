@@ -6,6 +6,6 @@ extends Node3D
 
 func _ready() -> void:
 	if !is_instance_valid(start_pos):
-		push_error("Start position missing!")
+		CloseGame.close("Start position missing!")
 
 	player.global_position = start_pos.global_position
