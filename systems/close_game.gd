@@ -1,6 +1,6 @@
 extends Node
 
-func close(message:String):
-	push_error(message)
-	await get_tree().process_frame
+func close(message: String = "") -> void:
+	if !message.is_empty():
+		print(message)
 	get_tree().quit()
