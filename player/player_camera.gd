@@ -252,12 +252,12 @@ func update_motion_state(delta: float, movement_data: Dictionary) -> void:
 		head_response = slide_transition_speed
 	head.position = head.position.lerp(target_head_position, 1.0 - exp(-head_response * delta))
 	if grounded:
-		airborne_fall_velocity = 0.0
+		if player_state.previous_state == PlayerState.MovementState.AIRBORNE:
+			if abs(airborne_fall_velocity) >= landing_velocity_threshold:
+				trigger_landing(abs(airborne_fall_velocity))
+			airborne_fall_velocity = 0.0
 	else:
 		airborne_fall_velocity = min(airborne_fall_velocity, player.velocity.y)
-	if player_state.previous_state == PlayerState.MovementState.AIRBORNE and grounded:
-		if abs(airborne_fall_velocity) >= landing_velocity_threshold:
-			trigger_landing(abs(airborne_fall_velocity))
 	if player_state.previous_state == PlayerState.MovementState.GROUNDED and player_state.is_airborne():
 		jump_timer = jump_camera_duration
 		jump_amount = jump_camera_impulse
@@ -269,7 +269,7 @@ func update_head_bob(delta: float, movement_data: Dictionary) -> void:
 	if player_input.sprint_pressed and not player_state.is_sliding():
 		intensity = sprinting_intensity
 	if player_state.is_sliding() or player_input.crouch_pressed:
-		intensity *= crouching_intensity
+		intensity *= crouching_intensity * crouching_bob_multiplier
 	if player_state.is_airborne():
 		intensity *= airborne_bob_multiplier
 	var speed_ratio: float = movement_data["speed_ratio"]
