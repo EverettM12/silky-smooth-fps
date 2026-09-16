@@ -110,11 +110,11 @@ var current_head_height: float = 1.65
 var wall_normal: Vector3 = Vector3.ZERO
 var wall_side: float = 0.0
 var slide_camera_roll_sign: float = 1.0
+var dash_vertical_velocity: float = 0.0
 var is_dashing: bool = false
 var is_wall_running: bool = false
 var dash_direction: Vector3 = Vector3.ZERO
 var jump_was_held: bool = false
-var was_on_floor: bool = false
 
 func _ready() -> void:
 	if player == null:
@@ -122,7 +122,7 @@ func _ready() -> void:
 	collision_shape = player.get_node_or_null("CollisionShape3D") as CollisionShape3D
 	if collision_shape == null:
 		return
-	if not collision_shape.shape is CapsuleShape3D:
+	if not (collision_shape.shape is CapsuleShape3D):
 		return
 	capsule_shape = collision_shape.shape.duplicate() as CapsuleShape3D
 	collision_shape.shape = capsule_shape
@@ -139,7 +139,6 @@ func _ready() -> void:
 	player.floor_snap_length = slope_snap_length
 	player.safe_margin = safe_margin
 	air_dashes_remaining = max(air_dash_count, 0)
-	was_on_floor = player.is_on_floor()
 
 func _physics_process(delta: float) -> void:
 	if player == null or input == null or state == null or capsule_shape == null:
@@ -173,11 +172,9 @@ func update_timers(delta: float) -> void:
 	wall_run_timer = max(wall_run_timer - delta, 0.0)
 
 func update_floor_tracking() -> void:
-	var currently_on_floor: bool = player.is_on_floor()
-	if currently_on_floor:
+	if player.is_on_floor():
 		coyote_timer = coyote_time
 		air_dashes_remaining = max(air_dash_count, 0)
-	was_on_floor = currently_on_floor
 
 func process_jump_buffer() -> void:
 	if input.jump_just_pressed:
@@ -207,24 +204,24 @@ func start_dash() -> void:
 	dash_timer = dash_duration
 	dash_cooldown_timer = dash_cooldown
 	dash_distance_remaining = max(dash_distance, 0.0)
+	dash_vertical_velocity = player.velocity.y
 	if not player.is_on_floor():
 		air_dashes_remaining -= 1
 	if dash_preserves_vertical_velocity:
-		player.velocity = dash_direction * dash_speed + Vector3.UP * player.velocity.y
+		player.velocity = dash_direction * dash_speed + Vector3.UP * dash_vertical_velocity
 	else:
 		player.velocity = dash_direction * dash_speed
 
 func process_dash(delta: float) -> void:
 	if not is_dashing:
 		return
-	var previous_horizontal_velocity: Vector3 = Vector3(player.velocity.x, 0.0, player.velocity.z)
 	var target_velocity: Vector3 = dash_direction * dash_speed
 	player.velocity.x = move_toward(player.velocity.x, target_velocity.x, dash_acceleration * delta)
 	player.velocity.z = move_toward(player.velocity.z, target_velocity.z, dash_acceleration * delta)
-	var moved_distance: float = Vector3(player.velocity.x, 0.0, player.velocity.z).length() * delta
+	var moved_distance: float = Vector2(player.velocity.x, player.velocity.z).length() * delta
 	dash_distance_remaining = max(dash_distance_remaining - moved_distance, 0.0)
 	if dash_preserves_vertical_velocity:
-		player.velocity.y = move_toward(player.velocity.y, previous_horizontal_velocity.y, dash_braking * delta)
+		player.velocity.y = move_toward(player.velocity.y, dash_vertical_velocity, dash_braking * delta)
 	else:
 		player.velocity.y = move_toward(player.velocity.y, 0.0, max(dash_gravity_scale, 0.0) * delta)
 	if dash_timer <= 0.0 or dash_distance_remaining <= 0.0:
@@ -253,7 +250,7 @@ func get_wish_direction() -> Vector3:
 	return movement_direction
 
 func get_target_speed() -> float:
-	if state.is_sliding():
+	if state.is_sliding() or input.crouch_pressed:
 		return crouch_speed
 	if input.sprint_pressed:
 		return sprint_speed
@@ -297,7 +294,7 @@ func apply_slope_behavior(horizontal_velocity: Vector3, delta: float) -> void:
 		player.velocity += slope_direction * slope_acceleration * downhill_behavior * delta
 	elif movement_alignment < 0.0:
 		player.velocity += slope_direction * slope_acceleration * (uphill_behavior - 1.0) * delta
-	if slope_friction > 0.0 and movement_alignment == 0.0:
+	elif slope_friction > 0.0:
 		player.velocity += slope_direction * slope_friction * delta
 
 func process_air_movement(delta: float) -> void:
@@ -331,22 +328,19 @@ func process_gravity(delta: float) -> void:
 	player.velocity.y = move_toward(player.velocity.y, -maximum_fall_speed, gravity * delta)
 
 func apply_jump() -> void:
-	if jump_buffer_timer <= 0.0 or is_dashing:
-		return
-	if is_wall_running:
-		wall_jump()
-		jump_buffer_timer = 0.0
-		return
-	if player.is_on_floor() or coyote_timer > 0.0:
-		var applied_jump_velocity: float = jump_velocity
-		if state.is_sliding():
-			applied_jump_velocity *= slide_jump_multiplier
-		player.velocity.y = applied_jump_velocity
-		jump_buffer_timer = 0.0
-		coyote_timer = 0.0
-		if state.is_sliding():
-			end_slide()
-		return
+	if jump_buffer_timer > 0.0 and not is_dashing:
+		if is_wall_running:
+			wall_jump()
+			jump_buffer_timer = 0.0
+		elif player.is_on_floor() or coyote_timer > 0.0:
+			var applied_jump_velocity: float = jump_velocity
+			if state.is_sliding():
+				applied_jump_velocity *= slide_jump_multiplier
+			player.velocity.y = applied_jump_velocity
+			jump_buffer_timer = 0.0
+			coyote_timer = 0.0
+			if state.is_sliding():
+				end_slide()
 	if not input.jump_pressed and jump_was_held and player.velocity.y > 0.0:
 		player.velocity.y *= variable_jump_cutoff
 
@@ -392,26 +386,33 @@ func begin_slide() -> void:
 	state.change_state(PlayerState.MovementState.SLIDING)
 	slide_camera_roll_sign = sign(player.velocity.dot(player.global_transform.basis.x))
 	if abs(slide_camera_roll_sign) < 0.1:
-		slide_camera_roll_sign = slide_camera_roll_sign
+		slide_camera_roll_sign = 1.0
 
 func process_slide(delta: float) -> void:
 	if state.is_sliding():
+		if input.jump_just_pressed:
+			jump_buffer_timer = jump_buffer_time
+			return
 		if slide_timer <= 0.0 or (slide_cancel_on_release and not input.crouch_pressed):
 			end_slide()
 			return
 		var horizontal_velocity: Vector3 = Vector3(player.velocity.x, 0.0, player.velocity.z)
 		var movement_direction: Vector3 = get_movement_direction()
 		if movement_direction.length_squared() > 0.001:
-			horizontal_velocity = horizontal_velocity.move_toward(movement_direction * max(horizontal_velocity.length(), slide_minimum_speed), slide_steering * delta)
+			horizontal_velocity = horizontal_velocity.move_toward(
+				movement_direction * max(horizontal_velocity.length(), slide_minimum_speed),
+				slide_steering * delta
+			)
+		else:
+			horizontal_velocity = horizontal_velocity.move_toward(Vector3.ZERO, slide_deceleration * delta)
 		var downhill_direction: Vector3 = Vector3.DOWN.slide(player.get_floor_normal())
 		if downhill_direction.length_squared() > 0.001:
 			horizontal_velocity += downhill_direction.normalized() * slide_slope_influence * delta
 		horizontal_velocity = horizontal_velocity.move_toward(Vector3.ZERO, slide_friction * delta)
-		var target_slide_speed: float = max(horizontal_velocity.length(), slide_minimum_speed)
 		if horizontal_velocity.length_squared() > 0.001:
-			horizontal_velocity = horizontal_velocity.normalized() * move_toward(horizontal_velocity.length(), target_slide_speed, slide_acceleration * delta)
-		if movement_direction.length_squared() > 0.001:
-			horizontal_velocity = horizontal_velocity.move_toward(horizontal_velocity, slide_deceleration * delta)
+			var slide_speed: float = horizontal_velocity.length()
+			slide_speed = move_toward(slide_speed, slide_minimum_speed, slide_acceleration * delta)
+			horizontal_velocity = horizontal_velocity.normalized() * slide_speed
 		player.velocity.x = horizontal_velocity.x
 		player.velocity.z = horizontal_velocity.z
 		return
