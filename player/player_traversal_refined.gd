@@ -30,11 +30,17 @@ func process_physics(delta: float) -> void:
 		Vector3(exit_velocity.x, 0.0, exit_velocity.z),
 		exit_influence
 	)
-	var desired_velocity: Vector3 = Vector3(blended_horizontal.x, path_velocity.y, blended_horizontal.z)
+	var horizontal_velocity: Vector3 = Vector3(player.velocity.x, 0.0, player.velocity.z)
 	var traversal_acceleration: float = hurdle_acceleration
 	if traversal_type == TraversalType.MANTLE:
 		traversal_acceleration = mantle_acceleration
-	player.velocity = player.velocity.move_toward(desired_velocity, traversal_acceleration * delta)
+	horizontal_velocity = horizontal_velocity.move_toward(blended_horizontal, traversal_acceleration * delta)
+	player.velocity.x = horizontal_velocity.x
+	player.velocity.z = horizontal_velocity.z
+	if traversal_type == TraversalType.HURDLE:
+		player.velocity.y = path_velocity.y
+	else:
+		player.velocity.y = player.velocity.move_toward(Vector3(player.velocity.x, path_velocity.y, player.velocity.z), mantle_acceleration * delta).y
 	apply_traversal_steering(delta)
 	traversal_path_direction = Vector3(player.velocity.x, 0.0, player.velocity.z)
 	if traversal_path_direction.length_squared() > 0.001:
@@ -61,7 +67,10 @@ func process_physics_post_movement(_delta: float) -> void:
 	if player.is_on_floor() and horizontal_target_distance <= traversal_completion_tolerance:
 		complete_traversal()
 		return
-	if horizontal_target_distance <= traversal_completion_tolerance and target_vertical_distance <= traversal_completion_tolerance:
+	if horizontal_target_distance <= traversal_completion_tolerance and target_vertical_distance <= traversal_vertical_tolerance:
+		complete_traversal()
+		return
+	if traversal_type == TraversalType.HURDLE and traversal_progress >= 1.0:
 		complete_traversal()
 		return
 	if player.get_slide_collision_count() > 0 and player.is_on_floor() and horizontal_target_distance <= traversal_horizontal_tolerance:
