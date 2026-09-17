@@ -2,27 +2,26 @@
 
 [ext_resource type="Script" uid="uid://t3v3rookmm1" path="res://player/player.gd" id="1_oul6g"]
 [ext_resource type="Script" uid="uid://crmmp6d3qdv2n" path="res://player/player_input.gd" id="2_rkbax"]
-[ext_resource type="Script" uid="uid://b2nyeik7ret7y" path="res://player/player_movement.gd" id="3_g1dw6"]
 [ext_resource type="Script" uid="uid://ckouwtkw57tmm" path="res://player/player_state.gd" id="4_yw30f"]
 [ext_resource type="Script" uid="uid://dt32bu8uojddd" path="res://player/player_camera.gd" id="5_qjkh3"]
 [ext_resource type="Script" uid="uid://bli3a2h8tm0e2" path="res://player/player_grapple.gd" id="6_grapple"]
-[ext_resource type="Script" path="res://player/grapple_rope.gd" id="7_grapple_rope"]
-[ext_resource type="Script" path="res://player/player_traversal.gd" id="8_traversal"]
-[ext_resource type="Script" path="res://player/player_traversal_camera.gd" id="9_traversal_camera"]
-[ext_resource type="Script" path="res://player/player_movement_traversal.gd" id="10_movement_traversal"]
+[ext_resource type="Script" uid="uid://cuomnnjqaqjdo" path="res://player/grapple_rope.gd" id="7_grapple_rope"]
+[ext_resource type="Script" uid="uid://df78v13x3wf0k" path="res://player/player_traversal.gd" id="8_traversal"]
+[ext_resource type="Script" uid="uid://c2m4y5bvdd428" path="res://player/player_traversal_camera.gd" id="9_traversal_camera"]
+[ext_resource type="Script" uid="uid://dtpp3w5b7q2je" path="res://player/player_movement_traversal.gd" id="10_movement_traversal"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ltcvw"]
 radius = 0.35
 height = 1.9
 
-[sub_resource type="SphereMesh" id="SphereMesh_grapple_target"]
-radius = 0.08
-height = 0.16
-
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_grapple_target"]
 albedo_color = Color(0.3, 0.95, 1, 1)
 emission_enabled = true
 emission = Color(0.15, 0.8, 1, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_grapple_target"]
+radius = 0.08
+height = 0.16
 
 [node name="Player" type="CharacterBody3D" unique_id=1930534967]
 collision_layer = 2
@@ -62,16 +61,22 @@ script = ExtResource("6_grapple")
 
 [node name="TargetIndicator" type="Node3D" parent="Grapple" unique_id=666799498]
 
-[node name="LatchPoint" type="MeshInstance3D" parent="Grapple/TargetIndicator"]
-mesh = SubResource("SphereMesh_grapple_target")
+[node name="LatchPoint" type="MeshInstance3D" parent="Grapple/TargetIndicator" unique_id=1500152259]
 material_override = SubResource("StandardMaterial3D_grapple_target")
+mesh = SubResource("SphereMesh_grapple_target")
 
-[node name="GrappleRope" type="MeshInstance3D" parent="Grapple"]
+[node name="GrappleRope" type="MeshInstance3D" parent="Grapple" unique_id=336199534]
 visible = false
 script = ExtResource("7_grapple_rope")
 
 [node name="Traversal" type="Node" parent="." unique_id=2104839174]
 script = ExtResource("8_traversal")
+debug_draw_traversal_rays = true
+debug_draw_traversal_shapes = true
+debug_draw_traversal_target = true
+debug_draw_hurdle_target = true
+debug_draw_mantle_target = true
+debug_print_traversal_state = true
 
 [node name="TraversalCameraLayer" type="Node" parent="Traversal" unique_id=2104839175]
 script = ExtResource("9_traversal_camera")
