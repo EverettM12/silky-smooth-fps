@@ -603,7 +603,7 @@ func find_mantle_top_target(front_position: Vector3, front_normal: Vector3, top_
 		var hit: Dictionary = player.get_world_3d().direct_space_state.intersect_ray(query)
 		if not hit.is_empty():
 			var hit_position: Vector3 = hit.get("position", probe_end) as Vector3
-			var hit_normal: Vector3 = hit.get("normal", Vector3.UP) as Vector3
+			var hit_normal: Vector3 = hit.get("normal", Vector3.ZERO) as Vector3
 			var hit_height: float = hit_position.y - player.global_position.y
 			if abs(hit_height - (top_height - player.global_position.y)) <= mantle_surface_tolerance + traversal_vertical_tolerance:
 				if is_surface_angle_valid(hit_normal, mantle_min_surface_angle, mantle_max_surface_angle):
@@ -716,7 +716,6 @@ func start_traversal(traversal_target_data: Dictionary) -> void:
 	traversal_active = true
 	traversal_target_revalidation_timer = max(traversal_target_revalidation_interval, 0.001)
 	traversal_path_direction = traversal_entry_direction
-	player_movement.consume_jump_for_traversal()
 	if traversal_type == TraversalType.HURDLE:
 		hurdle_target_position = traversal_target_position
 		player_state.change_state(PlayerState.MovementState.HURDLING)
@@ -1018,6 +1017,8 @@ func draw_debug_rays() -> void:
 
 func draw_debug_segment(start_position: Vector3, end_position: Vector3) -> void:
 	debug_immediate_mesh.surface_set_color(debug_material.albedo_color)
+	debug_mesh_instance.to_local(start_position)
+	debug_mesh_instance.to_local(end_position)
 	debug_immediate_mesh.surface_add_vertex(debug_mesh_instance.to_local(start_position))
 	debug_immediate_mesh.surface_add_vertex(debug_mesh_instance.to_local(end_position))
 
