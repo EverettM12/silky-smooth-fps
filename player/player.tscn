@@ -6,7 +6,7 @@
 [ext_resource type="Script" uid="uid://dt32bu8uojddd" path="res://player/player_camera.gd" id="5_qjkh3"]
 [ext_resource type="Script" uid="uid://bli3a2h8tm0e2" path="res://player/player_grapple.gd" id="6_grapple"]
 [ext_resource type="Script" uid="uid://cuomnnjqaqjdo" path="res://player/grapple_rope.gd" id="7_grapple_rope"]
-[ext_resource type="Script" uid="uid://df78v13x3wf0k" path="res://player/player_traversal.gd" id="8_traversal"]
+[ext_resource type="Script" path="res://player/player_traversal_refined.gd" id="8_traversal"]
 [ext_resource type="Script" uid="uid://c2m4y5bvdd428" path="res://player/player_traversal_camera.gd" id="9_traversal_camera"]
 [ext_resource type="Script" uid="uid://dtpp3w5b7q2je" path="res://player/player_movement_traversal.gd" id="10_movement_traversal"]
 
