@@ -510,7 +510,10 @@ func update_camera_feedback(delta: float) -> void:
 		var distance_ratio: float = clamp(grapple_distance / max(grapple_start_distance, 0.001), 0.0, 1.0)
 		target_fov_offset = grapple_fov_boost + grapple_speed_ratio * grapple_fov_speed_influence + distance_ratio * grapple_fov_distance_influence
 		target_fov_offset += grapple_fov_boost * 0.35 * grapple_launch_pulse
-	grapple_fov_offset = move_toward(grapple_fov_offset, target_fov_offset, max(grapple_fov_launch_speed if target_fov_offset > grapple_fov_offset else grapple_fov_return_speed, 0.1) * delta)
+	var fov_speed: float = grapple_fov_return_speed
+	if target_fov_offset > grapple_fov_offset:
+		fov_speed = grapple_fov_launch_speed
+	grapple_fov_offset = move_toward(grapple_fov_offset, target_fov_offset, max(fov_speed, 0.1) * delta)
 	var max_offset: float = max(grapple_fov_maximum - camera.fov, 0.0)
 	grapple_fov_offset = min(grapple_fov_offset, max_offset)
 	camera_motion.position += grapple_camera_position_value
