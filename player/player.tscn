@@ -71,10 +71,7 @@ script = ExtResource("7_grapple_rope")
 
 [node name="Traversal" type="Node" parent="." unique_id=2104839174]
 script = ExtResource("11_traversal")
-debug_draw_traversal_rays = true
-debug_draw_traversal_shapes = true
-debug_draw_traversal_target = true
-debug_draw_mantle_target = true
+scramble_exit_direction_influence = 0.0
 
 [node name="TraversalCameraLayer" type="Node" parent="Traversal" unique_id=2104839175]
 script = ExtResource("9_traversal_camera")
