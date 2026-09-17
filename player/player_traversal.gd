@@ -760,10 +760,10 @@ func find_top_surface(front_position: Vector3, front_normal: Vector3, front_rid:
 func calculate_scramble_target_from_wall_data(wall_data: Dictionary) -> Dictionary:
 	if wall_data.is_empty() or not scramble_enabled:
 		return {}
-	var wall_position: Vector3 = wall_data["position"] as Vector3
-	var wall_normal_value: Vector3 = wall_data["normal"] as Vector3
+	var wall_position: Vector3 = wall_data.get("position", wall_data.get("front_position", Vector3.ZERO)) as Vector3
+	var wall_normal_value: Vector3 = wall_data.get("normal", Vector3.ZERO) as Vector3
 	var wall_rid: RID = wall_data.get("rid", RID()) as RID
-	var wall_distance: float = wall_data.get("distance", 0.0) as float
+	var wall_distance: float = wall_data.get("distance", player.global_position.distance_to(wall_position)) as float
 	var detection_direction: Vector3 = get_scramble_detection_direction()
 	if detection_direction.length_squared() <= 0.001:
 		return {}
@@ -1598,15 +1598,15 @@ func start_traversal(traversal_target_data: Dictionary) -> void:
 		scramble_wall_distance_value = traversal_target_data.get("wall_distance", 0.0) as float
 		scramble_entry_tangent_velocity = horizontal_velocity.slide(scramble_wall_normal) * scramble_entry_momentum_preservation
 		scramble_target_position = traversal_target_position
-		if scramble_wall_normal.length_squared() <= 0.001:
-			cancel_traversal()
-			return
-		player.velocity.y = max(
-			player.velocity.y,
-			min(scramble_upward_speed, scramble_max_vertical_speed)
-		)
-		player_state.change_state(PlayerState.MovementState.WALL_SCRAMBLING)
-		scramble_started.emit(scramble_wall_contact_position)
+	if scramble_wall_normal.length_squared() <= 0.001:
+		cancel_traversal()
+		return
+	player.velocity.y = max(
+		player.velocity.y,
+		min(scramble_upward_speed, scramble_max_vertical_speed)
+	)
+	player_state.change_state(PlayerState.MovementState.WALL_SCRAMBLING)
+	scramble_started.emit(scramble_wall_contact_position)
 
 func get_current_duration() -> float:
 	if traversal_type == TraversalType.HURDLE:
