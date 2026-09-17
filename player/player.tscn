@@ -8,7 +8,7 @@
 [ext_resource type="Script" uid="uid://cuomnnjqaqjdo" path="res://player/grapple_rope.gd" id="7_grapple_rope"]
 [ext_resource type="Script" uid="uid://c2m4y5bvdd428" path="res://player/player_traversal_camera.gd" id="9_traversal_camera"]
 [ext_resource type="Script" uid="uid://dtpp3w5b7q2je" path="res://player/player_movement_traversal.gd" id="10_movement_traversal"]
-[ext_resource type="Script" uid="uid://df78v13x3wf0k" path="res://player/player_traversal.gd" id="11_traversal"]
+[ext_resource type="Script" path="res://player/player_traversal_testing.gd" id="11_traversal"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ltcvw"]
 radius = 0.35
@@ -71,7 +71,26 @@ script = ExtResource("7_grapple_rope")
 
 [node name="Traversal" type="Node" parent="." unique_id=2104839174]
 script = ExtResource("11_traversal")
+traversal_input_grace_time = 0.22
+scramble_min_speed = 1.75
+scramble_detection_distance = 2.8
+scramble_detection_angle = 52.0
+scramble_front_dot_threshold = 0.6
+scramble_max_wall_distance = 2.8
+scramble_required_probe_hits = 1
+scramble_entry_velocity_dot_threshold = 0.0
+scramble_max_wall_angle = 28.0
+scramble_wall_normal_tolerance = 30.0
+scramble_speed = 7.0
+scramble_steering_strength = 0.7
+scramble_steering_response = 10.0
+scramble_horizontal_control = 0.55
+scramble_lateral_control = 0.65
+scramble_upward_speed = 7.2
 scramble_exit_direction_influence = 0.0
+hurdle_speed_influence = 1.0
+hurdle_momentum_preservation = 1.0
+hurdle_exit_speed_multiplier = 1.05
 
 [node name="TraversalCameraLayer" type="Node" parent="Traversal" unique_id=2104839175]
 script = ExtResource("9_traversal_camera")
