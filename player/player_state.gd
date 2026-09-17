@@ -6,7 +6,9 @@ enum MovementState {
 	AIRBORNE,
 	SLIDING,
 	WALL_RUNNING,
-	GRAPPLING
+	GRAPPLING,
+	HURDLING,
+	MANTLING
 }
 
 var current_state: MovementState = MovementState.AIRBORNE
@@ -32,3 +34,12 @@ func is_wall_running() -> bool:
 
 func is_grappling() -> bool:
 	return current_state == MovementState.GRAPPLING
+
+func is_hurdling() -> bool:
+	return current_state == MovementState.HURDLING
+
+func is_mantling() -> bool:
+	return current_state == MovementState.MANTLING
+
+func is_traversing() -> bool:
+	return current_state == MovementState.HURDLING or current_state == MovementState.MANTLING
