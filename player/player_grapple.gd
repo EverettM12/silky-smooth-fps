@@ -50,7 +50,7 @@ extends Node
 @export var grapple_cancel_input: StringName = &"jump"
 @export var grapple_cancel_preserves_velocity: bool = true
 @export var grapple_cancel_boost: float = 1.5
-@export var grapple_jump_cancel_vertical_velocity: float = 8.0
+@export var grapple_jump_cancel_vertical_velocity: float = 12.0
 
 @export_group("Cooldown")
 @export var grapple_cooldown: float = 0.35
