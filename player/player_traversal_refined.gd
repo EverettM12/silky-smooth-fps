@@ -1,6 +1,11 @@
 class_name PlayerTraversalRefined
 extends PlayerTraversal
 
+@export_group("Refined Hurdle")
+@export_range(0.0, 0.5, 0.01) var hurdle_lift_phase: float = 0.28
+@export_range(0.0, 0.5, 0.01) var hurdle_crossing_end_phase: float = 0.76
+@export var hurdle_lift_horizontal_fraction: float = 0.04
+
 func process_physics(delta: float) -> void:
 	if not traversal_active:
 		return
@@ -23,7 +28,13 @@ func process_physics(delta: float) -> void:
 		0.0,
 		entry_direction.z * entry_speed
 	)
-	desired_horizontal = desired_horizontal.lerp(entry_horizontal_velocity_target, entry_influence)
+	if traversal_type == TraversalType.HURDLE and traversal_progress < hurdle_lift_phase:
+		desired_horizontal = desired_horizontal.lerp(
+			entry_horizontal_velocity_target * hurdle_lift_horizontal_fraction,
+			1.0 - smoothstep(0.0, hurdle_lift_phase, traversal_progress)
+		)
+	else:
+		desired_horizontal = desired_horizontal.lerp(entry_horizontal_velocity_target, entry_influence)
 	var exit_velocity: Vector3 = calculate_exit_velocity()
 	var exit_influence: float = smoothstep(0.82, 1.0, traversal_progress)
 	var blended_horizontal: Vector3 = desired_horizontal.lerp(
@@ -40,7 +51,11 @@ func process_physics(delta: float) -> void:
 	if traversal_type == TraversalType.HURDLE:
 		player.velocity.y = path_velocity.y
 	else:
-		player.velocity.y = player.velocity.move_toward(Vector3(player.velocity.x, path_velocity.y, player.velocity.z), mantle_acceleration * delta).y
+		var mantle_velocity: Vector3 = player.velocity.move_toward(
+			Vector3(player.velocity.x, path_velocity.y, player.velocity.z),
+			mantle_acceleration * delta
+		)
+		player.velocity.y = mantle_velocity.y
 	apply_traversal_steering(delta)
 	traversal_path_direction = Vector3(player.velocity.x, 0.0, player.velocity.z)
 	if traversal_path_direction.length_squared() > 0.001:
@@ -71,14 +86,14 @@ func process_physics_post_movement(_delta: float) -> void:
 		complete_traversal()
 		return
 	if traversal_type == TraversalType.HURDLE and traversal_progress >= 1.0:
-		complete_traversal()
+		cancel_traversal()
 		return
 	if player.get_slide_collision_count() > 0 and player.is_on_floor() and horizontal_target_distance <= traversal_horizontal_tolerance:
 		complete_traversal()
 
 func calculate_path_velocity(progress: float, duration: float) -> Vector3:
 	var safe_duration: float = max(duration, 0.001)
-	var sample_width: float = 0.01
+	var sample_width: float = 0.005
 	var previous_progress: float = max(progress - sample_width, 0.0)
 	var next_progress: float = min(progress + sample_width, 1.0)
 	var progress_span: float = next_progress - previous_progress
@@ -87,3 +102,43 @@ func calculate_path_velocity(progress: float, duration: float) -> Vector3:
 	var previous_position: Vector3 = calculate_traversal_position(previous_progress)
 	var next_position: Vector3 = calculate_traversal_position(next_progress)
 	return (next_position - previous_position) / (progress_span * safe_duration)
+
+func calculate_hurdle_position(progress: float) -> Vector3:
+	var clamped_progress: float = clamp(progress, 0.0, 1.0)
+	var horizontal_progress: float = 0.0
+	var lift_phase: float = clamp(hurdle_lift_phase, 0.05, 0.5)
+	var crossing_end: float = clamp(max(hurdle_crossing_end_phase, lift_phase + 0.05), lift_phase + 0.05, 0.95)
+	if clamped_progress < lift_phase:
+		var lift_progress: float = smoothstep(0.0, 1.0, clamped_progress / lift_phase)
+		horizontal_progress = lerp(0.0, clamp(hurdle_lift_horizontal_fraction, 0.0, 0.2), lift_progress)
+	elif clamped_progress < crossing_end:
+		var crossing_progress: float = smoothstep(
+			0.0,
+			1.0,
+			(clamped_progress - lift_phase) / (crossing_end - lift_phase)
+		)
+		horizontal_progress = lerp(
+			clamp(hurdle_lift_horizontal_fraction, 0.0, 0.2),
+			0.88,
+			crossing_progress
+		)
+	else:
+		var landing_progress: float = smoothstep(
+			0.0,
+			1.0,
+			(clamped_progress - crossing_end) / max(1.0 - crossing_end, 0.001)
+		)
+		horizontal_progress = lerp(0.88, 1.0, landing_progress)
+	var horizontal_position: Vector3 = traversal_start_position.lerp(hurdle_target_position, horizontal_progress)
+	var clear_peak_height: float = max(
+		hurdle_height,
+		obstacle_height + hurdle_obstacle_clearance + standing_capsule_shape.radius
+	)
+	var vertical_speed_height: float = hurdle_vertical_speed * get_hurdle_duration()
+	clear_peak_height = max(clear_peak_height, vertical_speed_height * 0.5)
+	var vertical_arc: float = sin(clamped_progress * PI) * clear_peak_height
+	return Vector3(
+		horizontal_position.x,
+		lerp(traversal_start_position.y, hurdle_target_position.y, smoothstep(0.0, 1.0, clamped_progress)) + vertical_arc,
+		horizontal_position.z
+	)
