@@ -8,7 +8,7 @@
 [ext_resource type="Script" uid="uid://cuomnnjqaqjdo" path="res://player/grapple_rope.gd" id="7_grapple_rope"]
 [ext_resource type="Script" uid="uid://c2m4y5bvdd428" path="res://player/player_traversal_camera.gd" id="9_traversal_camera"]
 [ext_resource type="Script" uid="uid://dtpp3w5b7q2je" path="res://player/player_movement_traversal.gd" id="10_movement_traversal"]
-[ext_resource type="Script" path="res://player/player_traversal.gd" id="11_traversal"]
+[ext_resource type="Script" uid="uid://df78v13x3wf0k" path="res://player/player_traversal.gd" id="11_traversal"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ltcvw"]
 radius = 0.35
@@ -71,9 +71,10 @@ script = ExtResource("7_grapple_rope")
 
 [node name="Traversal" type="Node" parent="." unique_id=2104839174]
 script = ExtResource("11_traversal")
-hurdle_speed_influence = 1.0
-hurdle_momentum_preservation = 1.0
-hurdle_exit_speed_multiplier = 1.05
+debug_draw_traversal_rays = true
+debug_draw_traversal_shapes = true
+debug_draw_traversal_target = true
+debug_draw_mantle_target = true
 
 [node name="TraversalCameraLayer" type="Node" parent="Traversal" unique_id=2104839175]
 script = ExtResource("9_traversal_camera")

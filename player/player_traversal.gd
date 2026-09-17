@@ -5,6 +5,7 @@ signal hurdle_started(hurdle_target_position: Vector3)
 signal mantle_started(mantle_target_position: Vector3)
 signal traversal_completed(traversal_type: TraversalType)
 signal traversal_cancelled(traversal_type: TraversalType)
+@warning_ignore("unused_signal")
 signal traversal_failed(traversal_type: TraversalType)
 
 enum TraversalType {
@@ -930,6 +931,7 @@ func hurdle_arc_profile_derivative(progress: float) -> float:
 	) * base_derivative
 
 func start_traversal(traversal_target_data: Dictionary) -> void:
+	@warning_ignore("int_as_enum_without_cast")
 	traversal_type = int(traversal_target_data["type"])
 	traversal_target_position = traversal_target_data["target_position"] as Vector3
 	traversal_start_position = player.global_position
