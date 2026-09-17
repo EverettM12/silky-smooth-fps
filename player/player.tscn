@@ -7,6 +7,9 @@
 [ext_resource type="Script" uid="uid://dt32bu8uojddd" path="res://player/player_camera.gd" id="5_qjkh3"]
 [ext_resource type="Script" uid="uid://bli3a2h8tm0e2" path="res://player/player_grapple.gd" id="6_grapple"]
 [ext_resource type="Script" path="res://player/grapple_rope.gd" id="7_grapple_rope"]
+[ext_resource type="Script" path="res://player/player_traversal.gd" id="8_traversal"]
+[ext_resource type="Script" path="res://player/player_traversal_camera.gd" id="9_traversal_camera"]
+[ext_resource type="Script" path="res://player/player_movement_traversal.gd" id="10_movement_traversal"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ltcvw"]
 radius = 0.35
@@ -46,7 +49,7 @@ script = ExtResource("2_rkbax")
 script = ExtResource("4_yw30f")
 
 [node name="PlayerMovement" type="Node" parent="." unique_id=902360245]
-script = ExtResource("3_g1dw6")
+script = ExtResource("10_movement_traversal")
 gravity_while_falling = 20.25
 
 [node name="PlayerCamera" type="Node" parent="." unique_id=719292467]
@@ -66,3 +69,9 @@ material_override = SubResource("StandardMaterial3D_grapple_target")
 [node name="GrappleRope" type="MeshInstance3D" parent="Grapple"]
 visible = false
 script = ExtResource("7_grapple_rope")
+
+[node name="Traversal" type="Node" parent="." unique_id=2104839174]
+script = ExtResource("8_traversal")
+
+[node name="TraversalCameraLayer" type="Node" parent="Traversal" unique_id=2104839175]
+script = ExtResource("9_traversal_camera")
