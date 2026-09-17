@@ -54,7 +54,7 @@ script = ExtResource("5_qjkh3")
 bob_frequency = 1.0
 bob_amplitude = 0.023
 
-[node name="Grapple" type="Node" parent="." unique_id=891205374]
+[node name="Grapple" type="Node" parent="." unique_id=891205374 groups=["grapple_controller"]]
 script = ExtResource("6_grapple")
 
 [node name="TargetIndicator" type="Node3D" parent="Grapple" unique_id=666799498]
