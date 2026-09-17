@@ -12,6 +12,15 @@
 radius = 0.35
 height = 1.9
 
+[sub_resource type="SphereMesh" id="SphereMesh_grapple_target"]
+radius = 0.08
+height = 0.16
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_grapple_target"]
+albedo_color = Color(0.3, 0.95, 1, 1)
+emission_enabled = true
+emission = Color(0.15, 0.8, 1, 1)
+
 [node name="Player" type="CharacterBody3D" unique_id=1930534967]
 collision_layer = 2
 script = ExtResource("1_oul6g")
@@ -49,6 +58,10 @@ bob_amplitude = 0.023
 script = ExtResource("6_grapple")
 
 [node name="TargetIndicator" type="Node3D" parent="Grapple" unique_id=666799498]
+
+[node name="LatchPoint" type="MeshInstance3D" parent="Grapple/TargetIndicator"]
+mesh = SubResource("SphereMesh_grapple_target")
+material_override = SubResource("StandardMaterial3D_grapple_target")
 
 [node name="GrappleRope" type="MeshInstance3D" parent="Grapple"]
 visible = false
