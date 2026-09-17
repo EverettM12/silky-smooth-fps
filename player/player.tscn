@@ -6,9 +6,9 @@
 [ext_resource type="Script" uid="uid://dt32bu8uojddd" path="res://player/player_camera.gd" id="5_qjkh3"]
 [ext_resource type="Script" uid="uid://bli3a2h8tm0e2" path="res://player/player_grapple.gd" id="6_grapple"]
 [ext_resource type="Script" uid="uid://cuomnnjqaqjdo" path="res://player/grapple_rope.gd" id="7_grapple_rope"]
-[ext_resource type="Script" path="res://player/player_traversal_refined.gd" id="8_traversal"]
 [ext_resource type="Script" uid="uid://c2m4y5bvdd428" path="res://player/player_traversal_camera.gd" id="9_traversal_camera"]
 [ext_resource type="Script" uid="uid://dtpp3w5b7q2je" path="res://player/player_movement_traversal.gd" id="10_movement_traversal"]
+[ext_resource type="Script" path="res://player/player_traversal.gd" id="11_traversal"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ltcvw"]
 radius = 0.35
@@ -70,13 +70,7 @@ visible = false
 script = ExtResource("7_grapple_rope")
 
 [node name="Traversal" type="Node" parent="." unique_id=2104839174]
-script = ExtResource("8_traversal")
-debug_draw_traversal_rays = true
-debug_draw_traversal_shapes = true
-debug_draw_traversal_target = true
-debug_draw_hurdle_target = true
-debug_draw_mantle_target = true
-debug_print_traversal_state = true
+script = ExtResource("11_traversal")
 
 [node name="TraversalCameraLayer" type="Node" parent="Traversal" unique_id=2104839175]
 script = ExtResource("9_traversal_camera")
