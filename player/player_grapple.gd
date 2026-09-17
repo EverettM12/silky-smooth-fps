@@ -50,9 +50,10 @@ extends Node
 @export var grapple_cancel_input: StringName = &"jump"
 @export var grapple_cancel_preserves_velocity: bool = true
 @export var grapple_cancel_boost: float = 1.5
+@export var grapple_jump_cancel_vertical_velocity: float = 8.0
 
 @export_group("Cooldown")
-@export var grapple_cooldown: float = 0.25
+@export var grapple_cooldown: float = 0.35
 @export var grapple_recovery_time: float = 0.15
 
 @export_group("Camera")
@@ -412,6 +413,7 @@ func cancel_grapple() -> void:
 	else:
 		exit_velocity *= grapple_velocity_preservation
 	exit_velocity += grapple_direction * grapple_cancel_boost
+	exit_velocity.y = max(exit_velocity.y, grapple_jump_cancel_vertical_velocity)
 	finish_grapple(exit_velocity)
 
 func cancel_grapple_without_boost() -> void:
