@@ -58,13 +58,7 @@ func _physics_process(delta: float) -> void:
 		jump_was_held = true
 
 func process_traversal_only(delta: float) -> void:
-	var hurdling: bool = traversal.is_hurdling()
 	traversal.process_physics(delta)
 	player.move_and_slide()
 	traversal.process_physics_post_movement(delta)
-	if traversal.is_traversing():
-		if traversal.is_hurdling():
-			state.change_state(PlayerState.MovementState.HURDLING)
-		else:
-			state.change_state(PlayerState.MovementState.MANTLING)
 	jump_was_held = input.jump_pressed
