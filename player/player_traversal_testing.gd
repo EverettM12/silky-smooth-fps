@@ -45,9 +45,9 @@ func start_traversal(traversal_target_data: Dictionary) -> void:
 		scramble_wall_distance_value = traversal_target_data.get("wall_distance", 0.0) as float
 		scramble_entry_tangent_velocity = horizontal_velocity.slide(scramble_wall_normal) * scramble_entry_momentum_preservation
 		scramble_target_position = traversal_target_position
-	if scramble_wall_normal.length_squared() <= 0.001:
-		cancel_traversal()
-		return
+		if scramble_wall_normal.length_squared() <= 0.001:
+			cancel_traversal()
+			return
 		player.velocity.y = max(
 			player.velocity.y,
 			min(scramble_upward_speed, scramble_max_vertical_speed)
