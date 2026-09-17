@@ -9,6 +9,8 @@ func process_physics(delta: float) -> void:
 	traversal_progress = clamp(traversal_elapsed / max(current_duration, 0.001), 0.0, 1.0)
 	update_traversal_phase()
 	var path_velocity: Vector3 = calculate_path_velocity(traversal_progress, current_duration)
+	if traversal_type == TraversalType.HURDLE:
+		path_velocity = calculate_hurdle_velocity(traversal_progress, current_duration)
 	var desired_horizontal: Vector3 = Vector3(path_velocity.x, 0.0, path_velocity.z)
 	var entry_horizontal_velocity: Vector3 = Vector3(traversal_start_velocity.x, 0.0, traversal_start_velocity.z)
 	var entry_speed: float = entry_horizontal_velocity.length() * traversal_entry_speed_influence
@@ -16,13 +18,10 @@ func process_physics(delta: float) -> void:
 	if entry_horizontal_velocity.length_squared() > 0.001:
 		entry_direction = entry_horizontal_velocity.normalized()
 	var entry_velocity_target: Vector3 = entry_direction * entry_speed
-	if traversal_type == TraversalType.HURDLE:
-		var entry_blend: float = 1.0 - smoothstep(0.0, 0.2, traversal_progress)
-		if entry_speed > desired_horizontal.length() and entry_direction.length_squared() > 0.001:
-			desired_horizontal = entry_velocity_target
-		desired_horizontal = desired_horizontal.lerp(entry_velocity_target, entry_blend)
-	else:
-		desired_horizontal = desired_horizontal.lerp(entry_velocity_target, entry_blend if entry_speed > 0.0 else 0.0)
+	var entry_blend: float = 1.0 - smoothstep(0.0, 0.2, traversal_progress)
+	if entry_speed > desired_horizontal.length() and entry_direction.length_squared() > 0.001:
+		desired_horizontal = entry_velocity_target
+	desired_horizontal = desired_horizontal.lerp(entry_velocity_target, entry_blend)
 	var horizontal_velocity: Vector3 = Vector3(player.velocity.x, 0.0, player.velocity.z)
 	var traversal_acceleration: float = hurdle_acceleration
 	if traversal_type == TraversalType.MANTLE:
@@ -31,7 +30,7 @@ func process_physics(delta: float) -> void:
 	player.velocity.x = horizontal_velocity.x
 	player.velocity.z = horizontal_velocity.z
 	if traversal_type == TraversalType.HURDLE:
-		player.velocity.y = calculate_hurdle_velocity(traversal_progress, current_duration).y
+		player.velocity.y = path_velocity.y
 	else:
 		var mantle_velocity: Vector3 = player.velocity.move_toward(
 			Vector3(player.velocity.x, path_velocity.y, player.velocity.z),
@@ -41,10 +40,13 @@ func process_physics(delta: float) -> void:
 	if traversal_type == TraversalType.HURDLE:
 		var input_direction: Vector3 = player_movement.get_movement_direction()
 		if input_direction.length_squared() > 0.001:
-			var horizontal_direction: Vector3 = Vector3(player.velocity.x, 0.0, player.velocity.z)
-			if horizontal_direction.length_squared() > 0.001:
-				horizontal_direction = horizontal_direction.normalized()
-				var steering_direction: Vector3 = horizontal_direction.lerp(input_direction, hurdle_air_control * delta * hurdle_steering_response)
+			var current_horizontal_direction: Vector3 = Vector3(player.velocity.x, 0.0, player.velocity.z)
+			if current_horizontal_direction.length_squared() > 0.001:
+				current_horizontal_direction = current_horizontal_direction.normalized()
+				var steering_direction: Vector3 = current_horizontal_direction.lerp(
+					input_direction,
+					hurdle_air_control * delta * hurdle_steering_response
+				)
 				if steering_direction.length_squared() > 0.001:
 					steering_direction = steering_direction.normalized()
 					var speed: float = Vector2(player.velocity.x, player.velocity.z).length()
