@@ -9,13 +9,12 @@ func process_physics(delta: float) -> void:
 	traversal_progress = clamp(traversal_elapsed / max(current_duration, 0.001), 0.0, 1.0)
 	update_traversal_phase()
 	var path_velocity: Vector3 = calculate_path_velocity(traversal_progress, current_duration)
-	var desired_velocity: Vector3 = path_velocity
+	var desired_horizontal: Vector3 = Vector3(path_velocity.x, 0.0, path_velocity.z)
 	var entry_horizontal_velocity: Vector3 = Vector3(traversal_start_velocity.x, 0.0, traversal_start_velocity.z)
 	var entry_speed: float = entry_horizontal_velocity.length() * traversal_entry_speed_influence
 	var entry_direction: Vector3 = traversal_entry_direction
 	if entry_horizontal_velocity.length_squared() > 0.001:
 		entry_direction = entry_horizontal_velocity.normalized()
-	var desired_horizontal: Vector3 = Vector3(path_velocity.x, 0.0, path_velocity.z)
 	if entry_speed > desired_horizontal.length() and entry_direction.length_squared() > 0.001:
 		desired_horizontal = entry_direction * entry_speed
 	var entry_influence: float = 1.0 - smoothstep(0.0, 0.16, traversal_progress)
@@ -26,15 +25,12 @@ func process_physics(delta: float) -> void:
 	)
 	desired_horizontal = desired_horizontal.lerp(entry_horizontal_velocity_target, entry_influence)
 	var exit_velocity: Vector3 = calculate_exit_velocity()
-	var exit_influence: float = smoothstep(0.78, 1.0, traversal_progress)
+	var exit_influence: float = smoothstep(0.82, 1.0, traversal_progress)
 	var blended_horizontal: Vector3 = desired_horizontal.lerp(
 		Vector3(exit_velocity.x, 0.0, exit_velocity.z),
 		exit_influence
 	)
-	var blended_vertical: float = path_velocity.y
-	if traversal_type == TraversalType.HURDLE and exit_influence > 0.0:
-		blended_vertical = lerp(blended_vertical, exit_velocity.y, exit_influence)
-	desired_velocity = Vector3(blended_horizontal.x, blended_vertical, blended_horizontal.z)
+	var desired_velocity: Vector3 = Vector3(blended_horizontal.x, path_velocity.y, blended_horizontal.z)
 	var traversal_acceleration: float = hurdle_acceleration
 	if traversal_type == TraversalType.MANTLE:
 		traversal_acceleration = mantle_acceleration
@@ -48,6 +44,28 @@ func process_physics(delta: float) -> void:
 		traversal_target_revalidation_timer = max(traversal_target_revalidation_interval, 0.001)
 		if not is_capsule_position_clear(traversal_target_position):
 			cancel_traversal()
+
+func process_physics_post_movement(_delta: float) -> void:
+	if not traversal_active:
+		return
+	if player.is_on_ceiling():
+		cancel_traversal()
+		return
+	if traversal_progress < 1.0:
+		return
+	var horizontal_target_distance: float = Vector2(
+		player.global_position.x - traversal_target_position.x,
+		player.global_position.z - traversal_target_position.z
+	).length()
+	var target_vertical_distance: float = abs(player.global_position.y - traversal_target_position.y)
+	if player.is_on_floor() and horizontal_target_distance <= traversal_completion_tolerance:
+		complete_traversal()
+		return
+	if horizontal_target_distance <= traversal_completion_tolerance and target_vertical_distance <= traversal_completion_tolerance:
+		complete_traversal()
+		return
+	if player.get_slide_collision_count() > 0 and player.is_on_floor() and horizontal_target_distance <= traversal_horizontal_tolerance:
+		complete_traversal()
 
 func calculate_path_velocity(progress: float, duration: float) -> Vector3:
 	var safe_duration: float = max(duration, 0.001)
