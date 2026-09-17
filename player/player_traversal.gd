@@ -3,6 +3,7 @@ extends Node
 
 signal hurdle_started(hurdle_target_position: Vector3)
 signal mantle_started(mantle_target_position: Vector3)
+signal scramble_started(scramble_wall_position: Vector3)
 signal traversal_completed(traversal_type: TraversalType)
 signal traversal_cancelled(traversal_type: TraversalType)
 @warning_ignore("unused_signal")
@@ -11,7 +12,8 @@ signal traversal_failed(traversal_type: TraversalType)
 enum TraversalType {
 	NONE,
 	HURDLE,
-	MANTLE
+	MANTLE,
+	WALL_SCRAMBLING
 }
 
 enum TraversalPhase {
@@ -36,6 +38,14 @@ enum TraversalPhase {
 @export var allow_airborne_mantle: bool = true
 @export var airborne_mantle_max_vertical_velocity: float = 2.0
 
+@export_group("Wall Scramble")
+@export var scramble_enabled: bool = true
+@export var scramble_min_speed: float = 2.5
+@export var scramble_max_height_gain: float = 3.75
+@export var scramble_max_duration: float = 0.65
+@export var scramble_min_duration: float = 0.12
+@export var scramble_max_distance: float = 4.5
+
 @export_group("Detection")
 @export_flags_3d_physics var traversal_collision_mask: int = 1
 @export var hurdle_detection_distance: float = 2.4
@@ -52,15 +62,69 @@ enum TraversalPhase {
 @export_range(0.0, 1.0, 0.01) var wall_normal_vertical_limit: float = 0.35
 @export var surface_angle_tolerance: float = 1.5
 
-@export_group("Obstacle Classification")
-@export var hurdle_min_height: float = 0.3
-@export var hurdle_max_height: float = 0.95
-@export var mantle_min_height: float = 0.75
-@export var mantle_max_height: float = 1.6
-@export_range(0.0, 89.0, 0.1) var hurdle_min_surface_angle: float = 0.0
-@export_range(0.0, 89.0, 0.1) var hurdle_max_surface_angle: float = 45.0
-@export_range(0.0, 89.0, 0.1) var mantle_min_surface_angle: float = 0.0
-@export_range(0.0, 89.0, 0.1) var mantle_max_surface_angle: float = 38.0
+@export_group("Scramble Detection")
+@export var scramble_detection_distance: float = 2.2
+@export_range(0.0, 89.0, 0.1) var scramble_detection_angle: float = 38.0
+@export_range(0.0, 1.0, 0.01) var scramble_front_dot_threshold: float = 0.75
+@export var scramble_min_wall_distance: float = 0.2
+@export var scramble_max_wall_distance: float = 2.2
+@export var scramble_probe_count: int = 3
+@export var scramble_entry_velocity_dot_threshold: float = 0.25
+@export var scramble_height_check_distance: float = 4.5
+@export var scramble_height_search: float = 1.2
+@export var scramble_height_tolerance: float = 0.18
+@export var scramble_height_probe_spacing: float = 0.22
+
+@export_group("Wall Validation")
+@export_range(0.0, 89.0, 0.1) var scramble_min_wall_angle: float = 0.0
+@export_range(0.0, 89.0, 0.1) var scramble_max_wall_angle: float = 18.0
+@export_range(0.0, 89.0, 0.1) var scramble_wall_normal_tolerance: float = 22.0
+@export var scramble_wall_revalidation_interval: float = 0.05
+@export var scramble_wall_normal_response: float = 16.0
+@export var scramble_path_validation_interval: float = 0.08
+@export var scramble_path_prediction_time: float = 0.09
+
+@export_group("Movement")
+@export var scramble_speed: float = 6.0
+@export var scramble_speed_multiplier: float = 1.0
+@export var scramble_steering_strength: float = 0.55
+@export var scramble_steering_response: float = 8.0
+@export var scramble_steering_limit: float = 55.0
+@export var scramble_horizontal_control: float = 0.4
+@export var scramble_lateral_control: float = 0.45
+
+@export_group("Vertical Movement")
+@export var scramble_upward_speed: float = 6.8
+@export var scramble_upward_acceleration: float = 45.0
+@export var scramble_upward_deceleration: float = 50.0
+@export var scramble_gravity_scale: float = 0.12
+@export var scramble_max_vertical_speed: float = 10.5
+@export_range(0.0, 1.0, 0.01) var scramble_vertical_control: float = 0.2
+@export_range(0.0, 1.0, 0.01) var scramble_height_brake_start: float = 0.74
+
+@export_group("Wall Adhesion")
+@export var scramble_wall_distance: float = 0.43
+@export var scramble_wall_stick_force: float = 12.0
+@export_range(0.0, 1.0, 0.01) var scramble_wall_stick_strength: float = 0.9
+@export var scramble_wall_distance_response: float = 18.0
+
+@export_group("Momentum")
+@export_range(0.0, 1.0, 0.01) var scramble_entry_momentum_preservation: float = 1.0
+@export_range(0.0, 1.0, 0.01) var scramble_exit_momentum_preservation: float = 1.0
+@export var scramble_exit_speed_multiplier: float = 1.05
+@export_range(0.0, 1.0, 0.01) var scramble_exit_direction_influence: float = 0.35
+
+@export_group("Ledge Transition")
+@export var scramble_ledge_detection_distance: float = 1.35
+@export var scramble_ledge_height_tolerance: float = 0.18
+@export var scramble_ledge_transition_threshold: float = 1.55
+@export var scramble_ledge_min_height: float = 0.7
+@export var scramble_ledge_check_interval: float = 0.05
+
+@export_group("Timing")
+@export var traversal_completion_tolerance: float = 0.08
+@export var traversal_cancel_velocity_multiplier: float = 0.92
+@export var traversal_exit_blend_time: float = 0.05
 
 @export_group("Hurdle")
 @export var hurdle_min_distance: float = 0.35
@@ -117,15 +181,10 @@ enum TraversalPhase {
 @export var clearance_segment_tolerance: float = 0.04
 @export var standing_clearance_height_multiplier: float = 1.0
 
-@export_group("Momentum")
+@export_group("Global Momentum")
 @export_range(0.0, 1.0, 0.01) var traversal_momentum_preservation: float = 0.98
 @export var traversal_exit_speed_multiplier: float = 1.0
 @export var traversal_entry_speed_influence: float = 1.0
-
-@export_group("Timing")
-@export var traversal_completion_tolerance: float = 0.08
-@export var traversal_cancel_velocity_multiplier: float = 0.92
-@export var traversal_exit_blend_time: float = 0.05
 
 @export_group("Camera")
 @export var hurdle_camera_pitch: float = 2.0
@@ -138,6 +197,12 @@ enum TraversalPhase {
 @export var mantle_camera_offset: float = 0.055
 @export var mantle_camera_response_speed: float = 13.0
 @export var mantle_camera_return_speed: float = 11.0
+@export var scramble_camera_pitch: float = 3.0
+@export var scramble_camera_roll: float = 1.2
+@export var scramble_camera_offset: float = 0.04
+@export var scramble_camera_response_speed: float = 18.0
+@export var scramble_camera_return_speed: float = 14.0
+@export var scramble_camera_vertical_influence: float = 0.85
 
 @export_group("Camera Smoothing")
 @export var traversal_camera_spring_frequency: float = 18.0
@@ -153,6 +218,10 @@ enum TraversalPhase {
 @export var traversal_fov_return: float = 12.0
 @export var hurdle_fov_response: float = 18.0
 @export var hurdle_fov_return: float = 13.0
+@export var scramble_fov_boost: float = 3.5
+@export var scramble_fov_response: float = 18.0
+@export var scramble_fov_return: float = 14.0
+@export var scramble_fov_speed_influence: float = 1.6
 
 @export_group("Assistance")
 @export var traversal_assist_enabled: bool = true
@@ -167,7 +236,14 @@ enum TraversalPhase {
 @export var debug_draw_hurdle_target: bool = false
 @export var debug_draw_mantle_target: bool = false
 @export var debug_draw_hurdle_path: bool = false
+@export var debug_draw_scramble_wall_rays: bool = false
+@export var debug_draw_scramble_wall_normal: bool = false
+@export var debug_draw_scramble_ledge_target: bool = false
+@export var debug_draw_scramble_clearance: bool = false
+@export var debug_draw_scramble_capsule: bool = false
+@export var debug_draw_scramble_path: bool = false
 @export var debug_print_traversal_state: bool = false
+@export var debug_print_scramble_state: bool = false
 
 @onready var player: Player = get_parent() as Player
 @onready var player_input: PlayerInput = get_node("../PlayerInput") as PlayerInput
@@ -185,6 +261,11 @@ var traversal_progress: float = 0.0
 var traversal_elapsed: float = 0.0
 var traversal_input_grace_timer: float = 0.0
 var hurdle_path_validation_timer: float = 0.0
+var scramble_wall_revalidation_timer: float = 0.0
+var scramble_path_validation_timer: float = 0.0
+var scramble_ledge_check_timer: float = 0.0
+var scramble_elapsed_time: float = 0.0
+var scramble_distance_traveled: float = 0.0
 var traversal_start_position: Vector3 = Vector3.ZERO
 var traversal_start_velocity: Vector3 = Vector3.ZERO
 var traversal_target_position: Vector3 = Vector3.ZERO
@@ -204,6 +285,20 @@ var obstacle_top_position: Vector3 = Vector3.ZERO
 var obstacle_top_normal: Vector3 = Vector3.UP
 var obstacle_height: float = 0.0
 var landing_surface_normal: Vector3 = Vector3.UP
+var scramble_start_position: Vector3 = Vector3.ZERO
+var scramble_start_velocity: Vector3 = Vector3.ZERO
+var scramble_wall_normal: Vector3 = Vector3.ZERO
+var scramble_wall_contact_position: Vector3 = Vector3.ZERO
+var scramble_wall_rid: RID = RID()
+var scramble_wall_distance_value: float = 0.0
+var scramble_entry_horizontal_speed: float = 0.0
+var scramble_entry_tangent_velocity: Vector3 = Vector3.ZERO
+var scramble_target_position: Vector3 = Vector3.ZERO
+var scramble_ledge_target_position: Vector3 = Vector3.ZERO
+var scramble_ledge_target_normal: Vector3 = Vector3.UP
+var scramble_ledge_available: bool = false
+var scramble_wall_top_position: Vector3 = Vector3.ZERO
+var scramble_wall_top_normal: Vector3 = Vector3.UP
 var last_debug_state: StringName = &"INACTIVE"
 var debug_mesh_instance: MeshInstance3D = null
 var debug_immediate_mesh: ImmediateMesh = null
@@ -227,22 +322,43 @@ func _ready() -> void:
 	clearance_query.collide_with_areas = false
 	clearance_query.collide_with_bodies = true
 	clearance_query.margin = 0.0
-	if debug_draw_traversal_rays or debug_draw_traversal_shapes or debug_draw_traversal_target or debug_draw_hurdle_target or debug_draw_mantle_target or debug_draw_hurdle_path:
-		debug_mesh_instance = MeshInstance3D.new()
-		debug_immediate_mesh = ImmediateMesh.new()
-		debug_material = StandardMaterial3D.new()
-		debug_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		debug_material.no_depth_test = true
-		debug_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-		debug_material.albedo_color = Color(0.1, 0.9, 1.0, 0.85)
-		debug_mesh_instance.mesh = debug_immediate_mesh
-		add_child(debug_mesh_instance)
+	ensure_debug_geometry()
 
 func _physics_process(_delta: float) -> void:
 	update_debug_state()
 
 func _process(_delta: float) -> void:
+	ensure_debug_geometry()
 	update_debug_geometry()
+
+func ensure_debug_geometry() -> void:
+	if debug_immediate_mesh != null or not is_debug_geometry_enabled():
+		return
+	debug_mesh_instance = MeshInstance3D.new()
+	debug_immediate_mesh = ImmediateMesh.new()
+	debug_material = StandardMaterial3D.new()
+	debug_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	debug_material.no_depth_test = true
+	debug_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	debug_material.albedo_color = Color(0.1, 0.9, 1.0, 0.85)
+	debug_mesh_instance.mesh = debug_immediate_mesh
+	add_child(debug_mesh_instance)
+
+func is_debug_geometry_enabled() -> bool:
+	return (
+		debug_draw_traversal_rays
+		or debug_draw_traversal_shapes
+		or debug_draw_traversal_target
+		or debug_draw_hurdle_target
+		or debug_draw_mantle_target
+		or debug_draw_hurdle_path
+		or debug_draw_scramble_wall_rays
+		or debug_draw_scramble_wall_normal
+		or debug_draw_scramble_ledge_target
+		or debug_draw_scramble_clearance
+		or debug_draw_scramble_capsule
+		or debug_draw_scramble_path
+	)
 
 func process_physics_pre_movement(delta: float) -> bool:
 	if player == null or player_input == null or player_state == null or player_movement == null or standing_capsule_shape == null:
@@ -269,6 +385,9 @@ func process_physics(delta: float) -> void:
 	if traversal_type == TraversalType.MANTLE and not player_state.is_mantling():
 		cancel_traversal()
 		return
+	if traversal_type == TraversalType.WALL_SCRAMBLING and not player_state.is_wall_scrambling():
+		cancel_traversal()
+		return
 	traversal_elapsed += delta
 	var current_duration: float = get_current_duration()
 	traversal_progress = clamp(traversal_elapsed / max(current_duration, 0.001), 0.0, 1.0)
@@ -277,20 +396,72 @@ func process_physics(delta: float) -> void:
 		player.velocity = calculate_hurdle_velocity(traversal_progress, current_duration)
 		apply_hurdle_steering(delta)
 		update_hurdle_path_validation(delta)
-	else:
-		var desired_position: Vector3 = calculate_mantle_position(traversal_progress)
-		var desired_motion: Vector3 = desired_position - player.global_position
-		var desired_velocity: Vector3 = Vector3.ZERO
-		if delta > 0.000001:
-			desired_velocity = desired_motion / delta
-		player.velocity = player.velocity.move_toward(
-			desired_velocity,
-			mantle_acceleration * delta
-		)
-		apply_traversal_steering(delta)
+	elif traversal_type == TraversalType.MANTLE:
+		process_mantle_physics(delta)
+	elif traversal_type == TraversalType.WALL_SCRAMBLING:
+		process_scramble_physics(delta)
 	traversal_path_direction = Vector3(player.velocity.x, 0.0, player.velocity.z)
 	if traversal_path_direction.length_squared() > 0.001:
 		traversal_path_direction = traversal_path_direction.normalized()
+
+func process_mantle_physics(delta: float) -> void:
+	var desired_position: Vector3 = calculate_mantle_position(traversal_progress)
+	var desired_motion: Vector3 = desired_position - player.global_position
+	var desired_velocity: Vector3 = Vector3.ZERO
+	if delta > 0.000001:
+		desired_velocity = desired_motion / delta
+	player.velocity = player.velocity.move_toward(
+		desired_velocity,
+		mantle_acceleration * delta
+	)
+	apply_traversal_steering(delta)
+
+func process_scramble_physics(delta: float) -> void:
+	scramble_elapsed_time = traversal_elapsed
+	if not update_active_scramble_wall(delta):
+		cancel_traversal()
+		return
+	if try_start_scramble_mantle():
+		return
+	var scramble_height_gain: float = max(player.global_position.y - scramble_start_position.y, 0.0)
+	var height_progress: float = clamp(
+		scramble_height_gain / max(scramble_max_height_gain, 0.001),
+		0.0,
+		1.0
+	)
+	var duration_progress: float = clamp(
+		scramble_elapsed_time / max(get_current_duration(), 0.001),
+		0.0,
+		1.0
+	)
+	var brake_progress: float = max(
+		smoothstep(scramble_height_brake_start, 1.0, height_progress),
+		duration_progress
+	)
+	var target_vertical_speed: float = scramble_speed * scramble_speed_multiplier
+	if player_input.jump_pressed:
+		target_vertical_speed *= 1.0 + scramble_vertical_control
+	target_vertical_speed = lerp(target_vertical_speed, 0.0, brake_progress)
+	var vertical_acceleration: float = scramble_upward_acceleration
+	if player.velocity.y > target_vertical_speed:
+		vertical_acceleration = scramble_upward_deceleration
+	player.velocity.y = move_toward(
+		player.velocity.y,
+		target_vertical_speed,
+		vertical_acceleration * delta
+	)
+	player.velocity.y -= player_movement.gravity_while_rising * scramble_gravity_scale * delta
+	player.velocity.y = clamp(
+		player.velocity.y,
+		-player_movement.maximum_fall_speed,
+		scramble_max_vertical_speed
+	)
+	apply_scramble_horizontal_control(delta)
+	apply_scramble_wall_adhesion(delta)
+	update_scramble_path_validation(delta)
+	if scramble_elapsed_time >= get_current_duration() and scramble_elapsed_time >= scramble_min_duration:
+		if not try_start_scramble_mantle():
+			release_traversal()
 
 func process_physics_post_movement(_delta: float) -> void:
 	if not traversal_active:
@@ -300,6 +471,12 @@ func process_physics_post_movement(_delta: float) -> void:
 		return
 	if traversal_type == TraversalType.HURDLE:
 		process_hurdle_post_movement()
+		return
+	if traversal_type == TraversalType.WALL_SCRAMBLING:
+		if try_start_scramble_mantle():
+			return
+		if should_release_scramble():
+			release_traversal()
 		return
 	if traversal_progress < 1.0:
 		return
@@ -359,6 +536,20 @@ func update_hurdle_path_validation(delta: float) -> void:
 	if not validate_capsule_motion(player.global_position, validation_position):
 		cancel_traversal()
 
+func update_scramble_path_validation(delta: float) -> void:
+	if not traversal_active or traversal_type != TraversalType.WALL_SCRAMBLING:
+		return
+	scramble_path_validation_timer -= delta
+	if scramble_path_validation_timer > 0.0:
+		return
+	scramble_path_validation_timer = max(scramble_path_validation_interval, 0.001)
+	var prediction_motion: Vector3 = player.velocity * scramble_path_prediction_time
+	var predicted_position: Vector3 = player.global_position + prediction_motion
+	var maximum_height: float = scramble_start_position.y + scramble_max_height_gain
+	predicted_position.y = min(predicted_position.y, maximum_height)
+	if not validate_capsule_motion(player.global_position, predicted_position):
+		cancel_traversal()
+
 func is_input_eligible() -> bool:
 	if not traversal_enabled or traversal_input_grace_timer <= 0.0:
 		return false
@@ -369,205 +560,179 @@ func is_input_eligible() -> bool:
 	var horizontal_velocity: Vector3 = Vector3(player.velocity.x, 0.0, player.velocity.z)
 	if horizontal_velocity.length() < traversal_min_speed:
 		return false
+	if horizontal_velocity.length() < scramble_min_speed and scramble_enabled:
+		return player.is_on_floor() or player_state.is_sliding()
 	if player.is_on_floor() or player_state.is_sliding():
 		return true
 	return allow_airborne_mantle and player.velocity.y <= airborne_mantle_max_vertical_velocity
 
 func find_traversal_target() -> Dictionary:
 	var obstacle_data: Dictionary = detect_obstacle()
-	if obstacle_data.is_empty():
+	if not obstacle_data.is_empty():
+		obstacle_front_position = obstacle_data["front_position"] as Vector3
+		obstacle_normal = obstacle_data["normal"] as Vector3
+		obstacle_top_position = obstacle_data["top_position"] as Vector3
+		obstacle_top_normal = obstacle_data["top_normal"] as Vector3
+		obstacle_height = obstacle_data["obstacle_height"] as float
+		landing_surface_normal = obstacle_data.get("landing_normal", Vector3.UP) as Vector3
+		var hurdle_target: Vector3 = calculate_hurdle_target(obstacle_data)
+		if not hurdle_target.is_zero_approx() and (player.is_on_floor() or player_state.is_sliding()):
+			return {
+				"type": TraversalType.HURDLE,
+				"target_position": hurdle_target
+			}
+		var mantle_target: Vector3 = calculate_mantle_target(obstacle_data)
+		if not mantle_target.is_zero_approx():
+			return {
+				"type": TraversalType.MANTLE,
+				"target_position": mantle_target
+			}
+		if scramble_enabled:
+			var scramble_target_data: Dictionary = calculate_scramble_target_from_wall_data(obstacle_data)
+			if not scramble_target_data.is_empty():
+				return scramble_target_data
 		return {}
-	obstacle_front_position = obstacle_data["front_position"] as Vector3
-	obstacle_normal = obstacle_data["normal"] as Vector3
-	obstacle_top_position = obstacle_data["top_position"] as Vector3
-	obstacle_top_normal = obstacle_data["top_normal"] as Vector3
-	obstacle_height = obstacle_data["obstacle_height"] as float
-	landing_surface_normal = obstacle_data.get("landing_normal", Vector3.UP) as Vector3
-	var hurdle_target: Vector3 = calculate_hurdle_target(obstacle_data)
-	if not hurdle_target.is_zero_approx() and (player.is_on_floor() or player_state.is_sliding()):
-		return {
-			"type": TraversalType.HURDLE,
-			"target_position": hurdle_target
-		}
-	var mantle_target: Vector3 = calculate_mantle_target(obstacle_data)
-	if not mantle_target.is_zero_approx():
-		return {
-			"type": TraversalType.MANTLE,
-			"target_position": mantle_target
-		}
+	if scramble_enabled:
+		var scramble_wall_data: Dictionary = find_scramble_wall()
+		if not scramble_wall_data.is_empty():
+			var scramble_target_data: Dictionary = calculate_scramble_target_from_wall_data(scramble_wall_data)
+			if not scramble_target_data.is_empty():
+				return scramble_target_data
 	return {}
 
-func detect_obstacle() -> Dictionary:
-	var horizontal_speed: float = Vector2(player.velocity.x, player.velocity.z).length()
-	var base_detection_distance: float = hurdle_detection_distance
-	if not (player.is_on_floor() or player_state.is_sliding()):
-		base_detection_distance = mantle_detection_distance
-	var detection_distance: float = clamp(
-		max(base_detection_distance, traversal_forward_detection_distance) + horizontal_speed * traversal_speed_distance_influence,
-		0.5,
-		max(hurdle_max_distance, mantle_detection_distance)
-	)
-	var traversal_direction: Vector3 = get_traversal_direction()
-	if traversal_direction.length_squared() <= 0.001:
+func calculate_scramble_target_from_wall_data(wall_data: Dictionary) -> Dictionary:
+	if wall_data.is_empty() or not scramble_enabled:
 		return {}
-	var camera_forward: Vector3 = get_camera_forward()
-	var best_front_hit: Dictionary = {}
-	var best_score: float = INF
+	var wall_position: Vector3 = wall_data["position"] as Vector3
+	var wall_normal_value: Vector3 = wall_data["normal"] as Vector3
+	var wall_rid: RID = wall_data.get("rid", RID()) as RID
+	var wall_distance: float = wall_data.get("distance", 0.0) as float
+	var detection_direction: Vector3 = get_scramble_detection_direction()
+	if detection_direction.length_squared() <= 0.001:
+		return {}
+	if not is_scramble_wall_surface_valid(wall_normal_value):
+		return {}
+	var facing_dot: float = detection_direction.dot(-wall_normal_value)
+	var facing_angle: float = rad_to_deg(acos(clamp(facing_dot, -1.0, 1.0)))
+	if facing_dot < scramble_front_dot_threshold or facing_angle > scramble_detection_angle:
+		return {}
+	if wall_distance < scramble_min_wall_distance or wall_distance > scramble_max_wall_distance:
+		return {}
+	var horizontal_velocity: Vector3 = Vector3(player.velocity.x, 0.0, player.velocity.z)
+	if horizontal_velocity.length_squared() <= 0.001:
+		return {}
+	var entry_velocity_dot: float = horizontal_velocity.normalized().dot(-wall_normal_value)
+	if entry_velocity_dot < scramble_entry_velocity_dot_threshold:
+		return {}
+	var top_data: Dictionary = find_scramble_wall_top(wall_position, wall_normal_value, wall_rid)
+	if not top_data.is_empty():
+		var top_position: Vector3 = top_data["position"] as Vector3
+		var top_height_gain: float = top_position.y - player.global_position.y
+		scramble_wall_top_position = top_position
+		scramble_wall_top_normal = top_data["normal"] as Vector3
+		if top_height_gain <= mantle_max_height + scramble_height_tolerance:
+			return {}
+	var scramble_target: Vector3 = player.global_position + Vector3.UP * scramble_max_height_gain
+	return {
+		"type": TraversalType.WALL_SCRAMBLING,
+		"target_position": scramble_target,
+		"wall_position": wall_position,
+		"wall_normal": wall_normal_value,
+		"wall_rid": wall_rid,
+		"wall_distance": wall_distance
+	}
+
+func find_scramble_wall() -> Dictionary:
+	var detection_direction: Vector3 = get_scramble_detection_direction()
+	if detection_direction.length_squared() <= 0.001:
+		return {}
+	var horizontal_velocity: Vector3 = Vector3(player.velocity.x, 0.0, player.velocity.z)
+	if horizontal_velocity.length_squared() <= 0.001:
+		return {}
+	var space_state: PhysicsDirectSpaceState3D = player.get_world_3d().direct_space_state
 	var probe_heights: Array[float] = [
 		front_probe_low_height,
 		front_probe_mid_height,
 		traversal_forward_detection_height
 	]
-	var probe_count: int = clamp(obstacle_probe_count, 1, probe_heights.size())
-	var lateral_offset: float = front_probe_lateral_offset
+	var probe_count: int = clamp(scramble_probe_count, 1, probe_heights.size())
+	var candidates: Array[Dictionary] = []
 	for probe_index: int in range(probe_count):
 		var probe_height: float = probe_heights[probe_index]
-		var lateral_offsets: Array[float] = [0.0]
-		if probe_index < 2 and lateral_offset > 0.0:
-			lateral_offsets = [0.0, lateral_offset, -lateral_offset]
-		for lateral_probe_offset: float in lateral_offsets:
-			var probe_origin: Vector3 = (
-				player.global_position
-				+ Vector3.UP * probe_height
-				+ player.global_transform.basis.x * lateral_probe_offset
-			)
-			var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
-				probe_origin,
-				probe_origin + traversal_direction * detection_distance,
-				traversal_collision_mask,
-				[player.get_rid()]
-			)
-			query.collide_with_areas = false
-			query.collide_with_bodies = true
-			var hit: Dictionary = player.get_world_3d().direct_space_state.intersect_ray(query)
-			if hit.is_empty():
-				continue
-			var hit_normal: Vector3 = hit.get("normal", Vector3.ZERO) as Vector3
-			if hit_normal.length_squared() <= 0.001 or abs(hit_normal.y) > wall_normal_vertical_limit:
-				continue
-			var hit_position: Vector3 = hit.get("position", probe_origin) as Vector3
-			var approach_dot: float = traversal_direction.dot(-hit_normal)
-			var angle_to_wall: float = rad_to_deg(acos(clamp(approach_dot, -1.0, 1.0)))
-			if approach_dot < traversal_direction_threshold or angle_to_wall > traversal_max_angle:
-				continue
-			var front_distance: float = player.global_position.distance_to(hit_position)
-			var camera_dot: float = camera_forward.dot(-hit_normal)
-			var camera_assist: float = 0.0
-			if traversal_assist_enabled and camera_dot >= cos(deg_to_rad(traversal_assist_angle)) and front_distance <= detection_distance + traversal_assist_distance:
-				camera_assist = traversal_assist_strength
-			var score: float = front_distance - camera_assist
-			if score < best_score:
-				best_score = score
-				best_front_hit = {
-					"position": hit_position,
-					"normal": hit_normal,
-					"rid": hit.get("rid", RID())
-				}
-	if best_front_hit.is_empty():
-		return {}
-	var front_position: Vector3 = best_front_hit["position"] as Vector3
-	var front_normal: Vector3 = best_front_hit["normal"] as Vector3
-	var front_rid: RID = best_front_hit.get("rid", RID()) as RID
-	var top_data: Dictionary = find_top_surface(front_position, front_normal, front_rid)
-	if top_data.is_empty():
-		return {}
-	var top_position: Vector3 = top_data["position"] as Vector3
-	var top_normal: Vector3 = top_data["normal"] as Vector3
-	var obstacle_height_value: float = top_position.y - player.global_position.y
-	var top_surface_angle: float = surface_angle_degrees(top_normal)
-	if obstacle_height_value < hurdle_min_height - traversal_height_tolerance:
-		return {}
-	if obstacle_height_value > mantle_max_height + traversal_height_tolerance:
-		return {}
-	if top_surface_angle > max(mantle_max_surface_angle, hurdle_max_surface_angle) + surface_angle_tolerance:
-		return {}
-	var landing_data: Dictionary = find_landing_surface(front_position, front_normal, top_position.y)
-	var landing_normal: Vector3 = Vector3.UP
-	if not landing_data.is_empty():
-		landing_normal = landing_data["normal"] as Vector3
-	return {
-		"front_position": front_position,
-		"normal": front_normal,
-		"top_position": top_position,
-		"top_normal": top_normal,
-		"obstacle_height": obstacle_height_value,
-		"landing_position": landing_data.get("position", Vector3.ZERO) as Vector3,
-		"landing_normal": landing_normal
-	}
-
-func find_top_surface(front_position: Vector3, front_normal: Vector3, front_rid: RID) -> Dictionary:
-	var probe_count: int = max(top_surface_probe_count, 1)
-	var best_top_data: Dictionary = {}
-	var best_probe_distance: float = INF
-	var probe_direction: Vector3 = -front_normal
-	probe_direction.y = 0.0
-	if probe_direction.length_squared() <= 0.001:
-		return {}
-	probe_direction = probe_direction.normalized()
-	for probe_index: int in range(probe_count):
-		var probe_offset: float = top_surface_probe_forward_offset + probe_index * top_surface_probe_spacing
-		var probe_point: Vector3 = front_position + probe_direction * probe_offset
-		var probe_origin: Vector3 = Vector3(
-			probe_point.x,
-			player.global_position.y + mantle_max_height + top_surface_probe_height,
-			probe_point.z
-		)
-		var probe_end: Vector3 = Vector3(
-			probe_point.x,
-			player.global_position.y - traversal_vertical_tolerance,
-			probe_point.z
-		)
+		var probe_origin: Vector3 = player.global_position + Vector3.UP * probe_height
 		var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
 			probe_origin,
-			probe_end,
+			probe_origin + detection_direction * scramble_detection_distance,
 			traversal_collision_mask,
 			[player.get_rid()]
 		)
 		query.collide_with_areas = false
 		query.collide_with_bodies = true
-		var hit: Dictionary = player.get_world_3d().direct_space_state.intersect_ray(query)
+		var hit: Dictionary = space_state.intersect_ray(query)
 		if hit.is_empty():
 			continue
-		var hit_rid: RID = hit.get("rid", RID()) as RID
-		if front_rid.is_valid() and hit_rid != front_rid:
-			continue
-		var hit_position: Vector3 = hit.get("position", probe_end) as Vector3
 		var hit_normal: Vector3 = hit.get("normal", Vector3.ZERO) as Vector3
-		var hit_height: float = hit_position.y - player.global_position.y
-		var surface_angle: float = surface_angle_degrees(hit_normal)
-		if hit_height < hurdle_min_height - traversal_height_tolerance or hit_height > mantle_max_height + traversal_height_tolerance:
+		if not is_scramble_wall_surface_valid(hit_normal):
 			continue
-		if surface_angle > max(mantle_max_surface_angle, hurdle_max_surface_angle) + surface_angle_tolerance:
+		var facing_dot: float = detection_direction.dot(-hit_normal)
+		var facing_angle: float = rad_to_deg(acos(clamp(facing_dot, -1.0, 1.0)))
+		if facing_dot < scramble_front_dot_threshold or facing_angle > scramble_detection_angle:
 			continue
-		var probe_distance: float = probe_offset
-		if hit_position.y > player.global_position.y and probe_distance < best_probe_distance:
-			best_probe_distance = probe_distance
-			best_top_data = {
-				"position": hit_position,
-				"normal": hit_normal
-			}
-	return best_top_data
-
-func find_landing_surface(front_position: Vector3, front_normal: Vector3, top_height: float) -> Dictionary:
-	var landing_direction: Vector3 = -front_normal
-	landing_direction.y = 0.0
-	if landing_direction.length_squared() <= 0.001:
+		var hit_position: Vector3 = hit.get("position", probe_origin) as Vector3
+		var hit_distance: float = probe_origin.distance_to(hit_position)
+		if hit_distance < scramble_min_wall_distance or hit_distance > scramble_max_wall_distance:
+			continue
+		var entry_velocity_dot: float = horizontal_velocity.normalized().dot(-hit_normal)
+		if entry_velocity_dot < scramble_entry_velocity_dot_threshold:
+			continue
+		candidates.append({
+			"position": hit_position,
+			"normal": hit_normal,
+			"rid": hit.get("rid", RID()),
+			"distance": hit_distance,
+			"score": hit_distance + (1.0 - facing_dot) * scramble_detection_distance
+		})
+	if candidates.is_empty():
 		return {}
-	landing_direction = landing_direction.normalized()
-	var minimum_probe_distance: float = max(
-		hurdle_landing_clearance_distance,
-		standing_capsule_shape.radius + hurdle_clearance_margin
-	)
-	var probe_distance: float = minimum_probe_distance
-	var search_distance: float = max(hurdle_landing_search_distance, probe_distance)
-	var vertical_search_distance: float = max(
-		mantle_max_height + top_surface_probe_height,
-		landing_vertical_search_extra + mantle_max_height
-	)
+	var best_candidate: Dictionary = candidates[0]
+	var best_score: float = best_candidate["score"] as float
+	for candidate: Dictionary in candidates:
+		var candidate_score: float = candidate["score"] as float
+		if candidate_score < best_score:
+			best_score = candidate_score
+			best_candidate = candidate
+	var best_rid: RID = best_candidate["rid"] as RID
+	var matching_probe_count: int = 0
+	for candidate: Dictionary in candidates:
+		var candidate_rid: RID = candidate["rid"] as RID
+		if candidate_rid == best_rid:
+			matching_probe_count += 1
+	if matching_probe_count < clamp(2, 1, probe_count):
+		return {}
+	return best_candidate
+
+func find_scramble_wall_top(wall_position: Vector3, wall_normal_value: Vector3, wall_rid: RID) -> Dictionary:
+	var inward_direction: Vector3 = -wall_normal_value
+	inward_direction.y = 0.0
+	if inward_direction.length_squared() <= 0.001:
+		return {}
+	inward_direction = inward_direction.normalized()
+	var search_distance: float = max(scramble_height_search, clearance_segment_tolerance)
+	var search_step: float = max(scramble_height_probe_spacing, clearance_segment_tolerance)
+	var probe_distance: float = 0.0
+	var highest_top_data: Dictionary = {}
 	while probe_distance <= search_distance:
-		var probe_point: Vector3 = front_position + landing_direction * probe_distance
-		var probe_origin: Vector3 = probe_point + Vector3.UP * vertical_search_distance
-		var probe_end: Vector3 = probe_point - Vector3.UP * traversal_vertical_search_distance()
+		var probe_point: Vector3 = wall_position + inward_direction * probe_distance
+		var probe_origin: Vector3 = Vector3(
+			probe_point.x,
+			player.global_position.y + scramble_height_check_distance,
+			probe_point.z
+		)
+		var probe_end: Vector3 = Vector3(
+			probe_point.x,
+			player.global_position.y - scramble_height_tolerance,
+			probe_point.z
+		)
 		var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
 			probe_origin,
 			probe_end,
@@ -578,18 +743,345 @@ func find_landing_surface(front_position: Vector3, front_normal: Vector3, top_he
 		query.collide_with_bodies = true
 		var hit: Dictionary = player.get_world_3d().direct_space_state.intersect_ray(query)
 		if not hit.is_empty():
+			var hit_rid: RID = hit.get("rid", RID()) as RID
+			if wall_rid.is_valid() and hit_rid != wall_rid:
+				probe_distance += search_step
+				continue
+			var hit_position: Vector3 = hit.get("position", probe_end) as Vector3
+			var hit_normal: Vector3 = hit.get("normal", Vector3.ZERO) as Vector3
+			if is_walkable_surface(hit_normal):
+				if hit_position.y > player.global_position.y - scramble_height_tolerance:
+					if highest_top_data.is_empty() or hit_position.y > (highest_top_data["position"] as Vector3).y:
+						highest_top_data = {
+							"position": hit_position,
+							"normal": hit_normal
+						}
+		probe_distance += search_step
+	return highest_top_data
+
+func update_active_scramble_wall(delta: float) -> bool:
+	scramble_wall_revalidation_timer -= delta
+	if scramble_wall_revalidation_timer > 0.0:
+		return true
+	scramble_wall_revalidation_timer = max(scramble_wall_revalidation_interval, 0.001)
+	var wall_data: Dictionary = find_active_scramble_wall()
+	if wall_data.is_empty():
+		return false
+	var current_normal: Vector3 = wall_data["normal"] as Vector3
+	var normal_blend: float = clamp(scramble_wall_normal_response * delta, 0.0, 1.0)
+	scramble_wall_normal = scramble_wall_normal.slerp(current_normal, normal_blend).normalized()
+	scramble_wall_contact_position = wall_data["position"] as Vector3
+	scramble_wall_distance_value = wall_data["distance"] as float
+	return true
+
+func find_active_scramble_wall() -> Dictionary:
+	if scramble_wall_normal.length_squared() <= 0.001:
+		return {}
+	var wall_direction: Vector3 = -scramble_wall_normal
+	wall_direction.y = 0.0
+	if wall_direction.length_squared() <= 0.001:
+		return {}
+	wall_direction = wall_direction.normalized()
+	var probe_heights: Array[float] = [
+		front_probe_low_height,
+		front_probe_mid_height,
+		traversal_forward_detection_height
+	]
+	var probe_count: int = clamp(scramble_probe_count, 1, probe_heights.size())
+	var best_wall_data: Dictionary = {}
+	var best_distance: float = INF
+	var space_state: PhysicsDirectSpaceState3D = player.get_world_3d().direct_space_state
+	for probe_index: int in range(probe_count):
+		var probe_height: float = probe_heights[probe_index]
+		var probe_origin: Vector3 = player.global_position + Vector3.UP * probe_height
+		var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
+			probe_origin,
+			probe_origin + wall_direction * scramble_max_wall_distance,
+			traversal_collision_mask,
+			[player.get_rid()]
+		)
+		query.collide_with_areas = false
+		query.collide_with_bodies = true
+		var hit: Dictionary = space_state.intersect_ray(query)
+		if hit.is_empty():
+			continue
+		var hit_rid: RID = hit.get("rid", RID()) as RID
+		if scramble_wall_rid.is_valid() and hit_rid != scramble_wall_rid:
+			continue
+		var hit_normal: Vector3 = hit.get("normal", Vector3.ZERO) as Vector3
+		if not is_scramble_wall_surface_valid(hit_normal):
+			continue
+		var normal_difference: float = rad_to_deg(acos(clamp(scramble_wall_normal.dot(hit_normal), -1.0, 1.0)))
+		if normal_difference > scramble_wall_normal_tolerance:
+			continue
+		var hit_position: Vector3 = hit.get("position", probe_origin) as Vector3
+		var hit_distance: float = probe_origin.distance_to(hit_position)
+		if hit_distance > scramble_max_wall_distance:
+			continue
+		if hit_distance < best_distance:
+			best_distance = hit_distance
+			best_wall_data = {
+				"position": hit_position,
+				"normal": hit_normal,
+				"rid": hit_rid,
+				"distance": hit_distance
+			}
+	if best_wall_data.is_empty():
+		return {}
+	if best_distance < max(capsule_radius_from_shape() * 0.5, scramble_min_wall_distance * 0.5):
+		return {}
+	return best_wall_data
+
+func try_start_scramble_mantle() -> bool:
+	if not traversal_active or traversal_type != TraversalType.WALL_SCRAMBLING:
+		return false
+	scramble_ledge_check_timer -= get_physics_process_delta_time()
+	if scramble_ledge_check_timer > 0.0:
+		return false
+	scramble_ledge_check_timer = max(scramble_ledge_check_interval, 0.001)
+	var ledge_data: Dictionary = find_scramble_ledge_target()
+	if ledge_data.is_empty():
+		scramble_ledge_available = false
+		return false
+	scramble_ledge_available = true
+	scramble_ledge_target_position = ledge_data["target_position"] as Vector3
+	scramble_ledge_target_normal = ledge_data["normal"] as Vector3
+	var ledge_lift_position: Vector3 = ledge_data["lift_position"] as Vector3
+	start_traversal({
+		"type": TraversalType.MANTLE,
+		"target_position": scramble_ledge_target_position,
+		"mantle_lift_position": ledge_lift_position
+	})
+	return true
+
+func find_scramble_ledge_target() -> Dictionary:
+	if scramble_wall_contact_position == Vector3.ZERO or scramble_wall_normal.length_squared() <= 0.001:
+		return {}
+	var inward_direction: Vector3 = -scramble_wall_normal
+	inward_direction.y = 0.0
+	if inward_direction.length_squared() <= 0.001:
+		return {}
+	inward_direction = inward_direction.normalized()
+	var search_distance: float = max(scramble_ledge_detection_distance, mantle_top_min_forward_distance)
+	var search_step: float = max(top_surface_probe_spacing, clearance_segment_tolerance)
+	var probe_distance: float = max(mantle_top_min_forward_distance, clearance_segment_tolerance)
+	while probe_distance <= search_distance:
+		var probe_point: Vector3 = scramble_wall_contact_position + inward_direction * probe_distance
+		var probe_origin: Vector3 = Vector3(
+			probe_point.x,
+			player.global_position.y + mantle_max_height + scramble_ledge_height_tolerance,
+			probe_point.z
+		)
+		var minimum_height: float = max(
+			scramble_ledge_min_height - scramble_ledge_height_tolerance,
+			clearance_segment_tolerance
+		)
+		var probe_end: Vector3 = Vector3(
+			probe_point.x,
+			player.global_position.y + minimum_height,
+			probe_point.z
+		)
+		var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
+			probe_origin,
+			probe_end,
+			traversal_collision_mask,
+			[player.get_rid()]
+		)
+		query.collide_with_areas = false
+		query.collide_with_bodies = true
+		var hit: Dictionary = player.get_world_3d().direct_space_state.intersect_ray(query)
+		if not hit.is_empty():
+			var hit_rid: RID = hit.get("rid", RID()) as RID
+			if scramble_wall_rid.is_valid() and hit_rid != scramble_wall_rid:
+				probe_distance += search_step
+				continue
 			var hit_position: Vector3 = hit.get("position", probe_end) as Vector3
 			var hit_normal: Vector3 = hit.get("normal", Vector3.UP) as Vector3
-			if hit_position.y <= top_height - hurdle_landing_tolerance and is_walkable_surface(hit_normal):
-				return {
-					"position": hit_position + Vector3.UP * hurdle_clearance_margin,
-					"normal": hit_normal
-				}
-		probe_distance += max(hurdle_landing_probe_spacing, clearance_segment_tolerance)
+			var ledge_height_gain: float = hit_position.y - player.global_position.y
+			var ledge_height_limit: float = min(
+				scramble_ledge_transition_threshold,
+				mantle_max_height
+			)
+			if ledge_height_gain >= scramble_ledge_min_height - scramble_ledge_height_tolerance and ledge_height_gain <= ledge_height_limit + scramble_ledge_height_tolerance:
+				if is_walkable_surface(hit_normal):
+					var target_position: Vector3 = hit_position + hit_normal * mantle_target_offset
+					if is_capsule_position_clear(target_position):
+						var lift_position: Vector3 = player.global_position + scramble_wall_normal * (
+							standing_capsule_shape.radius + mantle_wall_clearance
+						)
+						lift_position.y = hit_position.y + max(
+							mantle_clearance_height,
+							mantle_height * 0.04
+						)
+						if validate_mantle_path(player.global_position, lift_position, target_position):
+							return {
+								"target_position": target_position,
+								"lift_position": lift_position,
+								"normal": hit_normal
+							}
+		probe_distance += search_step
 	return {}
 
-func traversal_vertical_search_distance() -> float:
-	return max(traversal_vertical_tolerance, landing_vertical_search_extra)
+func should_release_scramble() -> bool:
+	if traversal_elapsed < scramble_min_duration:
+		return false
+	var reached_height_limit: bool = false
+	if scramble_max_height_gain > 0.0:
+		reached_height_limit = player.global_position.y - scramble_start_position.y >= scramble_max_height_gain
+	var reached_distance_limit: bool = false
+	if scramble_max_distance > 0.0:
+		var wall_plane_motion: Vector3 = player.global_position - scramble_start_position
+		wall_plane_motion = wall_plane_motion.slide(scramble_wall_normal)
+		scramble_distance_traveled = wall_plane_motion.length()
+		reached_distance_limit = scramble_distance_traveled >= scramble_max_distance
+	var reached_time_limit: bool = traversal_elapsed >= max(scramble_max_duration, scramble_min_duration)
+	return reached_height_limit or reached_distance_limit or reached_time_limit
+
+func apply_scramble_horizontal_control(delta: float) -> void:
+	var current_horizontal_velocity: Vector3 = Vector3(player.velocity.x, 0.0, player.velocity.z)
+	var current_tangent_velocity: Vector3 = current_horizontal_velocity.slide(scramble_wall_normal)
+	var preserved_entry_velocity: Vector3 = scramble_entry_tangent_velocity
+	var input_direction: Vector3 = player_movement.get_movement_direction()
+	var input_tangent_direction: Vector3 = input_direction.slide(scramble_wall_normal)
+	if input_tangent_direction.length_squared() > 0.001:
+		input_tangent_direction = input_tangent_direction.normalized()
+		var reference_direction: Vector3 = current_tangent_velocity.normalized()
+		if reference_direction.length_squared() <= 0.001:
+			reference_direction = preserved_entry_velocity.normalized()
+		var allowed_direction: Vector3 = input_tangent_direction
+		if reference_direction.length_squared() > 0.001:
+			var steering_angle: float = rad_to_deg(reference_direction.angle_to(input_tangent_direction))
+			if steering_angle > scramble_steering_limit:
+				var steering_blend: float = clamp(
+					scramble_steering_limit / max(steering_angle, 0.001),
+					0.0,
+					1.0
+				)
+				allowed_direction = reference_direction.slerp(
+					input_tangent_direction,
+					steering_blend
+				).normalized()
+		var target_lateral_speed: float = scramble_speed * scramble_speed_multiplier * scramble_lateral_control
+		var target_speed: float = max(current_tangent_velocity.length(), target_lateral_speed)
+		var desired_velocity: Vector3 = allowed_direction * target_speed
+		var steering_weight: float = clamp(
+			scramble_steering_strength * scramble_horizontal_control * scramble_steering_response * delta,
+			0.0,
+			1.0
+		)
+		current_tangent_velocity = current_tangent_velocity.lerp(desired_velocity, steering_weight)
+	else:
+		var preserve_weight: float = clamp(scramble_entry_momentum_preservation * scramble_steering_response * delta, 0.0, 1.0)
+		current_tangent_velocity = current_tangent_velocity.lerp(preserved_entry_velocity, preserve_weight)
+	player.velocity.x = current_tangent_velocity.x
+	player.velocity.z = current_tangent_velocity.z
+
+func apply_scramble_wall_adhesion(_delta: float) -> void:
+	var current_normal_speed: float = player.velocity.dot(scramble_wall_normal)
+	player.velocity -= scramble_wall_normal * current_normal_speed
+	var physical_wall_distance: float = max(
+		scramble_wall_distance,
+		capsule_radius_from_shape() + clearance_segment_tolerance
+	)
+	var distance_error: float = scramble_wall_distance_value - physical_wall_distance
+	var correction_velocity: float = clamp(
+		distance_error * scramble_wall_distance_response,
+		-scramble_wall_stick_force,
+		scramble_wall_stick_force
+	) * scramble_wall_stick_strength
+	player.velocity -= scramble_wall_normal * correction_velocity
+
+func is_scramble_wall_surface_valid(surface_normal: Vector3) -> bool:
+	if surface_normal.length_squared() <= 0.001:
+		return false
+	var wall_angle: float = scramble_wall_angle_degrees(surface_normal)
+	if wall_angle < scramble_min_wall_angle or wall_angle > scramble_max_wall_angle:
+		return false
+	return true
+
+func scramble_wall_angle_degrees(surface_normal: Vector3) -> float:
+	var normalized_normal: Vector3 = surface_normal.normalized()
+	return rad_to_deg(asin(clamp(abs(normalized_normal.y), 0.0, 1.0)))
+
+func get_scramble_detection_direction() -> Vector3:
+	var camera_direction: Vector3 = get_camera_forward()
+	if camera_direction.length_squared() <= 0.001:
+		return Vector3.ZERO
+	return camera_direction.normalized()
+
+func validate_hurdle_path(start_position: Vector3, target_position: Vector3, arc_height: float) -> bool:
+	var sample_count: int = max(hurdle_path_samples, 4)
+	var previous_position: Vector3 = start_position
+	if not is_capsule_position_clear(start_position):
+		return false
+	for sample_index: int in range(1, sample_count + 1):
+		var progress: float = float(sample_index) / float(sample_count)
+		var sample_position: Vector3 = calculate_hurdle_position_from_data(
+			start_position,
+			target_position,
+			progress,
+			arc_height
+		)
+		if not is_capsule_position_clear(sample_position):
+			return false
+		if not validate_capsule_motion(previous_position, sample_position):
+			return false
+		previous_position = sample_position
+	return true
+
+func validate_mantle_path(start_position: Vector3, lift_position: Vector3, target_position: Vector3) -> bool:
+	if not is_capsule_position_clear(start_position):
+		return false
+	if not validate_capsule_motion(start_position, lift_position):
+		return false
+	var sample_count: int = max(hurdle_path_samples, 4)
+	var previous_position: Vector3 = lift_position
+	if not is_capsule_position_clear(lift_position):
+		return false
+	for sample_index: int in range(1, sample_count + 1):
+		var progress: float = float(sample_index) / float(sample_count)
+		var eased_progress: float = smoothstep(0.0, 1.0, progress)
+		var sample_position: Vector3 = lift_position.lerp(target_position, eased_progress)
+		if not is_capsule_position_clear(sample_position):
+			return false
+		if not validate_capsule_motion(previous_position, sample_position):
+			return false
+		previous_position = sample_position
+	return true
+
+func validate_capsule_motion(start_position: Vector3, end_position: Vector3) -> bool:
+	if not is_capsule_position_clear(start_position) or not is_capsule_position_clear(end_position):
+		return false
+	var motion: Vector3 = end_position - start_position
+	if motion.length_squared() <= clearance_segment_tolerance * clearance_segment_tolerance:
+		return true
+	clearance_query.motion = motion
+	clearance_query.transform = get_capsule_transform(start_position)
+	clearance_query.margin = 0.0
+	var cast_result: PackedFloat32Array = player.get_world_3d().direct_space_state.cast_motion(clearance_query)
+	clearance_query.motion = Vector3.ZERO
+	if cast_result.size() < 1:
+		return false
+	return cast_result[0] >= 0.999
+
+func is_capsule_position_clear(test_position: Vector3) -> bool:
+	clearance_query.transform = get_capsule_transform(test_position)
+	clearance_query.motion = Vector3.ZERO
+	clearance_query.margin = 0.0
+	var hits: Array[Dictionary] = player.get_world_3d().direct_space_state.intersect_shape(
+		clearance_query,
+		1
+	)
+	return hits.is_empty()
+
+func get_capsule_transform(player_position: Vector3) -> Transform3D:
+	return Transform3D(
+		Basis.IDENTITY,
+		player_position + Vector3.UP * standing_capsule_shape.height * 0.5
+	)
+
+func capsule_radius_from_shape() -> float:
+	return standing_capsule_shape.radius
 
 func calculate_hurdle_target(obstacle_data: Dictionary) -> Vector3:
 	var obstacle_height_value: float = obstacle_data["obstacle_height"] as float
@@ -790,79 +1282,48 @@ func find_mantle_top_target(front_position: Vector3, front_normal: Vector3, top_
 		search_distance -= search_step
 	return {}
 
-func validate_hurdle_path(start_position: Vector3, target_position: Vector3, arc_height: float) -> bool:
-	var sample_count: int = max(hurdle_path_samples, 4)
-	var previous_position: Vector3 = start_position
-	if not is_capsule_position_clear(start_position):
-		return false
-	for sample_index: int in range(1, sample_count + 1):
-		var progress: float = float(sample_index) / float(sample_count)
-		var sample_position: Vector3 = calculate_hurdle_position_from_data(
-			start_position,
-			target_position,
-			progress,
-			arc_height
+func find_landing_surface(front_position: Vector3, front_normal: Vector3, top_height: float) -> Dictionary:
+	var landing_direction: Vector3 = -front_normal
+	landing_direction.y = 0.0
+	if landing_direction.length_squared() <= 0.001:
+		return {}
+	landing_direction = landing_direction.normalized()
+	var minimum_probe_distance: float = max(
+		hurdle_landing_clearance_distance,
+		standing_capsule_shape.radius + hurdle_clearance_margin
+	)
+	var probe_distance: float = minimum_probe_distance
+	var search_distance: float = max(hurdle_landing_search_distance, probe_distance)
+	var vertical_search_distance: float = max(
+		mantle_max_height + top_surface_probe_height,
+		landing_vertical_search_extra + mantle_max_height
+	)
+	while probe_distance <= search_distance:
+		var probe_point: Vector3 = front_position + landing_direction * probe_distance
+		var probe_origin: Vector3 = probe_point + Vector3.UP * vertical_search_distance
+		var probe_end: Vector3 = probe_point - Vector3.UP * traversal_vertical_search_distance()
+		var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
+			probe_origin,
+			probe_end,
+			traversal_collision_mask,
+			[player.get_rid()]
 		)
-		if not is_capsule_position_clear(sample_position):
-			return false
-		if not validate_capsule_motion(previous_position, sample_position):
-			return false
-		previous_position = sample_position
-	return true
+		query.collide_with_areas = false
+		query.collide_with_bodies = true
+		var hit: Dictionary = player.get_world_3d().direct_space_state.intersect_ray(query)
+		if not hit.is_empty():
+			var hit_position: Vector3 = hit.get("position", probe_end) as Vector3
+			var hit_normal: Vector3 = hit.get("normal", Vector3.UP) as Vector3
+			if hit_position.y <= top_height - hurdle_landing_tolerance and is_walkable_surface(hit_normal):
+				return {
+					"position": hit_position + Vector3.UP * hurdle_clearance_margin,
+					"normal": hit_normal
+				}
+		probe_distance += max(hurdle_landing_probe_spacing, clearance_segment_tolerance)
+	return {}
 
-func validate_mantle_path(start_position: Vector3, lift_position: Vector3, target_position: Vector3) -> bool:
-	if not is_capsule_position_clear(start_position):
-		return false
-	if not validate_capsule_motion(start_position, lift_position):
-		return false
-	var sample_count: int = max(hurdle_path_samples, 4)
-	var previous_position: Vector3 = lift_position
-	if not is_capsule_position_clear(lift_position):
-		return false
-	for sample_index: int in range(1, sample_count + 1):
-		var progress: float = float(sample_index) / float(sample_count)
-		var eased_progress: float = smoothstep(0.0, 1.0, progress)
-		var sample_position: Vector3 = lift_position.lerp(target_position, eased_progress)
-		if not is_capsule_position_clear(sample_position):
-			return false
-		if not validate_capsule_motion(previous_position, sample_position):
-			return false
-		previous_position = sample_position
-	return true
-
-func validate_capsule_motion(start_position: Vector3, end_position: Vector3) -> bool:
-	if not is_capsule_position_clear(start_position) or not is_capsule_position_clear(end_position):
-		return false
-	var motion: Vector3 = end_position - start_position
-	if motion.length_squared() <= clearance_segment_tolerance * clearance_segment_tolerance:
-		return true
-	clearance_query.motion = motion
-	clearance_query.transform = get_capsule_transform(start_position)
-	clearance_query.margin = 0.0
-	var cast_result: PackedFloat32Array = player.get_world_3d().direct_space_state.cast_motion(clearance_query)
-	clearance_query.motion = Vector3.ZERO
-	if cast_result.size() < 1:
-		return false
-	return cast_result[0] >= 0.999
-
-func is_capsule_position_clear(test_position: Vector3) -> bool:
-	clearance_query.transform = get_capsule_transform(test_position)
-	clearance_query.motion = Vector3.ZERO
-	clearance_query.margin = 0.0
-	var hits: Array[Dictionary] = player.get_world_3d().direct_space_state.intersect_shape(
-		clearance_query,
-		1
-	)
-	return hits.is_empty()
-
-func get_capsule_transform(player_position: Vector3) -> Transform3D:
-	return Transform3D(
-		Basis.IDENTITY,
-		player_position + Vector3.UP * standing_capsule_shape.height * 0.5
-	)
-
-func capsule_radius_from_shape() -> float:
-	return standing_capsule_shape.radius
+func traversal_vertical_search_distance() -> float:
+	return max(traversal_vertical_tolerance, landing_vertical_search_extra)
 
 func calculate_hurdle_velocity(progress: float, duration: float) -> Vector3:
 	var clamped_progress: float = clamp(progress, 0.0, 1.0)
@@ -950,16 +1411,45 @@ func start_traversal(traversal_target_data: Dictionary) -> void:
 	traversal_phase = TraversalPhase.ASCENDING
 	traversal_active = true
 	hurdle_path_validation_timer = max(hurdle_path_validation_interval, 0.001)
+	scramble_wall_revalidation_timer = 0.0
+	scramble_path_validation_timer = max(scramble_path_validation_interval, 0.001)
+	scramble_ledge_check_timer = 0.0
+	scramble_elapsed_time = 0.0
+	scramble_distance_traveled = 0.0
 	traversal_path_direction = traversal_entry_direction
 	player_movement.jump_buffer_timer = 0.0
 	if traversal_type == TraversalType.HURDLE:
 		hurdle_target_position = traversal_target_position
 		player_state.change_state(PlayerState.MovementState.HURDLING)
 		hurdle_started.emit(traversal_target_position)
-	else:
+	elif traversal_type == TraversalType.MANTLE:
 		mantle_target_position = traversal_target_position
+		if traversal_target_data.has("mantle_lift_position"):
+			mantle_lift_position = traversal_target_data["mantle_lift_position"] as Vector3
 		player_state.change_state(PlayerState.MovementState.MANTLING)
 		mantle_started.emit(traversal_target_position)
+	elif traversal_type == TraversalType.WALL_SCRAMBLING:
+		scramble_start_position = traversal_start_position
+		scramble_start_velocity = traversal_start_velocity
+		scramble_wall_normal = traversal_target_data.get("wall_normal", Vector3.ZERO) as Vector3
+		scramble_wall_contact_position = traversal_target_data.get("wall_position", Vector3.ZERO) as Vector3
+		scramble_wall_rid = traversal_target_data.get("wall_rid", RID()) as RID
+		scramble_wall_distance_value = traversal_target_data.get("wall_distance", 0.0) as float
+		scramble_entry_horizontal_speed = horizontal_velocity.length()
+		scramble_entry_tangent_velocity = horizontal_velocity.slide(scramble_wall_normal) * scramble_entry_momentum_preservation
+		scramble_target_position = traversal_target_position
+		scramble_ledge_target_position = Vector3.ZERO
+		scramble_ledge_target_normal = Vector3.UP
+		scramble_ledge_available = false
+		if scramble_wall_normal.length_squared() <= 0.001:
+			cancel_traversal()
+			return
+		player.velocity.y = max(
+			player.velocity.y,
+			min(scramble_upward_speed, scramble_max_vertical_speed)
+		)
+		player_state.change_state(PlayerState.MovementState.WALL_SCRAMBLING)
+		scramble_started.emit(scramble_wall_contact_position)
 
 func get_current_duration() -> float:
 	if traversal_type == TraversalType.HURDLE:
@@ -968,6 +1458,8 @@ func get_current_duration() -> float:
 		var horizontal_duration: float = traversal_target_distance / max(mantle_pull_speed, 0.1)
 		var vertical_duration: float = max(obstacle_height, mantle_height) / max(mantle_vertical_speed, 0.1)
 		return max(mantle_duration, horizontal_duration, vertical_duration)
+	if traversal_type == TraversalType.WALL_SCRAMBLING:
+		return max(scramble_max_duration, scramble_min_duration)
 	return 0.001
 
 func calculate_mantle_position(progress: float) -> Vector3:
@@ -1056,6 +1548,28 @@ func calculate_exit_velocity() -> Vector3:
 	var current_direction: Vector3 = current_horizontal_velocity.normalized()
 	if current_speed <= 0.001:
 		current_direction = traversal_entry_direction
+	if traversal_type == TraversalType.WALL_SCRAMBLING:
+		var scramble_exit_direction: Vector3 = current_direction
+		if scramble_exit_direction.length_squared() <= 0.001:
+			scramble_exit_direction = traversal_entry_direction
+		var scramble_push_direction: Vector3 = scramble_wall_normal
+		if scramble_push_direction.length_squared() <= 0.001:
+			scramble_push_direction = traversal_entry_direction
+		var scramble_exit_direction_blend: float = clamp(scramble_exit_direction_influence, 0.0, 1.0)
+		scramble_exit_direction = scramble_exit_direction.slerp(
+			scramble_push_direction.normalized(),
+			scramble_exit_direction_blend
+		).normalized()
+		var preserved_scramble_speed: float = max(
+			current_speed * scramble_exit_momentum_preservation,
+			incoming_speed * scramble_entry_momentum_preservation * scramble_exit_momentum_preservation
+		)
+		var scramble_exit_speed: float = preserved_scramble_speed * scramble_exit_speed_multiplier
+		return Vector3(
+			scramble_exit_direction.x * scramble_exit_speed,
+			0.0,
+			scramble_exit_direction.z * scramble_exit_speed
+		)
 	var target_direction: Vector3 = Vector3(
 		traversal_target_position.x - traversal_start_position.x,
 		0.0,
@@ -1108,18 +1622,7 @@ func complete_traversal() -> void:
 	player.velocity.z = lerp(player.velocity.z, exit_velocity.z, blend_weight)
 	if player.is_on_floor():
 		player.velocity.y = 0.0
-	traversal_active = false
-	traversal_progress = 1.0
-	traversal_phase = TraversalPhase.INACTIVE
-	traversal_type = TraversalType.NONE
-	traversal_target_position = Vector3.ZERO
-	hurdle_target_position = Vector3.ZERO
-	hurdle_landing_position = Vector3.ZERO
-	hurdle_crossing_position = Vector3.ZERO
-	hurdle_arc_height_value = 0.0
-	hurdle_runtime_duration = 0.0
-	mantle_target_position = Vector3.ZERO
-	mantle_lift_position = Vector3.ZERO
+	reset_traversal_runtime()
 	if player.is_on_floor():
 		player_state.change_state(PlayerState.MovementState.GROUNDED)
 	else:
@@ -1134,18 +1637,7 @@ func cancel_traversal() -> void:
 	player.velocity.z *= traversal_cancel_velocity_multiplier
 	if player.is_on_ceiling() and player.velocity.y > 0.0:
 		player.velocity.y = 0.0
-	traversal_active = false
-	traversal_progress = 0.0
-	traversal_phase = TraversalPhase.INACTIVE
-	traversal_type = TraversalType.NONE
-	traversal_target_position = Vector3.ZERO
-	hurdle_target_position = Vector3.ZERO
-	hurdle_landing_position = Vector3.ZERO
-	hurdle_crossing_position = Vector3.ZERO
-	hurdle_arc_height_value = 0.0
-	hurdle_runtime_duration = 0.0
-	mantle_target_position = Vector3.ZERO
-	mantle_lift_position = Vector3.ZERO
+	reset_traversal_runtime()
 	if player.is_on_floor():
 		player_state.change_state(PlayerState.MovementState.GROUNDED)
 	else:
@@ -1161,8 +1653,17 @@ func release_traversal() -> void:
 	player.velocity.z = exit_velocity.z
 	if player.velocity.y > 0.0:
 		player.velocity.y = 0.0
+	reset_traversal_runtime()
+	if player.is_on_floor():
+		player_state.change_state(PlayerState.MovementState.GROUNDED)
+	else:
+		player_state.change_state(PlayerState.MovementState.AIRBORNE)
+	traversal_completed.emit(released_type)
+
+func reset_traversal_runtime() -> void:
 	traversal_active = false
-	traversal_progress = 1.0
+	traversal_progress = 0.0
+	traversal_elapsed = 0.0
 	traversal_phase = TraversalPhase.INACTIVE
 	traversal_type = TraversalType.NONE
 	traversal_target_position = Vector3.ZERO
@@ -1173,11 +1674,22 @@ func release_traversal() -> void:
 	hurdle_runtime_duration = 0.0
 	mantle_target_position = Vector3.ZERO
 	mantle_lift_position = Vector3.ZERO
-	if player.is_on_floor():
-		player_state.change_state(PlayerState.MovementState.GROUNDED)
-	else:
-		player_state.change_state(PlayerState.MovementState.AIRBORNE)
-	traversal_completed.emit(released_type)
+	scramble_start_position = Vector3.ZERO
+	scramble_start_velocity = Vector3.ZERO
+	scramble_wall_normal = Vector3.ZERO
+	scramble_wall_contact_position = Vector3.ZERO
+	scramble_wall_rid = RID()
+	scramble_wall_distance_value = 0.0
+	scramble_entry_horizontal_speed = 0.0
+	scramble_entry_tangent_velocity = Vector3.ZERO
+	scramble_target_position = Vector3.ZERO
+	scramble_ledge_target_position = Vector3.ZERO
+	scramble_ledge_target_normal = Vector3.UP
+	scramble_ledge_available = false
+	scramble_wall_top_position = Vector3.ZERO
+	scramble_wall_top_normal = Vector3.UP
+	scramble_elapsed_time = 0.0
+	scramble_distance_traveled = 0.0
 
 func update_traversal_phase() -> void:
 	if traversal_progress < 0.35:
@@ -1197,6 +1709,9 @@ func is_hurdling() -> bool:
 
 func is_mantling() -> bool:
 	return traversal_active and traversal_type == TraversalType.MANTLE
+
+func is_wall_scrambling() -> bool:
+	return traversal_active and traversal_type == TraversalType.WALL_SCRAMBLING
 
 func get_traversal_direction() -> Vector3:
 	var camera_direction: Vector3 = get_camera_forward()
@@ -1245,7 +1760,7 @@ func surface_angle_degrees(surface_normal: Vector3) -> float:
 	)
 
 func update_debug_state() -> void:
-	if not debug_print_traversal_state:
+	if not debug_print_traversal_state and not debug_print_scramble_state:
 		return
 	var state_name: StringName = get_traversal_state_name()
 	if state_name == last_debug_state:
@@ -1260,6 +1775,8 @@ func get_traversal_state_name() -> StringName:
 		return StringName("HURDLING_" + str(traversal_phase))
 	if traversal_type == TraversalType.MANTLE:
 		return StringName("MANTLING_" + str(traversal_phase))
+	if traversal_type == TraversalType.WALL_SCRAMBLING:
+		return StringName("SCRAMBLING_" + str(traversal_phase))
 	return &"UNKNOWN"
 
 func get_camera_position_offset() -> Vector3:
@@ -1276,6 +1793,19 @@ func get_camera_position_offset() -> Vector3:
 			0.0,
 			envelope * hurdle_camera_offset,
 			-envelope * hurdle_camera_offset * 0.4
+		)
+	if traversal_type == TraversalType.WALL_SCRAMBLING:
+		var vertical_speed_ratio: float = clamp(
+			max(player.velocity.y, 0.0) / max(scramble_max_vertical_speed, 0.001),
+			0.0,
+			1.0
+		)
+		var scramble_envelope: float = smoothstep(0.0, 1.0, traversal_progress)
+		var scramble_amount: float = scramble_envelope * vertical_speed_ratio * scramble_camera_vertical_influence
+		return Vector3(
+			0.0,
+			scramble_amount * scramble_camera_offset,
+			0.0
 		)
 	var mantle_envelope: float = smoothstep(0.0, 1.0, traversal_progress)
 	return Vector3(
@@ -1303,6 +1833,13 @@ func get_camera_pitch_offset() -> float:
 			1.0
 		)
 		return -vertical_ratio * hurdle_camera_pitch * height_weight
+	if traversal_type == TraversalType.WALL_SCRAMBLING:
+		var vertical_ratio: float = clamp(
+			player.velocity.y / max(scramble_max_vertical_speed, 0.001),
+			-1.0,
+			1.0
+		)
+		return -vertical_ratio * scramble_camera_pitch
 	return -smoothstep(0.0, 1.0, traversal_progress) * mantle_camera_pitch
 
 func get_camera_roll_offset() -> float:
@@ -1310,6 +1847,13 @@ func get_camera_roll_offset() -> float:
 		return 0.0
 	var lateral_velocity: Vector3 = Vector3(player.velocity.x, 0.0, player.velocity.z)
 	var lateral_amount: float = lateral_velocity.dot(player.global_transform.basis.x)
+	if traversal_type == TraversalType.WALL_SCRAMBLING:
+		var wall_lateral_amount: float = scramble_wall_normal.dot(player.global_transform.basis.x)
+		return clamp(
+			wall_lateral_amount * scramble_camera_roll + lateral_amount * 0.01,
+			-scramble_camera_roll,
+			scramble_camera_roll
+		)
 	var maximum_roll: float = hurdle_camera_roll
 	var roll_multiplier: float = 0.02
 	if traversal_type == TraversalType.MANTLE:
@@ -1330,6 +1874,20 @@ func get_camera_fov_boost() -> float:
 		var response_weight: float = 1.0 - exp(-hurdle_fov_response * traversal_progress)
 		var return_weight: float = 1.0 - exp(-hurdle_fov_return * (1.0 - traversal_progress))
 		return traversal_fov_boost + hurdle_fov_boost * envelope * response_weight * return_weight
+	if traversal_type == TraversalType.WALL_SCRAMBLING:
+		var vertical_speed_ratio: float = clamp(
+			max(player.velocity.y, 0.0) / max(scramble_max_vertical_speed, 0.001),
+			0.0,
+			1.0
+		)
+		var speed_weight: float = clamp(
+			vertical_speed_ratio * scramble_fov_speed_influence,
+			0.0,
+			1.0
+		)
+		var response_weight: float = 1.0 - exp(-scramble_fov_response * traversal_progress)
+		var return_weight: float = 1.0 - exp(-scramble_fov_return * (1.0 - traversal_progress))
+		return traversal_fov_boost + scramble_fov_boost * speed_weight * response_weight * return_weight
 	var mantle_envelope: float = smoothstep(0.0, 1.0, traversal_progress)
 	return traversal_fov_boost + mantle_fov_boost * mantle_envelope
 
@@ -1339,9 +1897,14 @@ func get_camera_spring_frequency() -> float:
 			traversal_camera_return_frequency,
 			hurdle_camera_return_speed
 		)
-		return max(return_frequency, mantle_camera_return_speed)
+		return max(
+			max(return_frequency, mantle_camera_return_speed),
+			scramble_camera_return_speed
+		)
 	if traversal_type == TraversalType.HURDLE:
 		return max(traversal_camera_spring_frequency, hurdle_camera_response_speed)
+	if traversal_type == TraversalType.WALL_SCRAMBLING:
+		return max(traversal_camera_spring_frequency, scramble_camera_response_speed)
 	return max(traversal_camera_spring_frequency, mantle_camera_response_speed)
 
 func get_camera_position_response() -> float:
@@ -1349,19 +1912,14 @@ func get_camera_position_response() -> float:
 		return traversal_camera_return_frequency
 	if traversal_type == TraversalType.HURDLE:
 		return traversal_camera_vertical_response
+	if traversal_type == TraversalType.WALL_SCRAMBLING:
+		return scramble_camera_response_speed
 	return traversal_camera_lateral_response
 
 func update_debug_geometry() -> void:
 	if debug_immediate_mesh == null or debug_material == null:
 		return
-	var debug_enabled: bool = (
-		debug_draw_traversal_rays
-		or debug_draw_traversal_shapes
-		or debug_draw_traversal_target
-		or debug_draw_hurdle_target
-		or debug_draw_mantle_target
-		or debug_draw_hurdle_path
-	)
+	var debug_enabled: bool = is_debug_geometry_enabled()
 	if not debug_enabled:
 		debug_immediate_mesh.clear_surfaces()
 		return
@@ -1377,8 +1935,26 @@ func update_debug_geometry() -> void:
 		draw_debug_cross(mantle_target_position, mantle_target_offset + clearance_segment_tolerance)
 	if debug_draw_hurdle_path and traversal_active and traversal_type == TraversalType.HURDLE:
 		draw_debug_hurdle_path()
-	if debug_draw_traversal_shapes and traversal_target_position != Vector3.ZERO:
-		draw_debug_capsule(traversal_target_position)
+	if debug_draw_scramble_wall_rays:
+		draw_debug_scramble_wall_rays()
+	if debug_draw_scramble_wall_normal and scramble_wall_contact_position != Vector3.ZERO:
+		draw_debug_segment(
+			scramble_wall_contact_position,
+			scramble_wall_contact_position + scramble_wall_normal * scramble_wall_stick_force * 0.04
+		)
+	if debug_draw_scramble_ledge_target and scramble_ledge_target_position != Vector3.ZERO:
+		draw_debug_cross(scramble_ledge_target_position, mantle_target_offset + clearance_segment_tolerance)
+	if debug_draw_scramble_clearance:
+		if scramble_ledge_target_position != Vector3.ZERO:
+			draw_debug_capsule(scramble_ledge_target_position)
+		if mantle_lift_position != Vector3.ZERO:
+			draw_debug_capsule(mantle_lift_position)
+	if debug_draw_scramble_capsule:
+		draw_debug_capsule(player.global_position)
+	if debug_draw_scramble_path and scramble_start_position != Vector3.ZERO:
+		draw_debug_segment(scramble_start_position, player.global_position)
+		if scramble_target_position != Vector3.ZERO:
+			draw_debug_segment(player.global_position, scramble_target_position)
 	debug_immediate_mesh.surface_end()
 
 func draw_debug_rays() -> void:
@@ -1409,6 +1985,23 @@ func draw_debug_rays() -> void:
 			hurdle_landing_position + landing_surface_normal * capsule_radius_from_shape()
 		)
 
+func draw_debug_scramble_wall_rays() -> void:
+	var detection_direction: Vector3 = get_scramble_detection_direction()
+	if detection_direction.length_squared() <= 0.001:
+		return
+	var probe_heights: Array[float] = [
+		front_probe_low_height,
+		front_probe_mid_height,
+		traversal_forward_detection_height
+	]
+	var probe_count: int = clamp(scramble_probe_count, 1, probe_heights.size())
+	for probe_index: int in range(probe_count):
+		var probe_origin: Vector3 = player.global_position + Vector3.UP * probe_heights[probe_index]
+		draw_debug_segment(
+			probe_origin,
+			probe_origin + detection_direction * scramble_detection_distance
+		)
+
 func draw_debug_hurdle_path() -> void:
 	var sample_count: int = max(hurdle_path_samples, 2)
 	var previous_position: Vector3 = calculate_hurdle_position(0.0)
@@ -1420,8 +2013,6 @@ func draw_debug_hurdle_path() -> void:
 	draw_debug_cross(hurdle_crossing_position, hurdle_clearance_height)
 
 func draw_debug_segment(start_position: Vector3, end_position: Vector3) -> void:
-	debug_mesh_instance.to_local(start_position)
-	debug_mesh_instance.to_local(end_position)
 	debug_immediate_mesh.surface_add_vertex(debug_mesh_instance.to_local(start_position))
 	debug_immediate_mesh.surface_add_vertex(debug_mesh_instance.to_local(end_position))
 
