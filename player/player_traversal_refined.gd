@@ -1,6 +1,8 @@
 class_name PlayerTraversalRefined
 extends PlayerTraversal
 
+var hurdle_runtime_duration: float = 0.0
+
 func start_traversal(traversal_target_data: Dictionary) -> void:
 	super.start_traversal(traversal_target_data)
 	if traversal_type != TraversalType.HURDLE:
@@ -12,6 +14,11 @@ func start_traversal(traversal_target_data: Dictionary) -> void:
 	var rising_gravity: float = max(player_movement.gravity_while_rising, 0.001)
 	var required_launch_velocity: float = sqrt(2.0 * rising_gravity * required_height)
 	player.velocity.y = max(player.velocity.y, required_launch_velocity)
+	var falling_gravity: float = max(player_movement.gravity_while_falling * player_movement.fall_multiplier, 0.001)
+	var apex_time: float = required_launch_velocity / rising_gravity
+	var apex_height: float = (required_launch_velocity * required_launch_velocity) / (2.0 * rising_gravity)
+	var falling_time: float = sqrt(max(0.0, 2.0 * apex_height / falling_gravity))
+	hurdle_runtime_duration = max(hurdle_duration, apex_time + falling_time)
 
 func process_physics(delta: float) -> void:
 	if not traversal_active:
@@ -57,11 +64,5 @@ func process_physics_post_movement(_delta: float) -> void:
 
 func get_current_duration() -> float:
 	if traversal_type == TraversalType.HURDLE:
-		var vertical_speed: float = max(player.velocity.y, 0.0)
-		var falling_gravity: float = max(player_movement.gravity_while_falling * player_movement.fall_multiplier, 0.001)
-		var rising_gravity: float = max(player_movement.gravity_while_rising, 0.001)
-		var apex_time: float = vertical_speed / rising_gravity
-		var apex_height: float = (vertical_speed * vertical_speed) / (2.0 * rising_gravity)
-		var landing_time: float = sqrt(max(0.0, 2.0 * apex_height / falling_gravity))
-		return max(hurdle_duration, apex_time + landing_time)
+		return max(hurdle_runtime_duration, hurdle_duration)
 	return super.get_current_duration()
