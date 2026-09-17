@@ -21,27 +21,27 @@ extends Node
 @export var show_grapple_target: bool = true
 
 @export_group("Pull Movement")
-@export var grapple_acceleration: float = 85.0
-@export var grapple_max_speed: float = 38.0
-@export var grapple_pull_strength: float = 55.0
-@export var grapple_arrival_speed: float = 6.0
-@export var grapple_completion_distance: float = 0.9
-@export_range(0.0, 1.0, 0.01) var grapple_velocity_preservation: float = 0.8
-@export_range(0.0, 1.0, 0.01) var grapple_momentum_influence: float = 0.85
-@export_range(0.0, 2.0, 0.01) var grapple_air_control: float = 0.35
-@export_range(0.0, 2.0, 0.01) var grapple_ground_control: float = 0.45
+@export var grapple_acceleration: float = 125.0
+@export var grapple_max_speed: float = 44.0
+@export var grapple_pull_strength: float = 90.0
+@export var grapple_arrival_speed: float = 4.5
+@export var grapple_completion_distance: float = 0.85
+@export_range(0.0, 1.0, 0.01) var grapple_velocity_preservation: float = 0.3
+@export_range(0.0, 1.0, 0.01) var grapple_momentum_influence: float = 0.35
+@export_range(0.0, 2.0, 0.01) var grapple_air_control: float = 0.12
+@export_range(0.0, 2.0, 0.01) var grapple_ground_control: float = 0.16
 
 @export_group("Momentum")
-@export var grapple_tangent_speed_limit: float = 24.0
+@export var grapple_tangent_speed_limit: float = 10.0
 @export var grapple_control_response: float = 8.0
-@export_range(0.0, 1.0, 0.01) var grapple_vertical_momentum_preservation: float = 0.85
+@export_range(0.0, 1.0, 0.01) var grapple_vertical_momentum_preservation: float = 0.45
 
 @export_group("Arrival")
 @export_range(0.0, 2.0, 0.01) var grapple_arrival_velocity: float = 0.9
-@export_range(0.0, 2.0, 0.01) var grapple_exit_momentum: float = 0.9
-@export var grapple_exit_boost: float = 2.5
-@export var grapple_arrival_braking: float = 34.0
-@export var grapple_arrival_smoothing_distance: float = 5.0
+@export_range(0.0, 2.0, 0.01) var grapple_exit_momentum: float = 0.85
+@export var grapple_exit_boost: float = 1.0
+@export var grapple_arrival_braking: float = 55.0
+@export var grapple_arrival_smoothing_distance: float = 6.0
 
 @export_group("Cancellation")
 @export var grapple_can_cancel: bool = true
@@ -54,25 +54,25 @@ extends Node
 @export var grapple_recovery_time: float = 0.15
 
 @export_group("Camera")
-@export_range(0.0, 15.0, 0.1) var grapple_camera_pitch: float = 4.0
-@export_range(0.0, 15.0, 0.1) var grapple_camera_roll: float = 3.0
-@export_range(0.0, 0.1, 0.001) var grapple_camera_sway: float = 0.018
+@export_range(0.0, 15.0, 0.1) var grapple_camera_pitch: float = 2.5
+@export_range(0.0, 15.0, 0.1) var grapple_camera_roll: float = 1.8
+@export_range(0.0, 0.1, 0.001) var grapple_camera_sway: float = 0.01
 @export_range(0.1, 20.0, 0.1) var grapple_camera_inertia: float = 1.6
 @export_range(0.0, 0.15, 0.001) var grapple_camera_launch_amount: float = 0.045
 @export_range(0.0, 0.15, 0.001) var grapple_camera_arrival_amount: float = 0.06
 @export_range(0.1, 40.0, 0.1) var grapple_camera_response_speed: float = 12.0
 @export_range(0.1, 40.0, 0.1) var grapple_camera_return_speed: float = 18.0
-@export_range(0.0, 1.0, 0.01) var grapple_camera_target_influence: float = 0.16
-@export_range(0.0, 45.0, 0.1) var grapple_camera_target_max_angle: float = 16.0
+@export_range(0.0, 1.0, 0.01) var grapple_camera_target_influence: float = 0.0
+@export_range(0.0, 45.0, 0.1) var grapple_camera_target_max_angle: float = 12.0
 @export_range(0.1, 40.0, 0.1) var grapple_camera_target_response: float = 14.0
 
 @export_group("FOV")
 @export var grapple_fov_boost: float = 5.0
 @export var grapple_fov_launch_speed: float = 18.0
-@export var grapple_fov_return_speed: float = 13.0
+@export var grapple_fov_return_speed: float = 16.0
 @export var grapple_fov_maximum: float = 125.0
-@export var grapple_fov_speed_influence: float = 10.0
-@export var grapple_fov_distance_influence: float = 4.0
+@export var grapple_fov_speed_influence: float = 8.0
+@export var grapple_fov_distance_influence: float = 3.0
 
 @export_group("Debug")
 @export var debug_draw_grapple_target: bool = false
@@ -107,6 +107,9 @@ var grapple_camera_position_value: Vector3 = Vector3.ZERO
 var grapple_camera_position_velocity: Vector3 = Vector3.ZERO
 var grapple_camera_target_rotation: Vector3 = Vector3.ZERO
 var grapple_fov_offset: float = 0.0
+var grapple_camera_position_applied: Vector3 = Vector3.ZERO
+var grapple_camera_rotation_applied: Vector3 = Vector3.ZERO
+var grapple_fov_applied: float = 0.0
 var grapple_launch_pulse: float = 0.0
 var grapple_arrival_pulse: float = 0.0
 var grapple_target_indicator_position: Vector3 = Vector3.ZERO
@@ -348,19 +351,16 @@ func update_grapple_motion(delta: float) -> void:
 	if grapple_distance <= grapple_completion_distance:
 		return
 	grapple_direction = (grapple_target_position - player.global_position).normalized()
-	var normalized_progress: float = clamp(1.0 - grapple_distance / max(grapple_start_distance, 0.001), 0.0, 1.0)
-	var progress_smooth: float = smoothstep(0.0, 1.0, normalized_progress)
-	var cruise_speed: float = lerp(grapple_arrival_speed, grapple_max_speed, 0.2 + 0.8 * progress_smooth)
-	var pull_speed: float = sqrt(max(grapple_arrival_speed * grapple_arrival_speed, 2.0 * grapple_pull_strength * grapple_distance))
 	var braking_speed: float = sqrt(max(grapple_arrival_speed * grapple_arrival_speed, 2.0 * grapple_arrival_braking * grapple_distance))
-	var desired_speed: float = min(max(cruise_speed, pull_speed), grapple_max_speed)
-	desired_speed = min(desired_speed, braking_speed)
+	var desired_speed: float = min(grapple_max_speed, max(grapple_arrival_speed, braking_speed))
 	var braking_distance: float = max(grapple_arrival_smoothing_distance, grapple_completion_distance)
 	if grapple_distance < braking_distance:
 		var arrival_weight: float = smoothstep(0.0, 1.0, grapple_distance / braking_distance)
 		desired_speed = lerp(grapple_arrival_speed, desired_speed, arrival_weight)
 	var tangent_velocity: Vector3 = grapple_velocity.slide(grapple_direction)
 	var momentum_factor: float = grapple_velocity_preservation * grapple_momentum_influence
+	var tangent_distance_fade: float = clamp(grapple_distance / max(grapple_start_distance, 0.001), 0.0, 1.0)
+	tangent_velocity *= momentum_factor * tangent_distance_fade
 	var control_factor: float = grapple_ground_control
 	if not player.is_on_floor():
 		control_factor = grapple_air_control
@@ -372,19 +372,19 @@ func update_grapple_motion(delta: float) -> void:
 			var tangent_speed: float = min(max(tangent_velocity.length(), grapple_arrival_speed), grapple_tangent_speed_limit)
 			var tangent_target: Vector3 = input_tangent * tangent_speed
 			tangent_velocity = tangent_velocity.lerp(tangent_target, clamp(grapple_control_response * control_factor * delta, 0.0, 1.0))
-	tangent_velocity *= momentum_factor
 	if tangent_velocity.length() > grapple_tangent_speed_limit:
 		tangent_velocity = tangent_velocity.normalized() * grapple_tangent_speed_limit
-	var vertical_momentum: Vector3 = Vector3.UP * grapple_velocity.y * grapple_vertical_momentum_preservation
-	var desired_velocity: Vector3 = grapple_direction * desired_speed + tangent_velocity + vertical_momentum
-	var target_speed_limit: float = grapple_max_speed + grapple_tangent_speed_limit * 0.35
+	var desired_velocity: Vector3 = grapple_direction * desired_speed + tangent_velocity
+	var target_speed_limit: float = grapple_max_speed + grapple_tangent_speed_limit * 0.2
 	if desired_velocity.length() > target_speed_limit:
 		desired_velocity = desired_velocity.normalized() * target_speed_limit
-	var acceleration_scale: float = lerp(0.75, 1.2, progress_smooth)
-	var pull_acceleration: float = grapple_acceleration + grapple_pull_strength * acceleration_scale
+	var pull_acceleration: float = grapple_acceleration + grapple_pull_strength
 	grapple_velocity = grapple_velocity.move_toward(desired_velocity, pull_acceleration * delta)
-	if grapple_velocity.length() > target_speed_limit:
-		grapple_velocity = grapple_velocity.move_toward(grapple_velocity.normalized() * target_speed_limit, grapple_arrival_braking * delta)
+	var radial_speed: float = grapple_velocity.dot(grapple_direction)
+	if radial_speed > desired_speed:
+		var radial_velocity: Vector3 = grapple_direction * radial_speed
+		var excess_radial_velocity: Vector3 = grapple_velocity - radial_velocity
+		grapple_velocity = grapple_velocity.move_toward(grapple_direction * desired_speed + excess_radial_velocity, grapple_arrival_braking * delta)
 
 func get_grapple_control_direction() -> Vector3:
 	var movement_input: Vector2 = player_input.movement_input
@@ -450,6 +450,12 @@ func finish_grapple(exit_velocity: Vector3) -> void:
 	grapple_target_rid = RID()
 
 func update_camera_feedback(delta: float) -> void:
+	camera_motion.position -= grapple_camera_position_applied
+	camera_motion.rotation -= grapple_camera_rotation_applied
+	camera.fov -= grapple_fov_applied
+	grapple_camera_position_applied = Vector3.ZERO
+	grapple_camera_rotation_applied = Vector3.ZERO
+	grapple_fov_applied = 0.0
 	grapple_launch_pulse = move_toward(grapple_launch_pulse, 0.0, max(grapple_fov_launch_speed, 0.1) * delta)
 	grapple_arrival_pulse = move_toward(grapple_arrival_pulse, 0.0, max(grapple_fov_return_speed, 0.1) * delta)
 	var target_rotation: Vector3 = Vector3.ZERO
@@ -462,13 +468,11 @@ func update_camera_feedback(delta: float) -> void:
 		target_rotation.x = -deg_to_rad(vertical_ratio * grapple_camera_pitch)
 		target_rotation.z = -deg_to_rad(lateral_ratio * grapple_camera_roll)
 		var target_local_direction: Vector3 = camera.global_transform.basis.inverse() * grapple_direction
-		var target_yaw: float = atan2(target_local_direction.x, -target_local_direction.z)
 		var target_pitch: float = atan2(target_local_direction.y, max(Vector2(target_local_direction.x, target_local_direction.z).length(), 0.001))
 		var target_angle_limit: float = deg_to_rad(grapple_camera_target_max_angle)
-		target_yaw = clamp(target_yaw, -target_angle_limit, target_angle_limit)
 		target_pitch = clamp(target_pitch, -target_angle_limit, target_angle_limit)
-		grapple_camera_target_rotation.y = move_toward(grapple_camera_target_rotation.y, target_yaw * grapple_camera_target_influence, grapple_camera_target_response * delta)
 		grapple_camera_target_rotation.x = move_toward(grapple_camera_target_rotation.x, target_pitch * grapple_camera_target_influence, grapple_camera_target_response * delta)
+		grapple_camera_target_rotation.y = 0.0
 		target_rotation += grapple_camera_target_rotation
 		target_position.x = -lateral_ratio * grapple_camera_sway
 		target_position.y = -vertical_ratio * grapple_camera_sway * 0.35
@@ -506,17 +510,15 @@ func update_camera_feedback(delta: float) -> void:
 		var distance_ratio: float = clamp(grapple_distance / max(grapple_start_distance, 0.001), 0.0, 1.0)
 		target_fov_offset = grapple_fov_boost + grapple_speed_ratio * grapple_fov_speed_influence + distance_ratio * grapple_fov_distance_influence
 		target_fov_offset += grapple_fov_boost * 0.35 * grapple_launch_pulse
-	var available_fov: float = max(grapple_fov_maximum - camera.fov, 0.0)
-	target_fov_offset = min(target_fov_offset, available_fov)
-	var fov_speed: float = grapple_fov_return_speed
-	if target_fov_offset > grapple_fov_offset:
-		fov_speed = grapple_fov_launch_speed
-	grapple_fov_offset = move_toward(grapple_fov_offset, target_fov_offset, max(fov_speed, 0.1) * delta)
-	var fov_cap_offset: float = max(grapple_fov_maximum - camera.fov, 0.0)
-	grapple_fov_offset = min(grapple_fov_offset, max(fov_cap_offset, 0.0))
+	grapple_fov_offset = move_toward(grapple_fov_offset, target_fov_offset, max(grapple_fov_launch_speed if target_fov_offset > grapple_fov_offset else grapple_fov_return_speed, 0.1) * delta)
+	var max_offset: float = max(grapple_fov_maximum - camera.fov, 0.0)
+	grapple_fov_offset = min(grapple_fov_offset, max_offset)
 	camera_motion.position += grapple_camera_position_value
 	camera_motion.rotation += grapple_camera_rotation_value
-	camera.fov = min(camera.fov + grapple_fov_offset, grapple_fov_maximum)
+	camera.fov += grapple_fov_offset
+	grapple_camera_position_applied = grapple_camera_position_value
+	grapple_camera_rotation_applied = grapple_camera_rotation_value
+	grapple_fov_applied = grapple_fov_offset
 
 func get_camera_rotation_offset() -> Vector3:
 	return grapple_camera_rotation_value
