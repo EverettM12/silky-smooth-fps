@@ -55,7 +55,9 @@ func get_rope_start_position() -> Vector3:
 	return grapple.camera.global_position
 
 func _update_rope_mesh() -> void:
-	var rope_direction: Vector3 = smoothed_end_position - smoothed_start_position
+	var local_start_position: Vector3 = to_local(smoothed_start_position)
+	var local_end_position: Vector3 = to_local(smoothed_end_position)
+	var rope_direction: Vector3 = local_end_position - local_start_position
 	var rope_length: float = rope_direction.length()
 	if rope_length <= 0.001:
 		rope_mesh.clear_surfaces()
@@ -66,13 +68,13 @@ func _update_rope_mesh() -> void:
 		reference_axis = Vector3.RIGHT
 	var right_axis: Vector3 = direction.cross(reference_axis).normalized()
 	var up_axis: Vector3 = right_axis.cross(direction).normalized()
-	var start_circle: PackedVector3Array = _generate_cross_section(smoothed_start_position, right_axis, up_axis)
-	var end_circle: PackedVector3Array = _generate_cross_section(smoothed_end_position, right_axis, up_axis)
+	var start_circle: PackedVector3Array = _generate_cross_section(local_start_position, right_axis, up_axis)
+	var end_circle: PackedVector3Array = _generate_cross_section(local_end_position, right_axis, up_axis)
 	rope_mesh.clear_surfaces()
 	rope_mesh.surface_begin(Mesh.PRIMITIVE_TRIANGLES)
-	_draw_rope_surface(start_circle, end_circle)
-	_draw_rope_cap(start_circle, -direction)
-	_draw_rope_cap(end_circle, direction)
+	_draw_rope_surface(local_start_position, local_end_position, start_circle, end_circle)
+	_draw_rope_cap(local_start_position, local_end_position, start_circle, -direction)
+	_draw_rope_cap(local_start_position, local_end_position, end_circle, direction)
 	rope_mesh.surface_end()
 
 func _generate_cross_section(center: Vector3, right_axis: Vector3, up_axis: Vector3) -> PackedVector3Array:
@@ -83,17 +85,17 @@ func _generate_cross_section(center: Vector3, right_axis: Vector3, up_axis: Vect
 		points.push_back(center + offset)
 	return points
 
-func _draw_rope_surface(start_circle: PackedVector3Array, end_circle: PackedVector3Array) -> void:
+func _draw_rope_surface(start_position: Vector3, end_position: Vector3, start_circle: PackedVector3Array, end_circle: PackedVector3Array) -> void:
 	for index: int in rope_section_resolution:
 		var next_index: int = (index + 1) % rope_section_resolution
 		var start_a: Vector3 = start_circle[index]
 		var start_b: Vector3 = start_circle[next_index]
 		var end_a: Vector3 = end_circle[index]
 		var end_b: Vector3 = end_circle[next_index]
-		var start_normal_a: Vector3 = (start_a - smoothed_start_position).normalized()
-		var start_normal_b: Vector3 = (start_b - smoothed_start_position).normalized()
-		var end_normal_a: Vector3 = (end_a - smoothed_end_position).normalized()
-		var end_normal_b: Vector3 = (end_b - smoothed_end_position).normalized()
+		var start_normal_a: Vector3 = (start_a - start_position).normalized()
+		var start_normal_b: Vector3 = (start_b - start_position).normalized()
+		var end_normal_a: Vector3 = (end_a - end_position).normalized()
+		var end_normal_b: Vector3 = (end_b - end_position).normalized()
 		rope_mesh.surface_set_normal(start_normal_a)
 		rope_mesh.surface_add_vertex(start_a)
 		rope_mesh.surface_set_normal(end_normal_a)
@@ -107,10 +109,10 @@ func _draw_rope_surface(start_circle: PackedVector3Array, end_circle: PackedVect
 		rope_mesh.surface_set_normal(start_normal_b)
 		rope_mesh.surface_add_vertex(start_b)
 
-func _draw_rope_cap(circle: PackedVector3Array, normal: Vector3) -> void:
-	var center: Vector3 = smoothed_start_position
-	if normal.dot(smoothed_end_position - smoothed_start_position) > 0.0:
-		center = smoothed_end_position
+func _draw_rope_cap(start_position: Vector3, end_position: Vector3, circle: PackedVector3Array, normal: Vector3) -> void:
+	var center: Vector3 = start_position
+	if normal.dot(end_position - start_position) > 0.0:
+		center = end_position
 	for index: int in rope_section_resolution:
 		var next_index: int = (index + 1) % rope_section_resolution
 		rope_mesh.surface_set_normal(normal)
