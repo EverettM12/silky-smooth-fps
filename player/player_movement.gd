@@ -4,6 +4,7 @@ extends Node
 @onready var player: CharacterBody3D = $".."
 @onready var input: PlayerInput = $"../PlayerInput"
 @onready var state: PlayerState = $"../PlayerState"
+@onready var grapple: PlayerGrapple = $"../Grapple"
 
 @export_group("Ground Movement")
 @export var walk_speed: float = 7.0
@@ -115,7 +116,7 @@ var dash_direction: Vector3 = Vector3.ZERO
 var jump_was_held: bool = false
 
 func _ready() -> void:
-	if player == null:
+	if player == null or grapple == null:
 		return
 	collision_shape = player.get_node_or_null("CollisionShape3D") as CollisionShape3D
 	if collision_shape == null:
@@ -139,27 +140,47 @@ func _ready() -> void:
 	air_dashes_remaining = max(air_dash_count, 0)
 
 func _physics_process(delta: float) -> void:
-	if player == null or input == null or state == null or capsule_shape == null:
+	if player == null or input == null or state == null or grapple == null or capsule_shape == null:
 		return
 	update_timers(delta)
 	update_floor_tracking()
-	process_jump_buffer()
-	process_dash_input()
-	update_wall_detection()
-	update_movement_state()
-	process_dash(delta)
-	if not is_dashing:
-		process_slide(delta)
-		process_ground_movement(delta)
-		process_air_movement(delta)
-		process_wall_run(delta)
-		process_gravity(delta)
-	process_stance(delta)
-	apply_jump()
+	grapple.process_physics_pre_movement(delta)
+	var grapple_exit_consumed: bool = false
+	if grapple.is_grappling():
+		is_dashing = false
+		dash_timer = 0.0
+		dash_distance_remaining = 0.0
+		is_wall_running = false
+		wall_run_timer = 0.0
+		if state.is_sliding():
+			slide_timer = 0.0
+		process_stance(delta)
+		player.velocity = grapple.get_requested_velocity()
+	else:
+		process_jump_buffer()
+		process_dash_input()
+		update_wall_detection()
+		update_movement_state()
+		process_dash(delta)
+		if not is_dashing:
+			process_slide(delta)
+			process_ground_movement(delta)
+			process_air_movement(delta)
+			process_wall_run(delta)
+			process_gravity(delta)
+		process_stance(delta)
+		apply_jump()
+	if grapple.has_exit_velocity():
+		player.velocity = grapple.consume_exit_velocity()
+		grapple_exit_consumed = true
 	player.move_and_slide()
-	update_wall_detection()
-	update_movement_state()
+	grapple.process_physics_post_movement(delta)
+	if not grapple.is_grappling():
+		update_wall_detection()
+		update_movement_state()
 	jump_was_held = input.jump_pressed
+	if grapple_exit_consumed:
+		jump_was_held = true
 
 func update_timers(delta: float) -> void:
 	coyote_timer = max(coyote_timer - delta, 0.0)
@@ -255,7 +276,7 @@ func get_target_speed() -> float:
 	return walk_speed
 
 func process_ground_movement(delta: float) -> void:
-	if not player.is_on_floor() or is_wall_running or state.is_sliding():
+	if not player.is_on_floor() or is_wall_running or state.is_sliding() or state.is_grappling():
 		return
 	var wish_direction: Vector3 = get_wish_direction()
 	var horizontal_velocity: Vector3 = Vector3(player.velocity.x, 0.0, player.velocity.z)
@@ -296,7 +317,7 @@ func apply_slope_behavior(horizontal_velocity: Vector3, delta: float) -> void:
 		player.velocity += slope_direction * slope_friction * delta
 
 func process_air_movement(delta: float) -> void:
-	if player.is_on_floor() or is_wall_running:
+	if player.is_on_floor() or is_wall_running or state.is_grappling():
 		return
 	var wish_direction: Vector3 = get_movement_direction()
 	var horizontal_velocity: Vector3 = Vector3(player.velocity.x, 0.0, player.velocity.z)
@@ -313,6 +334,8 @@ func process_air_movement(delta: float) -> void:
 	player.velocity.z = horizontal_velocity.z
 
 func process_gravity(delta: float) -> void:
+	if state.is_grappling():
+		return
 	if player.is_on_floor():
 		if player.velocity.y < 0.0:
 			player.velocity.y = 0.0
@@ -326,6 +349,8 @@ func process_gravity(delta: float) -> void:
 	player.velocity.y = move_toward(player.velocity.y, -maximum_fall_speed, gravity * delta)
 
 func apply_jump() -> void:
+	if state.is_grappling():
+		return
 	if jump_buffer_timer > 0.0 and not is_dashing:
 		if is_wall_running:
 			wall_jump()
@@ -375,7 +400,7 @@ func can_stand(target_height: float) -> bool:
 	return hits.is_empty()
 
 func begin_slide() -> void:
-	if not player.is_on_floor() or is_dashing or state.is_sliding():
+	if not player.is_on_floor() or is_dashing or state.is_sliding() or state.is_grappling():
 		return
 	var horizontal_speed: float = Vector2(player.velocity.x, player.velocity.z).length()
 	if horizontal_speed < slide_minimum_speed:
@@ -424,7 +449,7 @@ func end_slide() -> void:
 func update_wall_detection() -> void:
 	wall_normal = Vector3.ZERO
 	wall_side = 0.0
-	if not wall_run_enabled or player.is_on_floor():
+	if not wall_run_enabled or player.is_on_floor() or state.is_grappling():
 		return
 	var space_state: PhysicsDirectSpaceState3D = player.get_world_3d().direct_space_state
 	var origin: Vector3 = player.global_position + Vector3.UP * max(current_capsule_height * 0.55, 0.9)
@@ -450,7 +475,7 @@ func update_wall_detection() -> void:
 			wall_side = sign(candidate_direction.dot(right))
 
 func can_start_wall_run() -> bool:
-	if not wall_run_enabled or player.is_on_floor() or is_dashing or wall_normal == Vector3.ZERO:
+	if not wall_run_enabled or player.is_on_floor() or is_dashing or state.is_grappling() or wall_normal == Vector3.ZERO:
 		return false
 	if Vector2(player.velocity.x, player.velocity.z).length() < wall_run_entry_speed:
 		return false
@@ -462,6 +487,8 @@ func start_wall_run() -> void:
 	state.change_state(PlayerState.MovementState.WALL_RUNNING)
 
 func process_wall_run(delta: float) -> void:
+	if state.is_grappling():
+		return
 	if is_wall_running:
 		if wall_normal == Vector3.ZERO or wall_run_timer <= 0.0 or player.is_on_floor():
 			is_wall_running = false
@@ -494,6 +521,8 @@ func wall_jump() -> void:
 	state.change_state(PlayerState.MovementState.AIRBORNE)
 
 func update_movement_state() -> void:
+	if state.is_grappling():
+		return
 	if is_wall_running:
 		state.change_state(PlayerState.MovementState.WALL_RUNNING)
 		return
