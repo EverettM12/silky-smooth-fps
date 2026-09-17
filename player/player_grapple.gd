@@ -30,6 +30,8 @@ extends Node
 @export_range(0.0, 1.0, 0.01) var grapple_momentum_influence: float = 0.35
 @export_range(0.0, 2.0, 0.01) var grapple_air_control: float = 0.12
 @export_range(0.0, 2.0, 0.01) var grapple_ground_control: float = 0.16
+@export var grapple_minimum_pull_speed: float = 5.0
+@export var grapple_momentum_speed_bonus: float = 3.0
 
 @export_group("Momentum")
 @export var grapple_tangent_speed_limit: float = 10.0
@@ -39,7 +41,7 @@ extends Node
 @export_group("Arrival")
 @export_range(0.0, 2.0, 0.01) var grapple_arrival_velocity: float = 1.0
 @export_range(0.0, 2.0, 0.01) var grapple_exit_momentum: float = 1.0
-@export var grapple_exit_boost: float = 2.0
+@export var grapple_exit_boost: float = 0.5
 @export var grapple_arrival_braking: float = 20.0
 @export var grapple_arrival_smoothing_distance: float = 1.0
 
@@ -97,6 +99,7 @@ var grapple_start_distance: float = 0.0
 var grapple_velocity: Vector3 = Vector3.ZERO
 var grapple_direction: Vector3 = Vector3.ZERO
 var grapple_distance: float = 0.0
+var grapple_target_speed: float = 0.0
 var grapple_cooldown_timer: float = 0.0
 var grapple_recovery_timer: float = 0.0
 var grapple_exit_velocity: Vector3 = Vector3.ZERO
@@ -181,6 +184,12 @@ func try_activate_grapple() -> void:
 	grapple_start_distance = max(player.global_position.distance_to(grapple_target_position), grapple_completion_distance)
 	grapple_distance = grapple_start_distance
 	grapple_direction = (grapple_target_position - player.global_position).normalized()
+	var current_player_speed: float = player.velocity.length()
+	grapple_target_speed = clamp(
+		max(grapple_minimum_pull_speed, current_player_speed + grapple_momentum_speed_bonus),
+		grapple_minimum_pull_speed,
+		grapple_max_speed
+	)
 	var incoming_direction_speed: float = max(player.velocity.dot(grapple_direction), 0.0)
 	var preserved_tangent_velocity: Vector3 = player.velocity.slide(grapple_direction)
 	preserved_tangent_velocity *= grapple_velocity_preservation * grapple_momentum_influence
@@ -351,7 +360,6 @@ func update_grapple_motion(delta: float) -> void:
 	if grapple_distance <= grapple_completion_distance:
 		return
 	grapple_direction = (grapple_target_position - player.global_position).normalized()
-	var desired_speed: float = max(grapple_max_speed, grapple_arrival_speed)
 	var tangent_velocity: Vector3 = grapple_velocity.slide(grapple_direction)
 	var momentum_factor: float = grapple_velocity_preservation * grapple_momentum_influence
 	var tangent_distance_fade: float = clamp(grapple_distance / max(grapple_start_distance, 0.001), 0.0, 1.0)
@@ -369,12 +377,12 @@ func update_grapple_motion(delta: float) -> void:
 			tangent_velocity = tangent_velocity.lerp(tangent_target, clamp(grapple_control_response * control_factor * delta, 0.0, 1.0))
 	if tangent_velocity.length() > grapple_tangent_speed_limit:
 		tangent_velocity = tangent_velocity.normalized() * grapple_tangent_speed_limit
-	var desired_velocity: Vector3 = grapple_direction * desired_speed + tangent_velocity
-	var target_speed_limit: float = grapple_max_speed + grapple_tangent_speed_limit * 0.2
-	if desired_velocity.length() > target_speed_limit:
-		desired_velocity = desired_velocity.normalized() * target_speed_limit
-	var pull_acceleration: float = grapple_acceleration + grapple_pull_strength
-	grapple_velocity = grapple_velocity.move_toward(desired_velocity, pull_acceleration * delta)
+	var desired_velocity: Vector3 = grapple_direction * grapple_target_speed + tangent_velocity
+	if desired_velocity.length() > grapple_target_speed:
+		desired_velocity = desired_velocity.normalized() * grapple_target_speed
+	grapple_velocity = grapple_velocity.move_toward(desired_velocity, (grapple_acceleration + grapple_pull_strength) * delta)
+	if grapple_velocity.length() > grapple_target_speed:
+		grapple_velocity = grapple_velocity.move_toward(grapple_velocity.normalized() * grapple_target_speed, grapple_arrival_braking * delta)
 
 func get_grapple_control_direction() -> Vector3:
 	var movement_input: Vector2 = player_input.movement_input
