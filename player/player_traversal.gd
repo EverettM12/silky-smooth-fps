@@ -606,6 +606,157 @@ func find_traversal_target() -> Dictionary:
 				return scramble_target_data
 	return {}
 
+func detect_obstacle() -> Dictionary:
+	var horizontal_speed: float = Vector2(player.velocity.x, player.velocity.z).length()
+	var base_detection_distance: float = hurdle_detection_distance
+	if not (player.is_on_floor() or player_state.is_sliding()):
+		base_detection_distance = mantle_detection_distance
+	var detection_distance: float = clamp(
+		max(base_detection_distance, traversal_forward_detection_distance) + horizontal_speed * traversal_speed_distance_influence,
+		0.5,
+		max(hurdle_max_distance, mantle_detection_distance)
+	)
+	var traversal_direction: Vector3 = get_traversal_direction()
+	if traversal_direction.length_squared() <= 0.001:
+		return {}
+	var camera_forward: Vector3 = get_camera_forward()
+	var best_front_hit: Dictionary = {}
+	var best_score: float = INF
+	var probe_heights: Array[float] = [
+		front_probe_low_height,
+		front_probe_mid_height,
+		traversal_forward_detection_height
+	]
+	var probe_count: int = clamp(obstacle_probe_count, 1, probe_heights.size())
+	var lateral_offset: float = front_probe_lateral_offset
+	for probe_index: int in range(probe_count):
+		var probe_height: float = probe_heights[probe_index]
+		var lateral_offsets: Array[float] = [0.0]
+		if probe_index < 2 and lateral_offset > 0.0:
+			lateral_offsets = [0.0, lateral_offset, -lateral_offset]
+		for lateral_probe_offset: float in lateral_offsets:
+			var probe_origin: Vector3 = (
+				player.global_position
+				+ Vector3.UP * probe_height
+				+ player.global_transform.basis.x * lateral_probe_offset
+			)
+			var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
+				probe_origin,
+				probe_origin + traversal_direction * detection_distance,
+				traversal_collision_mask,
+				[player.get_rid()]
+			)
+			query.collide_with_areas = false
+			query.collide_with_bodies = true
+			var hit: Dictionary = player.get_world_3d().direct_space_state.intersect_ray(query)
+			if hit.is_empty():
+				continue
+			var hit_normal: Vector3 = hit.get("normal", Vector3.ZERO) as Vector3
+			if hit_normal.length_squared() <= 0.001 or abs(hit_normal.y) > wall_normal_vertical_limit:
+				continue
+			var hit_position: Vector3 = hit.get("position", probe_origin) as Vector3
+			var approach_dot: float = traversal_direction.dot(-hit_normal)
+			var angle_to_wall: float = rad_to_deg(acos(clamp(approach_dot, -1.0, 1.0)))
+			if approach_dot < traversal_direction_threshold or angle_to_wall > traversal_max_angle:
+				continue
+			var front_distance: float = player.global_position.distance_to(hit_position)
+			var camera_dot: float = camera_forward.dot(-hit_normal)
+			var camera_assist: float = 0.0
+			if traversal_assist_enabled and camera_dot >= cos(deg_to_rad(traversal_assist_angle)) and front_distance <= detection_distance + traversal_assist_distance:
+				camera_assist = traversal_assist_strength
+			var score: float = front_distance - camera_assist
+			if score < best_score:
+				best_score = score
+				best_front_hit = {
+					"position": hit_position,
+					"normal": hit_normal,
+					"rid": hit.get("rid", RID())
+				}
+	if best_front_hit.is_empty():
+		return {}
+	var front_position: Vector3 = best_front_hit["position"] as Vector3
+	var front_normal: Vector3 = best_front_hit["normal"] as Vector3
+	var front_rid: RID = best_front_hit.get("rid", RID()) as RID
+	var top_data: Dictionary = find_top_surface(front_position, front_normal, front_rid)
+	if top_data.is_empty():
+		return {}
+	var top_position: Vector3 = top_data["position"] as Vector3
+	var top_normal: Vector3 = top_data["normal"] as Vector3
+	var obstacle_height_value: float = top_position.y - player.global_position.y
+	var top_surface_angle: float = surface_angle_degrees(top_normal)
+	if obstacle_height_value < hurdle_min_height - traversal_height_tolerance:
+		return {}
+	if obstacle_height_value > mantle_max_height + traversal_height_tolerance:
+		return {}
+	if top_surface_angle > max(mantle_max_surface_angle, hurdle_max_surface_angle) + surface_angle_tolerance:
+		return {}
+	var landing_data: Dictionary = find_landing_surface(front_position, front_normal, top_position.y)
+	var landing_normal: Vector3 = Vector3.UP
+	if not landing_data.is_empty():
+		landing_normal = landing_data["normal"] as Vector3
+	return {
+		"front_position": front_position,
+		"normal": front_normal,
+		"top_position": top_position,
+		"top_normal": top_normal,
+		"obstacle_height": obstacle_height_value,
+		"landing_position": landing_data.get("position", Vector3.ZERO) as Vector3,
+		"landing_normal": landing_normal
+	}
+
+func find_top_surface(front_position: Vector3, front_normal: Vector3, front_rid: RID) -> Dictionary:
+	var probe_count: int = max(top_surface_probe_count, 1)
+	var best_top_data: Dictionary = {}
+	var best_probe_distance: float = INF
+	var probe_direction: Vector3 = -front_normal
+	probe_direction.y = 0.0
+	if probe_direction.length_squared() <= 0.001:
+		return {}
+	probe_direction = probe_direction.normalized()
+	for probe_index: int in range(probe_count):
+		var probe_offset: float = top_surface_probe_forward_offset + probe_index * top_surface_probe_spacing
+		var probe_point: Vector3 = front_position + probe_direction * probe_offset
+		var probe_origin: Vector3 = Vector3(
+			probe_point.x,
+			player.global_position.y + mantle_max_height + top_surface_probe_height,
+			probe_point.z
+		)
+		var probe_end: Vector3 = Vector3(
+			probe_point.x,
+			player.global_position.y - traversal_vertical_tolerance,
+			probe_point.z
+		)
+		var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
+			probe_origin,
+			probe_end,
+			traversal_collision_mask,
+			[player.get_rid()]
+		)
+		query.collide_with_areas = false
+		query.collide_with_bodies = true
+		var hit: Dictionary = player.get_world_3d().direct_space_state.intersect_ray(query)
+		if hit.is_empty():
+			continue
+		var hit_rid: RID = hit.get("rid", RID()) as RID
+		if front_rid.is_valid() and hit_rid != front_rid:
+			continue
+		var hit_position: Vector3 = hit.get("position", probe_end) as Vector3
+		var hit_normal: Vector3 = hit.get("normal", Vector3.ZERO) as Vector3
+		var hit_height: float = hit_position.y - player.global_position.y
+		var surface_angle: float = surface_angle_degrees(hit_normal)
+		if hit_height < hurdle_min_height - traversal_height_tolerance or hit_height > mantle_max_height + traversal_height_tolerance:
+			continue
+		if surface_angle > max(mantle_max_surface_angle, hurdle_max_surface_angle) + surface_angle_tolerance:
+			continue
+		var probe_distance: float = probe_offset
+		if hit_position.y > player.global_position.y and probe_distance < best_probe_distance:
+			best_probe_distance = probe_distance
+			best_top_data = {
+				"position": hit_position,
+				"normal": hit_normal
+			}
+	return best_top_data
+
 func calculate_scramble_target_from_wall_data(wall_data: Dictionary) -> Dictionary:
 	if wall_data.is_empty() or not scramble_enabled:
 		return {}
@@ -1447,9 +1598,9 @@ func start_traversal(traversal_target_data: Dictionary) -> void:
 		scramble_wall_distance_value = traversal_target_data.get("wall_distance", 0.0) as float
 		scramble_entry_tangent_velocity = horizontal_velocity.slide(scramble_wall_normal) * scramble_entry_momentum_preservation
 		scramble_target_position = traversal_target_position
-	if scramble_wall_normal.length_squared() <= 0.001:
-		cancel_traversal()
-		return
+		if scramble_wall_normal.length_squared() <= 0.001:
+			cancel_traversal()
+			return
 		player.velocity.y = max(
 			player.velocity.y,
 			min(scramble_upward_speed, scramble_max_vertical_speed)
