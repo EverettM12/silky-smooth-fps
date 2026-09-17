@@ -12,18 +12,12 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_5tvr0")
-cross_hair = NodePath("CenterContainer/CrossHair")
+cross_hair = NodePath("CrossHair")
 
-[node name="CenterContainer" type="CenterContainer" parent="." unique_id=1920407741]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="CrossHair" type="Label" parent="CenterContainer" unique_id=2074612037]
-layout_mode = 2
+[node name="CrossHair" type="Label" parent="." unique_id=2074612037]
+layout_mode = 0
+offset_right = 16.0
+offset_bottom = 16.0
 theme_override_fonts/font = ExtResource("2_jam4f")
 text = "[]"
 horizontal_alignment = 1
