@@ -84,6 +84,7 @@ extends Node
 @onready var player: Player = get_parent() as Player
 @onready var player_input: PlayerInput = get_node("../PlayerInput") as PlayerInput
 @onready var player_state: PlayerState = get_node("../PlayerState") as PlayerState
+@onready var player_movement: PlayerMovement = get_node("../PlayerMovement") as PlayerMovement
 @onready var camera: Camera3D = get_node("../Head/CameraMotion/Camera3D") as Camera3D
 @onready var camera_motion: Node3D = get_node("../Head/CameraMotion") as Node3D
 @onready var player_collision_shape: CollisionShape3D = get_node("../CollisionShape3D") as CollisionShape3D
@@ -125,7 +126,7 @@ var debug_immediate_mesh: ImmediateMesh = null
 var debug_material: StandardMaterial3D = null
 
 func _ready() -> void:
-	if player == null or player_input == null or player_state == null or camera == null or camera_motion == null or player_collision_shape == null:
+	if player == null or player_input == null or player_state == null or player_movement == null or camera == null or camera_motion == null or player_collision_shape == null:
 		return
 	if target_indicator != null:
 		target_indicator.visible = false
@@ -422,11 +423,19 @@ func cancel_grapple_without_boost() -> void:
 func complete_grapple() -> void:
 	if not grapple_active:
 		return
-	var start_speed: float = grapple_start_velocity.length()
-	var exit_speed: float = start_speed + grapple_momentum_speed_bonus
-	var exit_velocity: Vector3 = grapple_direction * exit_speed
-	if start_speed > 0.01:
-		exit_velocity = grapple_start_velocity.normalized() * exit_speed
+	var start_velocity: Vector3 = grapple_start_velocity
+	var start_horizontal_velocity: Vector3 = Vector3(start_velocity.x, 0.0, start_velocity.z)
+	var facing_direction: Vector3 = -player.global_transform.basis.z
+	var was_moving_backward: bool = start_horizontal_velocity.length_squared() > 0.001 and start_horizontal_velocity.normalized().dot(facing_direction) < 0.0
+	var exit_velocity: Vector3 = Vector3.ZERO
+	if was_moving_backward:
+		exit_velocity = facing_direction * player_movement.walk_speed
+	else:
+		var start_speed: float = start_velocity.length()
+		var exit_speed: float = start_speed + grapple_momentum_speed_bonus
+		exit_velocity = grapple_direction * exit_speed
+		if start_speed > 0.01:
+			exit_velocity = start_velocity.normalized() * exit_speed
 	finish_grapple(exit_velocity)
 	grapple_arrival_pulse = 1.0
 
@@ -518,104 +527,3 @@ func update_camera_feedback(delta: float) -> void:
 	grapple_camera_position_applied = grapple_camera_position_value
 	grapple_camera_rotation_applied = grapple_camera_rotation_value
 	grapple_fov_applied = grapple_fov_offset
-
-func get_camera_rotation_offset() -> Vector3:
-	return grapple_camera_rotation_value
-
-func get_camera_position_offset() -> Vector3:
-	return grapple_camera_position_value
-
-func get_fov_offset() -> float:
-	return grapple_fov_offset
-
-func is_grappling() -> bool:
-	return grapple_active
-
-func get_target_position() -> Vector3:
-	return grapple_target_position
-
-func is_target_valid() -> bool:
-	return grapple_target_valid
-
-func get_target_indicator_transform() -> Transform3D:
-	return Transform3D(Basis.IDENTITY.scaled(Vector3.ONE * grapple_target_indicator_scale_value), grapple_target_indicator_position)
-
-func critical_damp_vector3(current_value: Vector3, current_velocity: Vector3, target_value: Vector3, frequency: float, delta: float) -> Dictionary:
-	var angular_frequency: float = max(frequency, 0.001)
-	var offset: Vector3 = current_value - target_value
-	var exponential_decay: float = exp(-angular_frequency * delta)
-	var temporary_value: Vector3 = (current_velocity + offset * angular_frequency) * delta
-	var new_offset: Vector3 = (offset + temporary_value) * exponential_decay
-	var new_velocity: Vector3 = (current_velocity - temporary_value * angular_frequency) * exponential_decay
-	var new_value: Vector3 = target_value + new_offset
-	if new_value.length_squared() < 0.000001 and new_velocity.length_squared() < 0.000001 and target_value.length_squared() < 0.000001:
-		new_value = target_value
-		new_velocity = Vector3.ZERO
-	return {
-		"value": new_value,
-		"velocity": new_velocity
-	}
-
-func update_target_indicator(delta: float) -> void:
-	if target_indicator == null:
-		return
-	var desired_position: Vector3 = grapple_target_indicator_position
-	var current_global_position: Vector3 = target_indicator.global_position
-	var smoothing: float = 1.0 - exp(-max(target_indicator_smoothing, 0.1) * delta)
-	target_indicator.global_position = current_global_position.lerp(desired_position, smoothing)
-	target_indicator.scale = Vector3.ONE * grapple_target_indicator_scale_value
-	target_indicator.visible = show_grapple_target and grapple_target_valid and not grapple_active
-
-func configure_debug_geometry() -> void:
-	if not debug_draw_grapple_target and not debug_draw_grapple_path:
-		return
-	debug_mesh_instance = MeshInstance3D.new()
-	debug_immediate_mesh = ImmediateMesh.new()
-	debug_material = StandardMaterial3D.new()
-	debug_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	debug_material.vertex_color_use_as_albedo = true
-	debug_mesh_instance.mesh = debug_immediate_mesh
-	debug_mesh_instance.material_override = debug_material
-	add_child(debug_mesh_instance)
-
-func update_debug_geometry() -> void:
-	if debug_immediate_mesh == null:
-		return
-	if not debug_draw_grapple_target and not debug_draw_grapple_path:
-		debug_immediate_mesh.clear_surfaces()
-		return
-	debug_immediate_mesh.clear_surfaces()
-	debug_immediate_mesh.surface_begin(Mesh.PRIMITIVE_LINES)
-	if debug_draw_grapple_path and (grapple_active or grapple_target_valid):
-		var path_start: Vector3 = player.global_position
-		var path_end: Vector3 = grapple_target_position
-		debug_immediate_mesh.surface_set_color(Color(0.2, 0.85, 1.0, 1.0))
-		debug_immediate_mesh.surface_add_vertex(debug_mesh_instance.to_local(path_start))
-		debug_immediate_mesh.surface_add_vertex(debug_mesh_instance.to_local(path_end))
-	if debug_draw_grapple_target and grapple_target_valid:
-		var center: Vector3 = debug_mesh_instance.to_local(grapple_target_position)
-		var size: float = 0.3
-		var right: Vector3 = Vector3.RIGHT * size
-		var up: Vector3 = Vector3.UP * size
-		var forward: Vector3 = Vector3.FORWARD * size
-		debug_mesh_instance.material_override = debug_material
-		debug_mesh_instance.mesh = debug_immediate_mesh
-		debug_immediate_mesh.surface_set_color(Color(0.25, 1.0, 0.55, 1.0))
-		debug_immediate_mesh.surface_add_vertex(center - right)
-		debug_immediate_mesh.surface_add_vertex(center + right)
-		debug_immediate_mesh.surface_add_vertex(center - up)
-		debug_immediate_mesh.surface_add_vertex(center + up)
-		debug_immediate_mesh.surface_add_vertex(center - forward)
-		debug_immediate_mesh.surface_add_vertex(center + forward)
-	debug_immediate_mesh.surface_end()
-
-func update_debug_state() -> void:
-	if not debug_print_grapple_state:
-		return
-	var current_state: StringName = &"grappling"
-	if not grapple_active:
-		current_state = &"inactive"
-	if current_state == grapple_last_debug_state:
-		return
-	grapple_last_debug_state = current_state
-	print("Grapple state: ", current_state)
