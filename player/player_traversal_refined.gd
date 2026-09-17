@@ -9,7 +9,6 @@ func start_traversal(traversal_target_data: Dictionary) -> void:
 	if traversal_type != TraversalType.HURDLE:
 		return
 	var entry_horizontal_velocity: Vector3 = Vector3(traversal_start_velocity.x, 0.0, traversal_start_velocity.z)
-	var entry_speed: float = entry_horizontal_velocity.length() * traversal_entry_speed_influence
 	var target_horizontal: Vector3 = Vector3(
 		traversal_target_position.x - traversal_start_position.x,
 		0.0,
@@ -28,7 +27,7 @@ func start_traversal(traversal_target_data: Dictionary) -> void:
 	if entry_horizontal_velocity.length_squared() <= 0.001:
 		entry_horizontal_velocity = -player.global_transform.basis.z * movement_speed
 	var effective_speed: float = max(entry_horizontal_velocity.length(), hurdle_forward_speed)
-	var minimum_duration: float = max(hurdle_duration * 0.65, 0.14)
+	var minimum_duration: float = max(hurdle_duration * 0.35, 0.08)
 	var speed_duration: float = target_distance / max(effective_speed, 0.1)
 	hurdle_runtime_duration = max(minimum_duration, speed_duration)
 	traversal_start_velocity.x = entry_horizontal_velocity.x
@@ -39,11 +38,10 @@ func start_traversal(traversal_target_data: Dictionary) -> void:
 		hurdle_height,
 		obstacle_height + hurdle_obstacle_clearance + clearance_margin
 	)
-	var required_peak_height: float = obstacle_height_for_arc
 	var vertical_delta: float = hurdle_target_position.y - traversal_start_position.y
 	var initial_vertical_velocity: float = (
 		vertical_delta
-		+ PI * required_peak_height
+		+ PI * obstacle_height_for_arc
 	) / max(hurdle_runtime_duration, 0.001)
 	player.velocity.y = initial_vertical_velocity
 	setup_hurdle_collision_exception()
@@ -89,7 +87,7 @@ func process_physics_post_movement(_delta: float) -> void:
 
 func get_current_duration() -> float:
 	if traversal_type == TraversalType.HURDLE:
-		return max(hurdle_runtime_duration, 0.14)
+		return max(hurdle_runtime_duration, 0.08)
 	return super.get_current_duration()
 
 func calculate_hurdle_velocity(progress: float, duration: float) -> Vector3:
