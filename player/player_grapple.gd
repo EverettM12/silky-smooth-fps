@@ -84,6 +84,7 @@ extends Node
 @onready var player_state: PlayerState = get_node("../PlayerState") as PlayerState
 @onready var camera: Camera3D = get_node("../Head/CameraMotion/Camera3D") as Camera3D
 @onready var camera_motion: Node3D = get_node("../Head/CameraMotion") as Node3D
+@onready var player_collision_shape: CollisionShape3D = get_node("../CollisionShape3D") as CollisionShape3D
 @onready var target_indicator: Node3D = get_node_or_null("TargetIndicator") as Node3D
 
 var grapple_active: bool = false
@@ -117,7 +118,7 @@ var debug_immediate_mesh: ImmediateMesh = null
 var debug_material: StandardMaterial3D = null
 
 func _ready() -> void:
-	if player == null or player_input == null or player_state == null or camera == null or camera_motion == null:
+	if player == null or player_input == null or player_state == null or camera == null or camera_motion == null or player_collision_shape == null:
 		return
 	if target_indicator != null:
 		target_indicator.visible = false
@@ -250,7 +251,7 @@ func build_valid_target(ray_result: Dictionary, ray_origin: Vector3, camera_forw
 		return {}
 	var hit_position: Vector3 = ray_result["position"] as Vector3
 	var hit_normal: Vector3 = ray_result["normal"] as Vector3
-	var target_position: Vector3 = hit_position + hit_normal * grapple_surface_tolerance
+	var target_position: Vector3 = calculate_attachment_position(hit_position, hit_normal)
 	var player_distance: float = player.global_position.distance_to(target_position)
 	if player_distance < grapple_min_distance or player_distance > grapple_max_distance:
 		return {}
@@ -268,6 +269,16 @@ func build_valid_target(ray_result: Dictionary, ray_origin: Vector3, camera_forw
 		"collider": collider_node,
 		"rid": ray_result["rid"] as RID
 	}
+
+func calculate_attachment_position(hit_position: Vector3, hit_normal: Vector3) -> Vector3:
+	var standoff_distance: float = grapple_surface_tolerance
+	if player_collision_shape.shape is CapsuleShape3D:
+		var capsule_shape: CapsuleShape3D = player_collision_shape.shape as CapsuleShape3D
+		if hit_normal.y < -0.7:
+			standoff_distance = max(standoff_distance, capsule_shape.height + grapple_completion_distance)
+		elif abs(hit_normal.y) <= 0.7:
+			standoff_distance = max(standoff_distance, capsule_shape.radius + grapple_completion_distance * 0.5)
+	return hit_position + hit_normal * standoff_distance
 
 func is_valid_grapple_collider(collider: Node3D) -> bool:
 	if collider.is_in_group(grapple_exclusion_group):
@@ -314,7 +325,6 @@ func update_target_preview() -> void:
 	var target_data: Dictionary = find_grapple_target(true)
 	if target_data.is_empty():
 		grapple_target_valid = false
-		grapple_target_indicator_position = grapple_target_indicator_position
 		return
 	grapple_target_valid = true
 	var target_position: Vector3 = target_data["position"] as Vector3
@@ -587,6 +597,8 @@ func update_debug_geometry() -> void:
 		var right: Vector3 = Vector3.RIGHT * size
 		var up: Vector3 = Vector3.UP * size
 		var forward: Vector3 = Vector3.FORWARD * size
+		debug_mesh_instance.material_override = debug_material
+		debug_mesh_instance.mesh = debug_immediate_mesh
 		debug_immediate_mesh.surface_set_color(Color(0.25, 1.0, 0.55, 1.0))
 		debug_immediate_mesh.surface_add_vertex(center - right)
 		debug_immediate_mesh.surface_add_vertex(center + right)
