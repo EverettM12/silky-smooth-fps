@@ -10,6 +10,7 @@ extends Node
 @export var crouch_action: StringName = &"crouch"
 @export var sprint_action: StringName = &"sprint"
 @export var dash_action: StringName = &"dash"
+@export var grapple_action: StringName = &"grapple"
 
 var movement_input: Vector2 = Vector2.ZERO
 var look_input: Vector2 = Vector2.ZERO
@@ -19,6 +20,7 @@ var crouch_pressed: bool = false
 var crouch_just_pressed: bool = false
 var sprint_pressed: bool = false
 var dash_pressed: bool = false
+var grapple_pressed: bool = false
 
 func _physics_process(_delta: float) -> void:
 	movement_input = Input.get_vector(move_left_action, move_right_action, move_forward_action, move_backward_action)
@@ -28,3 +30,4 @@ func _physics_process(_delta: float) -> void:
 	crouch_pressed = Input.is_action_pressed(crouch_action)
 	sprint_pressed = Input.is_action_pressed(sprint_action)
 	dash_pressed = Input.is_action_just_pressed(dash_action)
+	grapple_pressed = Input.is_action_just_pressed(grapple_action)
