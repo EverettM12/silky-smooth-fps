@@ -48,6 +48,10 @@ func start_traversal(traversal_target_data: Dictionary) -> void:
 		if scramble_wall_normal.length_squared() <= 0.001:
 			cancel_traversal()
 			return
+		var wall_distance_error: float = scramble_wall_distance_value - scramble_wall_distance
+		if wall_distance_error > 0.0:
+			var wall_pull_speed: float = clamp(wall_distance_error * scramble_wall_distance_response, 0.0, scramble_wall_stick_force)
+			player.velocity -= scramble_wall_normal * wall_pull_speed
 		player.velocity.y = max(
 			player.velocity.y,
 			min(scramble_upward_speed, scramble_max_vertical_speed)
@@ -58,7 +62,8 @@ func start_traversal(traversal_target_data: Dictionary) -> void:
 func apply_scramble_horizontal_control(delta: float) -> void:
 	var current_horizontal_velocity: Vector3 = Vector3(player.velocity.x, 0.0, player.velocity.z)
 	var current_tangent_velocity: Vector3 = current_horizontal_velocity.slide(scramble_wall_normal)
+	var target_tangent_velocity: Vector3 = scramble_entry_tangent_velocity * 0.12
 	var damping_weight: float = clamp(scramble_steering_response * delta, 0.0, 1.0)
-	current_tangent_velocity = current_tangent_velocity.lerp(Vector3.ZERO, damping_weight)
+	current_tangent_velocity = current_tangent_velocity.lerp(target_tangent_velocity, damping_weight)
 	player.velocity.x = current_tangent_velocity.x
 	player.velocity.z = current_tangent_velocity.z
