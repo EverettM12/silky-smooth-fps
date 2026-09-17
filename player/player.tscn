@@ -5,6 +5,7 @@
 [ext_resource type="Script" uid="uid://b2nyeik7ret7y" path="res://player/player_movement.gd" id="3_g1dw6"]
 [ext_resource type="Script" uid="uid://ckouwtkw57tmm" path="res://player/player_state.gd" id="4_yw30f"]
 [ext_resource type="Script" uid="uid://dt32bu8uojddd" path="res://player/player_camera.gd" id="5_qjkh3"]
+[ext_resource type="Script" path="res://player/player_grapple.gd" id="6_grapple"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ltcvw"]
 radius = 0.35
@@ -42,3 +43,8 @@ gravity_while_falling = 20.25
 script = ExtResource("5_qjkh3")
 bob_frequency = 1.0
 bob_amplitude = 0.023
+
+[node name="Grapple" type="Node" parent="." unique_id=891205374]
+script = ExtResource("6_grapple")
+
+[node name="TargetIndicator" type="Node3D" parent="Grapple"]
