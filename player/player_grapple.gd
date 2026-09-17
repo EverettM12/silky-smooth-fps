@@ -262,7 +262,7 @@ func build_valid_target(ray_result: Dictionary, ray_origin: Vector3, camera_forw
 		return {}
 	var hit_position: Vector3 = ray_result["position"] as Vector3
 	var hit_normal: Vector3 = ray_result["normal"] as Vector3
-	var target_position: Vector3 = calculate_attachment_position(hit_position, hit_normal)
+	var target_position: Vector3 = hit_position
 	var player_distance: float = player.global_position.distance_to(target_position)
 	if player_distance < grapple_min_distance or player_distance > grapple_max_distance:
 		return {}
