@@ -527,3 +527,105 @@ func update_camera_feedback(delta: float) -> void:
 	grapple_camera_position_applied = grapple_camera_position_value
 	grapple_camera_rotation_applied = grapple_camera_rotation_value
 	grapple_fov_applied = grapple_fov_offset
+
+func get_camera_rotation_offset() -> Vector3:
+	return grapple_camera_rotation_value
+
+func get_camera_position_offset() -> Vector3:
+	return grapple_camera_position_value
+
+func get_fov_offset() -> float:
+	return grapple_fov_offset
+
+func is_grappling() -> bool:
+	return grapple_active
+
+func get_target_position() -> Vector3:
+	return grapple_target_position
+
+func is_target_valid() -> bool:
+	return grapple_target_valid
+
+func get_target_indicator_transform() -> Transform3D:
+	return Transform3D(Basis.IDENTITY.scaled(Vector3.ONE * grapple_target_indicator_scale_value), grapple_target_indicator_position)
+
+func critical_damp_vector3(current_value: Vector3, current_velocity: Vector3, target_value: Vector3, frequency: float, delta: float) -> Dictionary:
+	var angular_frequency: float = max(frequency, 0.001)
+	var offset: Vector3 = current_value - target_value
+	var exponential_decay: float = exp(-angular_frequency * delta)
+	var temporary_value: Vector3 = (current_velocity + offset * angular_frequency) * delta
+	var new_offset: Vector3 = (offset + temporary_value) * exponential_decay
+	var new_velocity: Vector3 = (current_velocity - temporary_value * angular_frequency) * exponential_decay
+	var new_value: Vector3 = target_value + new_offset
+	if new_value.length_squared() < 0.000001 and new_velocity.length_squared() < 0.000001 and target_value.length_squared() < 0.000001:
+		new_value = target_value
+		new_velocity = Vector3.ZERO
+	return {
+		"value": new_value,
+		"velocity": new_velocity
+	}
+
+func update_target_indicator(delta: float) -> void:
+	if target_indicator == null:
+		return
+	var desired_position: Vector3 = grapple_target_indicator_position
+	var current_global_position: Vector3 = target_indicator.global_position
+	var smoothing: float = 1.0 - exp(-max(target_indicator_smoothing, 0.1) * delta)
+	target_indicator.global_position = current_global_position.lerp(desired_position, smoothing)
+	target_indicator.scale = Vector3.ONE * grapple_target_indicator_scale_value
+	target_indicator.visible = show_grapple_target and grapple_target_valid and not grapple_active
+
+func configure_debug_geometry() -> void:
+	if not debug_draw_grapple_target and not debug_draw_grapple_path:
+		return
+	debug_mesh_instance = MeshInstance3D.new()
+	debug_immediate_mesh = ImmediateMesh.new()
+	debug_material = StandardMaterial3D.new()
+	debug_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	debug_material.vertex_color_use_as_albedo = true
+	debug_mesh_instance.mesh = debug_immediate_mesh
+	debug_mesh_instance.material_override = debug_material
+	add_child(debug_mesh_instance)
+
+func update_debug_geometry() -> void:
+	if debug_immediate_mesh == null:
+		return
+	if not debug_draw_grapple_target and not debug_draw_grapple_path:
+		debug_immediate_mesh.clear_surfaces()
+		return
+	debug_immediate_mesh.clear_surfaces()
+	debug_immediate_mesh.surface_begin(Mesh.PRIMITIVE_LINES)
+	if debug_draw_grapple_path and (grapple_active or grapple_target_valid):
+		var path_start: Vector3 = player.global_position
+		var path_end: Vector3 = grapple_target_position
+		debug_immediate_mesh.surface_set_color(Color(0.2, 0.85, 1.0, 1.0))
+		debug_mesh_instance.mesh = debug_immediate_mesh
+		debug_immediate_mesh.surface_add_vertex(debug_mesh_instance.to_local(path_start))
+		debug_immediate_mesh.surface_add_vertex(debug_mesh_instance.to_local(path_end))
+	if debug_draw_grapple_target and grapple_target_valid:
+		var center: Vector3 = debug_mesh_instance.to_local(grapple_target_position)
+		var size: float = 0.3
+		var right: Vector3 = Vector3.RIGHT * size
+		var up: Vector3 = Vector3.UP * size
+		var forward: Vector3 = Vector3.FORWARD * size
+		debug_mesh_instance.material_override = debug_material
+		debug_mesh_instance.mesh = debug_immediate_mesh
+		debug_immediate_mesh.surface_set_color(Color(0.25, 1.0, 0.55, 1.0))
+		debug_immediate_mesh.surface_add_vertex(center - right)
+		debug_immediate_mesh.surface_add_vertex(center + right)
+		debug_immediate_mesh.surface_add_vertex(center - up)
+		debug_immediate_mesh.surface_add_vertex(center + up)
+		debug_immediate_mesh.surface_add_vertex(center - forward)
+		debug_immediate_mesh.surface_add_vertex(center + forward)
+	debug_immediate_mesh.surface_end()
+
+func update_debug_state() -> void:
+	if not debug_print_grapple_state:
+		return
+	var current_state: StringName = &"grappling"
+	if not grapple_active:
+		current_state = &"inactive"
+	if current_state == grapple_last_debug_state:
+		return
+	grapple_last_debug_state = current_state
+	print("Grapple state: ", current_state)
