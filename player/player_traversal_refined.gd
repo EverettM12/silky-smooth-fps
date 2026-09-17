@@ -159,8 +159,6 @@ func complete_hurdle() -> void:
 		return
 	var completed_type: TraversalType = traversal_type
 	clear_hurdle_collision_exception()
-	player.velocity.x *= hurdle_momentum_preservation
-	player.velocity.z *= hurdle_momentum_preservation
 	player.velocity.y = 0.0
 	traversal_active = false
 	traversal_progress = 1.0
