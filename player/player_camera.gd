@@ -47,6 +47,7 @@ extends Node
 @export_range(-10.0, 10.0, 0.1) var crouch_camera_tilt: float = 0.0
 @export_range(0.0, 2.0, 0.01) var crouch_movement_sway_multiplier: float = 0.8
 @export_range(0.0, 2.0, 0.01) var crouch_bob_multiplier: float = 0.45
+@export_range(0.0, 2.0, 0.01) var crouching_bob_multiplier: float = 0.45
 
 @export_group("Sliding")
 @export_range(0.0, 3.0, 0.01) var slide_camera_height: float = 0.82
@@ -88,7 +89,6 @@ extends Node
 @export_range(45.0, 150.0, 0.1) var base_fov: float = 90.0
 @export_range(0.0, 30.0, 0.1) var maximum_movement_fov: float = 4.0
 @export_range(0.0, 30.0, 0.1) var sprint_fov_increase: float = 3.5
-@export_range(0.0, 30.0, 0.1) var slide_fov_increase: float = 3.0
 @export_range(0.0, 40.0, 0.1) var dash_fov_increase: float = 8.0
 @export_range(0.0, 30.0, 0.1) var wall_run_fov: float = 2.0
 @export_range(0.0, 30.0, 0.1) var fov_transition_speed: float = 12.0

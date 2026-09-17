@@ -21,7 +21,7 @@ shape = SubResource("CapsuleShape3D_ltcvw")
 [node name="Head" type="Node3D" parent="." unique_id=1231295268]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.65, 0)
 
-[node name="CameraMotion" type="Node3D" parent="Head"]
+[node name="CameraMotion" type="Node3D" parent="Head" unique_id=1030615224]
 
 [node name="Camera3D" type="Camera3D" parent="Head/CameraMotion" unique_id=287350200]
 current = true
@@ -36,6 +36,9 @@ script = ExtResource("4_yw30f")
 
 [node name="PlayerMovement" type="Node" parent="." unique_id=902360245]
 script = ExtResource("3_g1dw6")
+gravity_while_falling = 20.25
 
 [node name="PlayerCamera" type="Node" parent="." unique_id=719292467]
 script = ExtResource("5_qjkh3")
+bob_frequency = 1.0
+bob_amplitude = 0.023

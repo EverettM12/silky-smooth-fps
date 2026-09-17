@@ -25,3 +25,20 @@ material = ExtResource("1_x1qn8")
 metadata/_edit_lock_ = true
 
 [node name="WorldEnvironment" parent="Enviroment" unique_id=678533173 instance=ExtResource("4_acdbw")]
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="Enviroment" unique_id=6500419]
+use_collision = true
+size = Vector3(20, 20, 1)
+material = ExtResource("1_x1qn8")
+
+[node name="CSGBox3D3" type="CSGBox3D" parent="Enviroment" unique_id=114162723]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, -7)
+use_collision = true
+size = Vector3(20, 20, 1)
+material = ExtResource("1_x1qn8")
+
+[node name="CSGBox3D4" type="CSGBox3D" parent="Enviroment" unique_id=1658227872]
+transform = Transform3D(0.70710677, -0.70710677, 0, 0.70710677, 0.70710677, 0, 0, 0, 1, 7, 0, -2)
+use_collision = true
+size = Vector3(5, 5, 5)
+material = ExtResource("1_x1qn8")
