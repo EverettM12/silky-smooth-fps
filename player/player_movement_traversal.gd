@@ -28,11 +28,7 @@ func _physics_process(delta: float) -> void:
 		process_jump_buffer()
 		if not grapple_exit_pending and traversal.process_physics_pre_movement(delta):
 			traversal.process_physics(delta)
-			if traversal.is_traversing() and traversal.is_hurdling():
-				process_air_movement(delta)
-				process_gravity(delta)
-				process_stance(delta)
-		player.move_and_slide()
+			player.move_and_slide()
 			traversal.process_physics_post_movement(delta)
 			jump_was_held = input.jump_pressed
 			return
@@ -64,10 +60,6 @@ func _physics_process(delta: float) -> void:
 func process_traversal_only(delta: float) -> void:
 	var hurdling: bool = traversal.is_hurdling()
 	traversal.process_physics(delta)
-	if hurdling and traversal.is_traversing():
-		process_air_movement(delta)
-		process_gravity(delta)
-		process_stance(delta)
 	player.move_and_slide()
 	traversal.process_physics_post_movement(delta)
 	if traversal.is_traversing():
