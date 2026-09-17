@@ -96,10 +96,11 @@ var grapple_target_collider: Node3D = null
 var grapple_target_rid: RID = RID()
 var grapple_start_position: Vector3 = Vector3.ZERO
 var grapple_start_distance: float = 0.0
+var grapple_start_velocity: Vector3 = Vector3.ZERO
 var grapple_velocity: Vector3 = Vector3.ZERO
 var grapple_direction: Vector3 = Vector3.ZERO
 var grapple_distance: float = 0.0
-var grapple_target_speed: float = 0.0
+var grapple_target_speed: float = 44.0
 var grapple_cooldown_timer: float = 0.0
 var grapple_recovery_timer: float = 0.0
 var grapple_exit_velocity: Vector3 = Vector3.ZERO
@@ -182,14 +183,10 @@ func try_activate_grapple() -> void:
 	grapple_target_rid = target_data["rid"] as RID
 	grapple_start_position = player.global_position
 	grapple_start_distance = max(player.global_position.distance_to(grapple_target_position), grapple_completion_distance)
+	grapple_start_velocity = player.velocity
 	grapple_distance = grapple_start_distance
 	grapple_direction = (grapple_target_position - player.global_position).normalized()
-	var current_player_speed: float = player.velocity.length()
-	grapple_target_speed = clamp(
-		max(grapple_minimum_pull_speed, current_player_speed + grapple_momentum_speed_bonus),
-		grapple_minimum_pull_speed,
-		grapple_max_speed
-	)
+	grapple_target_speed = max(grapple_max_speed, grapple_minimum_pull_speed)
 	var incoming_direction_speed: float = max(player.velocity.dot(grapple_direction), 0.0)
 	var preserved_tangent_velocity: Vector3 = player.velocity.slide(grapple_direction)
 	preserved_tangent_velocity *= grapple_velocity_preservation * grapple_momentum_influence
@@ -425,10 +422,11 @@ func cancel_grapple_without_boost() -> void:
 func complete_grapple() -> void:
 	if not grapple_active:
 		return
-	var actual_velocity: Vector3 = player.velocity
-	var forward_speed: float = max(actual_velocity.dot(grapple_direction), 0.0) * grapple_arrival_velocity
-	var tangent_velocity: Vector3 = actual_velocity.slide(grapple_direction) * grapple_exit_momentum
-	var exit_velocity: Vector3 = grapple_direction * forward_speed + tangent_velocity + grapple_direction * grapple_exit_boost
+	var start_speed: float = grapple_start_velocity.length()
+	var exit_speed: float = start_speed + grapple_momentum_speed_bonus
+	var exit_velocity: Vector3 = grapple_direction * exit_speed
+	if start_speed > 0.01:
+		exit_velocity = grapple_start_velocity.normalized() * exit_speed
 	finish_grapple(exit_velocity)
 	grapple_arrival_pulse = 1.0
 
