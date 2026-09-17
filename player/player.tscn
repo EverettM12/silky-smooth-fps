@@ -71,6 +71,9 @@ script = ExtResource("7_grapple_rope")
 
 [node name="Traversal" type="Node" parent="." unique_id=2104839174]
 script = ExtResource("11_traversal")
+hurdle_speed_influence = 1.0
+hurdle_momentum_preservation = 1.0
+hurdle_exit_speed_multiplier = 1.05
 
 [node name="TraversalCameraLayer" type="Node" parent="Traversal" unique_id=2104839175]
 script = ExtResource("9_traversal_camera")
