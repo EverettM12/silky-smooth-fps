@@ -17,7 +17,7 @@ The movement system is built around one goal: keep traversal fast, fluid, expres
 - [x] Grapple jump-cancel
 - [x] Grapple cooldown and recovery
 - [x] Grapple target indicator
-- [ ] Grapple rope visual
+- [x] Grapple rope visual
 
 ## Next Movement Systems
 
