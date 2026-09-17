@@ -183,7 +183,6 @@ var traversal_phase: TraversalPhase = TraversalPhase.INACTIVE
 var traversal_progress: float = 0.0
 var traversal_elapsed: float = 0.0
 var traversal_input_grace_timer: float = 0.0
-var traversal_target_revalidation_timer: float = 0.0
 var hurdle_path_validation_timer: float = 0.0
 var traversal_start_position: Vector3 = Vector3.ZERO
 var traversal_start_velocity: Vector3 = Vector3.ZERO
@@ -193,7 +192,6 @@ var hurdle_landing_position: Vector3 = Vector3.ZERO
 var hurdle_crossing_position: Vector3 = Vector3.ZERO
 var hurdle_arc_height_value: float = 0.0
 var hurdle_runtime_duration: float = 0.0
-var hurdle_speed_value: float = 0.0
 var mantle_target_position: Vector3 = Vector3.ZERO
 var mantle_lift_position: Vector3 = Vector3.ZERO
 var traversal_entry_direction: Vector3 = Vector3.ZERO
@@ -702,7 +700,6 @@ func calculate_hurdle_target(obstacle_data: Dictionary) -> Vector3:
 	hurdle_crossing_position = desired_crossing_position
 	hurdle_arc_height_value = arc_height
 	hurdle_runtime_duration = runtime_duration
-	hurdle_speed_value = landing_speed
 	return target_position
 
 func calculate_mantle_target(obstacle_data: Dictionary) -> Vector3:
@@ -950,7 +947,6 @@ func start_traversal(traversal_target_data: Dictionary) -> void:
 	traversal_progress = 0.0
 	traversal_phase = TraversalPhase.ASCENDING
 	traversal_active = true
-	traversal_target_revalidation_timer = 0.0
 	hurdle_path_validation_timer = max(hurdle_path_validation_interval, 0.001)
 	traversal_path_direction = traversal_entry_direction
 	player_movement.jump_buffer_timer = 0.0
@@ -1120,7 +1116,6 @@ func complete_traversal() -> void:
 	hurdle_crossing_position = Vector3.ZERO
 	hurdle_arc_height_value = 0.0
 	hurdle_runtime_duration = 0.0
-	hurdle_speed_value = 0.0
 	mantle_target_position = Vector3.ZERO
 	mantle_lift_position = Vector3.ZERO
 	if player.is_on_floor():
@@ -1147,7 +1142,6 @@ func cancel_traversal() -> void:
 	hurdle_crossing_position = Vector3.ZERO
 	hurdle_arc_height_value = 0.0
 	hurdle_runtime_duration = 0.0
-	hurdle_speed_value = 0.0
 	mantle_target_position = Vector3.ZERO
 	mantle_lift_position = Vector3.ZERO
 	if player.is_on_floor():
@@ -1175,7 +1169,6 @@ func release_traversal() -> void:
 	hurdle_crossing_position = Vector3.ZERO
 	hurdle_arc_height_value = 0.0
 	hurdle_runtime_duration = 0.0
-	hurdle_speed_value = 0.0
 	mantle_target_position = Vector3.ZERO
 	mantle_lift_position = Vector3.ZERO
 	if player.is_on_floor():
@@ -1425,7 +1418,8 @@ func draw_debug_hurdle_path() -> void:
 	draw_debug_cross(hurdle_crossing_position, hurdle_clearance_height)
 
 func draw_debug_segment(start_position: Vector3, end_position: Vector3) -> void:
-	debug_immediate_mesh.surface_set_color(debug_material.albedo_color)
+	debug_mesh_instance.to_local(start_position)
+	debug_mesh_instance.to_local(end_position)
 	debug_immediate_mesh.surface_add_vertex(debug_mesh_instance.to_local(start_position))
 	debug_immediate_mesh.surface_add_vertex(debug_mesh_instance.to_local(end_position))
 
