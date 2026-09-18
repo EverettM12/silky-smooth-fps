@@ -13,3 +13,8 @@ func _ready() -> void:
 		return
 
 	player.global_position = start_pos.global_position
+	start_pos.hide()
+
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("restart"):
+		player.global_position = start_pos.global_position

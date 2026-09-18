@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://deecu8boktjep" path="res://ui/ui_manager.gd" id="1_5tvr0"]
 [ext_resource type="FontFile" uid="uid://d2tbloupld0m" path="res://assets/Pixelbasel-zr5Ll.ttf" id="2_jam4f"]
 
-[node name="UiManager" type="Control" unique_id=315761469 node_paths=PackedStringArray("cross_hair")]
+[node name="UiManager" type="Control" unique_id=315761469 node_paths=PackedStringArray("cross_hair", "fps")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -13,12 +13,25 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_5tvr0")
 cross_hair = NodePath("CrossHair")
+fps = NodePath("fps")
 
 [node name="CrossHair" type="Label" parent="." unique_id=2074612037]
 layout_mode = 0
 offset_right = 16.0
 offset_bottom = 16.0
 theme_override_fonts/font = ExtResource("2_jam4f")
-text = "[]"
+text = "[ ]"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="fps" type="Label" parent="." unique_id=1497584198]
+visible = false
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -0.5
+offset_right = 0.5
+offset_bottom = 23.0
+grow_horizontal = 2
+theme_override_fonts/font = ExtResource("2_jam4f")

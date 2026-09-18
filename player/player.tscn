@@ -8,14 +8,14 @@
 [ext_resource type="Script" uid="uid://cuomnnjqaqjdo" path="res://player/grapple_rope.gd" id="7_grapple_rope"]
 [ext_resource type="Script" uid="uid://c2m4y5bvdd428" path="res://player/player_traversal_camera.gd" id="9_traversal_camera"]
 [ext_resource type="Script" uid="uid://dtpp3w5b7q2je" path="res://player/player_movement_traversal.gd" id="10_movement_traversal"]
-[ext_resource type="Script" path="res://player/player_traversal_testing.gd" id="11_traversal"]
+[ext_resource type="Script" uid="uid://cuk1od7m6l02a" path="res://player/player_traversal_testing.gd" id="11_traversal"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ltcvw"]
 radius = 0.35
 height = 1.9
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_grapple_target"]
-albedo_color = Color(0.3, 0.95, 1, 1)
+albedo_color = Color(0.3019608, 0.9490196, 1, 0)
 emission_enabled = true
 emission = Color(0.15, 0.8, 1, 1)
 
@@ -58,10 +58,12 @@ bob_amplitude = 0.023
 
 [node name="Grapple" type="Node" parent="." unique_id=891205374 groups=["grapple_controller"]]
 script = ExtResource("6_grapple")
+grapple_max_distance = 15.0
 
 [node name="TargetIndicator" type="Node3D" parent="Grapple" unique_id=666799498]
 
 [node name="LatchPoint" type="MeshInstance3D" parent="Grapple/TargetIndicator" unique_id=1500152259]
+visible = false
 material_override = SubResource("StandardMaterial3D_grapple_target")
 mesh = SubResource("SphereMesh_grapple_target")
 
@@ -73,9 +75,8 @@ script = ExtResource("7_grapple_rope")
 script = ExtResource("11_traversal")
 traversal_input_grace_time = 0.22
 traversal_forward_detection_distance = 1.6
-hurdle_detection_distance = 1.6
-hurdle_max_distance = 2.2
 scramble_min_speed = 1.75
+hurdle_detection_distance = 1.6
 scramble_detection_distance = 1.25
 scramble_detection_angle = 40.0
 scramble_front_dot_threshold = 0.7
@@ -91,6 +92,7 @@ scramble_horizontal_control = 0.55
 scramble_lateral_control = 0.65
 scramble_upward_speed = 7.2
 scramble_exit_direction_influence = 0.0
+hurdle_max_distance = 2.2
 hurdle_speed_influence = 1.0
 hurdle_momentum_preservation = 1.0
 hurdle_exit_speed_multiplier = 1.05
