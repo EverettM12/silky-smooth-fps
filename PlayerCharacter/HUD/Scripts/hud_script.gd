@@ -1,7 +1,7 @@
 class_name HUD
 extends CanvasLayer
 
-@export var weapon_manager: Node3D
+var weapon_manager: Node3D
 
 @onready var weapon_stack_label_text: Label = %WeaponStackLabelText
 @onready var weapon_name_label_text: Label = %WeaponNameLabelText
@@ -9,6 +9,7 @@ extends CanvasLayer
 @onready var nb_ammo_total_label_text: Label = %NbAmmoTotalLabelText
 
 func _ready() -> void:
+	weapon_manager = $"../WeaponManager"
 	weapon_manager.weapon_stack_updated.connect(Callable(self, "update_weapon_stack_display"))
 	
 func _process(_delta : float) -> void:

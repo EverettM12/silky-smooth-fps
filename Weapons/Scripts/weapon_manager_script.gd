@@ -11,7 +11,7 @@ var can_use_weapon : bool = true
 
 @export var start_weapons : Array[WeaponSlot]
 
-@export var camera_recoil_holder: CameraRecoilHolder
+var camera_recoil_holder: CameraRecoilHolder
 @export var viewport_cam: Camera3D
 @export var weapon_container : Node3D
 @export var shoot_manager : Node3D 
@@ -21,7 +21,7 @@ var can_use_weapon : bool = true
 @export var anim_manager : Node3D
 @export var hud: HUD
 @export var link_component: LinkComponent
-@export var head : Node3D
+var head : Node3D
 @export var weapon_follow_speed : float = 100.0
 
 @onready var audio_manager : PackedScene = preload("../../Misc/AudioManager/audio_manager_scene.tscn")
@@ -32,6 +32,8 @@ const HEAD_TO_WEAPON_Y : float = -0.05
 signal weapon_stack_updated
 
 func _ready() -> void:
+	head = $"..".get_node("Player/Head")
+	camera_recoil_holder = $"../CameraHolder/CameraRecoilHolder"
 	await initialize()
 
 func initialize() -> void:

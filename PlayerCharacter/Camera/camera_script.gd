@@ -7,7 +7,7 @@ extends Node3D
 
 @export_group("References")
 ## The camera the player actually looks through (Player/Head/CameraMotion/Camera3D).
-@export var view_camera: Camera3D
+var view_camera: Camera3D
 ## Child node that smooths the recoil kick.
 @export var recoil_holder: CameraRecoilHolder
 
@@ -22,6 +22,7 @@ var _mouse_moved_this_frame: bool = false
 
 
 func _ready() -> void:
+	view_camera = $"../Player".get_node("Head/CameraMotion/Camera3D")
 	# Run before the weapon scripts: they read a fresh mouse_input, and ViewportCam
 	# copies the view camera after the recoil has already been applied to it.
 	process_priority = -100

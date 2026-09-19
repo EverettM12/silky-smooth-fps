@@ -4,15 +4,7 @@
 [ext_resource type="Material" uid="uid://jsgqge4jl1ik" path="res://world/environment/TestTexture.tres" id="1_x1qn8"]
 [ext_resource type="Material" uid="uid://6u88olfmw7p8" path="res://assets/day_sky.tres" id="4_0snqu"]
 [ext_resource type="PackedScene" uid="uid://crj522q01b6we" path="res://ui/ui_manager.tscn" id="5_0snqu"]
-[ext_resource type="Script" uid="uid://t3v3rookmm1" path="res://player/player.gd" id="5_pvxqr"]
-[ext_resource type="Script" uid="uid://crmmp6d3qdv2n" path="res://player/player_input.gd" id="6_c0jkj"]
-[ext_resource type="Script" uid="uid://ckouwtkw57tmm" path="res://player/player_state.gd" id="7_c2jgv"]
-[ext_resource type="Script" uid="uid://dtpp3w5b7q2je" path="res://player/player_movement_traversal.gd" id="8_um6v1"]
-[ext_resource type="Script" uid="uid://dt32bu8uojddd" path="res://player/player_camera.gd" id="9_u1xr7"]
-[ext_resource type="Script" uid="uid://bli3a2h8tm0e2" path="res://player/player_grapple.gd" id="10_oyd6l"]
-[ext_resource type="Script" uid="uid://cuomnnjqaqjdo" path="res://player/grapple_rope.gd" id="11_xah0d"]
-[ext_resource type="Script" uid="uid://cuk1od7m6l02a" path="res://player/player_traversal_testing.gd" id="12_fpe1p"]
-[ext_resource type="Script" uid="uid://c2m4y5bvdd428" path="res://player/player_traversal_camera.gd" id="13_ts5xw"]
+[ext_resource type="PackedScene" uid="uid://duaw88l443ytl" path="res://world/levels/player.tscn" id="7_ip6xv"]
 [ext_resource type="Script" uid="uid://d2jpda3mq5jpa" path="res://Weapons/Scripts/weapon_manager_script.gd" id="14_rvrpt"]
 [ext_resource type="Script" uid="uid://bcka80usfl4am" path="res://Weapons/Scripts/weapon_slot_script.gd" id="15_4ag61"]
 [ext_resource type="Resource" uid="uid://j42d6dl8qkaj" path="res://Weapons/Resources/pistol_weapon_resources.tres" id="16_p7740"]
@@ -30,6 +22,20 @@
 [ext_resource type="LabelSettings" uid="uid://bs0stms0b56kp" path="res://PlayerCharacter/HUD/Arts/label_settings.tres" id="31_4ag61"]
 [ext_resource type="Script" uid="uid://b0fbr48rbvn27" path="res://PlayerCharacter/Camera/camera_script.gd" id="33_ts5xw"]
 [ext_resource type="Script" uid="uid://k7djd8c1xge2" path="res://Weapons/Scripts/Camera/camera_recoil_holder_script.gd" id="34_rvrpt"]
+
+[sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_ts5xw"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ts5xw"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(0, 0, 0, 0.49411765)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+corner_detail = 12
 
 [sub_resource type="BoxMesh" id="BoxMesh_ltcvw"]
 
@@ -66,11 +72,7 @@ exposure_multiplier = 0.8
 auto_exposure_enabled = true
 auto_exposure_scale = 0.5
 
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ltcvw"]
-radius = 0.35
-height = 1.9
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ql4cm"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dod1e"]
 albedo_texture = ExtResource("17_hien3")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ftrac"]
@@ -95,7 +97,7 @@ _surfaces = [{
 }]
 blend_shape_mode = 0
 
-[sub_resource type="ArrayMesh" id="ArrayMesh_wyaf1"]
+[sub_resource type="ArrayMesh" id="ArrayMesh_lakc3"]
 resource_name = "Vert_005"
 _surfaces = [{
 "aabb": AABB(-0.0008865884, -0.00043585987, -0.0015616232, 0.0033722925, 0.00087214273, 0.0021127355),
@@ -114,7 +116,7 @@ _surfaces = [{
 blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_kxghy")
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s4fyg"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bg07y"]
 albedo_texture = ExtResource("17_hien3")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ohfgd"]
@@ -139,7 +141,7 @@ _surfaces = [{
 }]
 blend_shape_mode = 0
 
-[sub_resource type="ArrayMesh" id="ArrayMesh_ql4cm"]
+[sub_resource type="ArrayMesh" id="ArrayMesh_6pipy"]
 resource_name = "Cube_017"
 _surfaces = [{
 "aabb": AABB(-0.005679575, -0.0004272367, -0.0022799715, 0.0100398855, 0.0008555318, 0.00301941),
@@ -158,7 +160,7 @@ _surfaces = [{
 blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_x8rv3")
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8yq60"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hm2oy"]
 albedo_texture = ExtResource("17_hien3")
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_fpvqw"]
@@ -176,7 +178,7 @@ _surfaces = [{
 }]
 blend_shape_mode = 0
 
-[sub_resource type="ArrayMesh" id="ArrayMesh_s4fyg"]
+[sub_resource type="ArrayMesh" id="ArrayMesh_gcgmp"]
 resource_name = "Cube_018"
 _surfaces = [{
 "aabb": AABB(-0.0049294587, -0.00046158506, -0.0010144555, 0.009672595, 0.00092257524, 0.0018108385),
@@ -195,7 +197,7 @@ _surfaces = [{
 blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_fpvqw")
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kxghy"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pvxqr"]
 albedo_texture = ExtResource("17_hien3")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wyaf1"]
@@ -220,7 +222,7 @@ _surfaces = [{
 }]
 blend_shape_mode = 0
 
-[sub_resource type="ArrayMesh" id="ArrayMesh_i3wqj"]
+[sub_resource type="ArrayMesh" id="ArrayMesh_c0jkj"]
 resource_name = "Cube_015"
 _surfaces = [{
 "aabb": AABB(-0.00531773, -0.00046400516, -0.0021046558, 0.013269841, 0.00092800683, 0.002793352),
@@ -259,7 +261,7 @@ _surfaces = [{
 }]
 blend_shape_mode = 0
 
-[sub_resource type="ArrayMesh" id="ArrayMesh_7qx7s"]
+[sub_resource type="ArrayMesh" id="ArrayMesh_c2jgv"]
 resource_name = "Sketchfab_Scene_Object_4"
 _surfaces = [{
 "aabb": AABB(-0.77, -0.77, -9.3055, 1.54, 1.54, 0.23099995),
@@ -290,7 +292,7 @@ _surfaces = [{
 }]
 blend_shape_mode = 0
 
-[sub_resource type="ArrayMesh" id="ArrayMesh_obyny"]
+[sub_resource type="ArrayMesh" id="ArrayMesh_um6v1"]
 resource_name = "Sketchfab_Scene_Object_5"
 _surfaces = [{
 "aabb": AABB(-0.77, -0.77, -12.3455, 1.54, 1.54, 0.23099995),
@@ -321,7 +323,7 @@ _surfaces = [{
 }]
 blend_shape_mode = 0
 
-[sub_resource type="ArrayMesh" id="ArrayMesh_tj2dg"]
+[sub_resource type="ArrayMesh" id="ArrayMesh_u1xr7"]
 resource_name = "Sketchfab_Scene_Object_6"
 _surfaces = [{
 "aabb": AABB(-1, -1, -7.58, 2, 2, 0.2999997),
@@ -352,7 +354,7 @@ _surfaces = [{
 }]
 blend_shape_mode = 0
 
-[sub_resource type="ArrayMesh" id="ArrayMesh_xjsho"]
+[sub_resource type="ArrayMesh" id="ArrayMesh_oyd6l"]
 resource_name = "Sketchfab_Scene_Object_7"
 _surfaces = [{
 "aabb": AABB(-1, -1, -2.95, 2, 2, 0.29999995),
@@ -383,7 +385,7 @@ _surfaces = [{
 }]
 blend_shape_mode = 0
 
-[sub_resource type="ArrayMesh" id="ArrayMesh_dbrfi"]
+[sub_resource type="ArrayMesh" id="ArrayMesh_xah0d"]
 resource_name = "Sketchfab_Scene_Object_8"
 _surfaces = [{
 "aabb": AABB(-0.30096, -3.42, 2.105, 0.60192, 0.24000001, 0.24000001),
@@ -414,7 +416,7 @@ _surfaces = [{
 }]
 blend_shape_mode = 0
 
-[sub_resource type="ArrayMesh" id="ArrayMesh_1m8gt"]
+[sub_resource type="ArrayMesh" id="ArrayMesh_fpe1p"]
 resource_name = "Sketchfab_Scene_Object_9"
 _surfaces = [{
 "aabb": AABB(-0.404, -3.42, -1.595, 0.808, 0.24000001, 0.24000001),
@@ -445,7 +447,7 @@ _surfaces = [{
 }]
 blend_shape_mode = 0
 
-[sub_resource type="ArrayMesh" id="ArrayMesh_2ae8x"]
+[sub_resource type="ArrayMesh" id="ArrayMesh_ts5xw"]
 resource_name = "Sketchfab_Scene_Object_10"
 _surfaces = [{
 "aabb": AABB(-0.404, -1.92, -1.595, 0.808, 0.24000001, 0.24000001),
@@ -476,7 +478,7 @@ _surfaces = [{
 }]
 blend_shape_mode = 0
 
-[sub_resource type="ArrayMesh" id="ArrayMesh_tjri6"]
+[sub_resource type="ArrayMesh" id="ArrayMesh_rvrpt"]
 resource_name = "Sketchfab_Scene_Object_11"
 _surfaces = [{
 "aabb": AABB(-0.7, -0.7, 6.13, 1.4, 1.4, 0.27999973),
@@ -507,7 +509,7 @@ _surfaces = [{
 }]
 blend_shape_mode = 0
 
-[sub_resource type="ArrayMesh" id="ArrayMesh_8l3c8"]
+[sub_resource type="ArrayMesh" id="ArrayMesh_4ag61"]
 resource_name = "Sketchfab_Scene_Object_12"
 _surfaces = [{
 "aabb": AABB(-0.7, -0.7, 8.31, 1.4, 1.4, 0.27999973),
@@ -538,7 +540,7 @@ _surfaces = [{
 }]
 blend_shape_mode = 0
 
-[sub_resource type="ArrayMesh" id="ArrayMesh_oht6v"]
+[sub_resource type="ArrayMesh" id="ArrayMesh_p7740"]
 resource_name = "Sketchfab_Scene_Object_13"
 _surfaces = [{
 "aabb": AABB(-0.7, -0.7, 1.72, 1.4, 1.4, 0.27999997),
@@ -569,7 +571,7 @@ _surfaces = [{
 }]
 blend_shape_mode = 0
 
-[sub_resource type="ArrayMesh" id="ArrayMesh_hgdm0"]
+[sub_resource type="ArrayMesh" id="ArrayMesh_hien3"]
 resource_name = "Sketchfab_Scene_Object_14"
 _surfaces = [{
 "aabb": AABB(-0.7, -0.7, 4, 1.4, 1.4, 0.2800002),
@@ -601,7 +603,7 @@ _surfaces = [{
 }]
 blend_shape_mode = 0
 
-[sub_resource type="ArrayMesh" id="ArrayMesh_fr0fl"]
+[sub_resource type="ArrayMesh" id="ArrayMesh_hs0vv"]
 resource_name = "Sketchfab_Scene_Object_15"
 _surfaces = [{
 "aabb": AABB(-0.08, -1.7, 3.02, 0.16, 0.76000005, 0.3800001),
@@ -633,7 +635,7 @@ _surfaces = [{
 }]
 blend_shape_mode = 0
 
-[sub_resource type="ArrayMesh" id="ArrayMesh_04581"]
+[sub_resource type="ArrayMesh" id="ArrayMesh_kjjxg"]
 resource_name = "Sketchfab_Scene_Object_16"
 _surfaces = [{
 "aabb": AABB(-0.14, -1.47, 1.2268912, 0.28, 0.70000005, 0.50310886),
@@ -671,7 +673,7 @@ _surfaces = [{
 }]
 blend_shape_mode = 0
 
-[sub_resource type="ArrayMesh" id="ArrayMesh_j5162"]
+[sub_resource type="ArrayMesh" id="ArrayMesh_63wpp"]
 resource_name = "Sketchfab_Scene_Object_17"
 _surfaces = [{
 "aabb": AABB(-0.5, -0.5, -2.47, 1, 1, 19.84),
@@ -711,7 +713,7 @@ _surfaces = [{
 }]
 blend_shape_mode = 0
 
-[sub_resource type="ArrayMesh" id="ArrayMesh_wd51c"]
+[sub_resource type="ArrayMesh" id="ArrayMesh_l6txn"]
 resource_name = "Sketchfab_Scene_Object_18"
 _surfaces = [{
 "aabb": AABB(-1.0960817, -1.0960817, 1.83, 2.1921635, 2.1921635, 14.273333),
@@ -743,7 +745,7 @@ _surfaces = [{
 }]
 blend_shape_mode = 0
 
-[sub_resource type="ArrayMesh" id="ArrayMesh_73w6j"]
+[sub_resource type="ArrayMesh" id="ArrayMesh_bjp6c"]
 resource_name = "Sketchfab_Scene_Object_19"
 _surfaces = [{
 "aabb": AABB(2.7755576e-17, 0.46393275, 7.04475, 0.46393275, 1.6265187, 1.0955),
@@ -782,7 +784,7 @@ _surfaces = [{
 }]
 blend_shape_mode = 0
 
-[sub_resource type="ArrayMesh" id="ArrayMesh_cbhq0"]
+[sub_resource type="ArrayMesh" id="ArrayMesh_oa3pv"]
 resource_name = "Sketchfab_Scene_Object_20"
 _surfaces = [{
 "aabb": AABB(-0.99295914, -4.1361575, -12.315, 1.9859183, 5.1291165, 15.237499),
@@ -814,7 +816,7 @@ _surfaces = [{
 }]
 blend_shape_mode = 0
 
-[sub_resource type="ArrayMesh" id="ArrayMesh_fb3fa"]
+[sub_resource type="ArrayMesh" id="ArrayMesh_uhtiy"]
 resource_name = "Sketchfab_Scene_Object_21"
 _surfaces = [{
 "aabb": AABB(-1.56, -2.1311574, -16.4, 3.12, 3.6981864, 25.07),
@@ -1447,7 +1449,7 @@ tracks/1/keys = {
 "values": [Vector3(0, 0, 0), Vector3(0, 1.3962634, 0)]
 }
 
-[sub_resource type="AnimationLibrary" id="AnimationLibrary_i3wqj"]
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_80sse"]
 _data = {
 &"EquipAnimAssaultRifle": SubResource("Animation_8yq60"),
 &"EquipAnimPistol": SubResource("Animation_ql4cm"),
@@ -1471,31 +1473,132 @@ _data = {
 &"UnequipAnimSniperRifle": SubResource("Animation_tj2dg")
 }
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_grapple_target"]
-albedo_color = Color(0.3019608, 0.9490196, 1, 0)
-emission_enabled = true
-emission = Color(0.15, 0.8, 1, 1)
-
-[sub_resource type="SphereMesh" id="SphereMesh_grapple_target"]
-radius = 0.08
-height = 0.16
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ts5xw"]
-content_margin_left = 10.0
-content_margin_top = 10.0
-content_margin_right = 10.0
-content_margin_bottom = 10.0
-bg_color = Color(0, 0, 0, 0.49411765)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
-corner_detail = 12
-
-[sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_ts5xw"]
-
 [node name="Main" type="Node3D" unique_id=1073433833]
 script = ExtResource("1_8e8k6")
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="." unique_id=382225445]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SubViewport" type="SubViewport" parent="SubViewportContainer" unique_id=1367464104]
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(1152, 648)
+render_target_update_mode = 4
+
+[node name="ViewportCam" type="Camera3D" parent="SubViewportContainer/SubViewport" unique_id=1077420672]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0.540581, 0)
+cull_mask = 2
+attributes = SubResource("CameraAttributesPractical_ts5xw")
+fov = 90.0
+near = 0.01
+far = 1000.0
+
+[node name="UiManager" parent="." unique_id=315761469 instance=ExtResource("5_0snqu")]
+
+[node name="HUD" type="CanvasLayer" parent="." unique_id=114361223]
+script = ExtResource("27_xah0d")
+metadata/_edit_use_anchors_ = true
+
+[node name="WeaponProperties" type="MarginContainer" parent="HUD" unique_id=1613097381]
+anchors_preset = -1
+anchor_left = 1.0
+anchor_top = 0.9212963
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -177.0
+offset_top = -43.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+metadata/_edit_use_anchors_ = true
+
+[node name="PanelContainer" type="PanelContainer" parent="HUD/WeaponProperties" unique_id=1646040264]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ts5xw")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HUD/WeaponProperties/PanelContainer" unique_id=2117934840]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HUD/WeaponProperties/PanelContainer/HBoxContainer" unique_id=154450809]
+layout_mode = 2
+
+[node name="WeaponStackLabel" type="Label" parent="HUD/WeaponProperties/PanelContainer/HBoxContainer/VBoxContainer" unique_id=1424421949]
+visible = false
+texture_filter = 1
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "Available weapons :"
+label_settings = ExtResource("31_4ag61")
+vertical_alignment = 1
+
+[node name="WeaponNameLabel" type="Label" parent="HUD/WeaponProperties/PanelContainer/HBoxContainer/VBoxContainer" unique_id=472426092]
+texture_filter = 1
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "Weapon name :"
+label_settings = ExtResource("31_4ag61")
+vertical_alignment = 1
+
+[node name="NbAmmoInMagLabel" type="Label" parent="HUD/WeaponProperties/PanelContainer/HBoxContainer/VBoxContainer" unique_id=1542918161]
+texture_filter = 1
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "Nb ammo in mag : "
+label_settings = ExtResource("31_4ag61")
+vertical_alignment = 1
+
+[node name="NbAmmoTotalLabel" type="Label" parent="HUD/WeaponProperties/PanelContainer/HBoxContainer/VBoxContainer" unique_id=1481684022]
+texture_filter = 1
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "Nb total ammo :"
+label_settings = ExtResource("31_4ag61")
+vertical_alignment = 1
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="HUD/WeaponProperties/PanelContainer/HBoxContainer" unique_id=129941515]
+layout_mode = 2
+
+[node name="WeaponStackLabelText" type="Label" parent="HUD/WeaponProperties/PanelContainer/HBoxContainer/VBoxContainer2" unique_id=568960589]
+unique_name_in_owner = true
+visible = false
+texture_filter = 1
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "....."
+label_settings = ExtResource("31_4ag61")
+vertical_alignment = 1
+
+[node name="WeaponNameLabelText" type="Label" parent="HUD/WeaponProperties/PanelContainer/HBoxContainer/VBoxContainer2" unique_id=1564871236]
+unique_name_in_owner = true
+texture_filter = 1
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "....."
+label_settings = ExtResource("31_4ag61")
+vertical_alignment = 1
+
+[node name="NbAmmoInMagLabelText" type="Label" parent="HUD/WeaponProperties/PanelContainer/HBoxContainer/VBoxContainer2" unique_id=26325338]
+unique_name_in_owner = true
+texture_filter = 1
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "....."
+label_settings = ExtResource("31_4ag61")
+vertical_alignment = 1
+
+[node name="NbAmmoTotalLabelText" type="Label" parent="HUD/WeaponProperties/PanelContainer/HBoxContainer/VBoxContainer2" unique_id=1024320281]
+unique_name_in_owner = true
+texture_filter = 1
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "....."
+label_settings = ExtResource("31_4ag61")
+vertical_alignment = 1
 
 [node name="Start Pos" type="MeshInstance3D" parent="." unique_id=1242634339]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19, 1, -3)
@@ -1571,32 +1674,11 @@ shadow_bias = 0.05
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 49.8991, 25.834, -30.0061)
 size = Vector3(10000, 10000, 1000)
 
-[node name="Player" type="CharacterBody3D" parent="." unique_id=1930534967]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 2, -4)
-collision_layer = 2
-script = ExtResource("5_pvxqr")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Player" unique_id=2029131471]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95, 0)
-shape = SubResource("CapsuleShape3D_ltcvw")
-
-[node name="Head" type="Node3D" parent="Player" unique_id=1231295268]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.65, 0)
-
-[node name="CameraMotion" type="Node3D" parent="Player/Head" unique_id=1030615224]
-
-[node name="Camera3D" type="Camera3D" parent="Player/Head/CameraMotion" unique_id=287350200]
-cull_mask = 1
-current = true
-
-[node name="Visuals" type="Node3D" parent="Player" unique_id=1549703221]
-
-[node name="WeaponManager" type="Node3D" parent="Player" unique_id=1082769642 node_paths=PackedStringArray("start_weapons", "camera_recoil_holder", "viewport_cam", "weapon_container", "shoot_manager", "reload_manager", "ammo_manager", "anim_player", "anim_manager", "hud", "link_component", "head")]
+[node name="WeaponManager" type="Node3D" parent="." unique_id=1231999646 node_paths=PackedStringArray("start_weapons", "viewport_cam", "weapon_container", "shoot_manager", "reload_manager", "ammo_manager", "anim_player", "anim_manager", "hud", "link_component")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 1.6, 0)
 script = ExtResource("14_rvrpt")
 start_weapons = [NodePath("WeaponContainer/Pistol"), NodePath("WeaponContainer/AssaultRifle"), NodePath("WeaponContainer/Shotgun"), NodePath("WeaponContainer/SniperRifle"), NodePath("WeaponContainer/RocketLauncher")]
-camera_recoil_holder = NodePath("../CameraHolder/CameraRecoilHolder")
-viewport_cam = NodePath("../../SubViewportContainer/SubViewport/ViewportCam")
+viewport_cam = NodePath("../SubViewportContainer/SubViewport/ViewportCam")
 weapon_container = NodePath("WeaponContainer")
 shoot_manager = NodePath("ShootManager")
 reload_manager = NodePath("ReloadManager")
@@ -1604,12 +1686,11 @@ ammo_manager = NodePath("AmmunitionManager")
 anim_player = NodePath("AnimationPlayer")
 anim_manager = NodePath("AnimationManager")
 hud = NodePath("../HUD")
-link_component = NodePath("../LinkComponent")
-head = NodePath("../Head")
+link_component = NodePath("LinkComponent")
 
-[node name="WeaponContainer" type="Node3D" parent="Player/WeaponManager" unique_id=1682546542]
+[node name="WeaponContainer" type="Node3D" parent="WeaponManager" unique_id=1803718362]
 
-[node name="Pistol" type="Node3D" parent="Player/WeaponManager/WeaponContainer" unique_id=1689632630 node_paths=PackedStringArray("model", "attack_point", "muzzle_flash_spawner")]
+[node name="Pistol" type="Node3D" parent="WeaponManager/WeaponContainer" unique_id=1539940090 node_paths=PackedStringArray("model", "attack_point", "muzzle_flash_spawner")]
 transform = Transform3D(-3.059797e-06, -70, -3.059797e-06, 0, -3.059797e-06, 70, -70, 3.059797e-06, 1.3374798e-13, 0.2009259, -0.12446213, -0.26282233)
 script = ExtResource("15_4ag61")
 resources = ExtResource("16_p7740")
@@ -1617,23 +1698,23 @@ model = NodePath(".")
 attack_point = NodePath("PistolModel/PistolAttackPoint")
 muzzle_flash_spawner = NodePath("PistolModel/PistolMuzzleFlashSpawner")
 
-[node name="PistolModel" type="Node3D" parent="Player/WeaponManager/WeaponContainer/Pistol" unique_id=1047716883]
+[node name="PistolModel" type="Node3D" parent="WeaponManager/WeaponContainer/Pistol" unique_id=134545738]
 transform = Transform3D(0.17364822, 0, 0.9848077, 0, 1, 0, -0.9848077, 0, 0.17364822, 0, 0, -0.006)
 
-[node name="Pistol" type="MeshInstance3D" parent="Player/WeaponManager/WeaponContainer/Pistol/PistolModel" unique_id=1678370928]
+[node name="Pistol" type="MeshInstance3D" parent="WeaponManager/WeaponContainer/Pistol/PistolModel" unique_id=1898711832]
 layers = 2
-material_override = SubResource("StandardMaterial3D_ql4cm")
-mesh = SubResource("ArrayMesh_wyaf1")
+material_override = SubResource("StandardMaterial3D_dod1e")
+mesh = SubResource("ArrayMesh_lakc3")
 
-[node name="PistolAttackPoint" type="Marker3D" parent="Player/WeaponManager/WeaponContainer/Pistol/PistolModel" unique_id=62106186]
+[node name="PistolAttackPoint" type="Marker3D" parent="WeaponManager/WeaponContainer/Pistol/PistolModel" unique_id=1480251509]
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.002638242, -2.4280739e-10, 0.00027830247)
 
-[node name="PistolMuzzleFlashSpawner" type="Marker3D" parent="Player/WeaponManager/WeaponContainer/Pistol/PistolModel" unique_id=1665402519]
+[node name="PistolMuzzleFlashSpawner" type="Marker3D" parent="WeaponManager/WeaponContainer/Pistol/PistolModel" unique_id=1080103151]
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0026382417, -2.3283064e-10, -0.00019495934)
 
-[node name="AssaultRifle" type="Node3D" parent="Player/WeaponManager/WeaponContainer" unique_id=1703595764 node_paths=PackedStringArray("model", "attack_point", "muzzle_flash_spawner")]
+[node name="AssaultRifle" type="Node3D" parent="WeaponManager/WeaponContainer" unique_id=320953726 node_paths=PackedStringArray("model", "attack_point", "muzzle_flash_spawner")]
 transform = Transform3D(-3.4969112e-06, -80, -3.4969112e-06, 0, -3.4969112e-06, 80, -80, 3.4969112e-06, 1.5285483e-13, 0.2009259, -0.12446213, -0.26282233)
 script = ExtResource("15_4ag61")
 resources = ExtResource("18_hs0vv")
@@ -1641,24 +1722,24 @@ model = NodePath(".")
 attack_point = NodePath("AssaultRifleModel/AssaultRifleAttackPoint")
 muzzle_flash_spawner = NodePath("AssaultRifleModel/AssaultRifleMuzzleFlashSpawner")
 
-[node name="AssaultRifleModel" type="Node3D" parent="Player/WeaponManager/WeaponContainer/AssaultRifle" unique_id=13834469]
-transform = Transform3D(0.1736482, 0, 0.98480755, 0, 1, 0, -0.98480755, 0, 0.1736482, 0, 0, -0.006)
+[node name="AssaultRifleModel" type="Node3D" parent="WeaponManager/WeaponContainer/AssaultRifle" unique_id=283046339]
+transform = Transform3D(0.17364818, 0, 0.9848075, 0, 1, 0, -0.9848075, 0, 0.17364818, 0, 0, -0.006)
 
-[node name="AssaultRifle" type="MeshInstance3D" parent="Player/WeaponManager/WeaponContainer/AssaultRifle/AssaultRifleModel" unique_id=131802581]
+[node name="AssaultRifle" type="MeshInstance3D" parent="WeaponManager/WeaponContainer/AssaultRifle/AssaultRifleModel" unique_id=247862400]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0014336891, -2.3283064e-10, 0)
 layers = 2
-material_override = SubResource("StandardMaterial3D_s4fyg")
-mesh = SubResource("ArrayMesh_ql4cm")
+material_override = SubResource("StandardMaterial3D_bg07y")
+mesh = SubResource("ArrayMesh_6pipy")
 
-[node name="AssaultRifleAttackPoint" type="Marker3D" parent="Player/WeaponManager/WeaponContainer/AssaultRifle/AssaultRifleModel" unique_id=1975989055]
+[node name="AssaultRifleAttackPoint" type="Marker3D" parent="WeaponManager/WeaponContainer/AssaultRifle/AssaultRifleModel" unique_id=1394795725]
 unique_name_in_owner = true
 transform = Transform3D(1, 1.4210855e-14, -4.2351647e-22, -1.4210855e-14, 1, 3.5527137e-15, 0, -3.5527137e-15, 1, 0.005953776, 2.3283064e-10, 0.00021036947)
 
-[node name="AssaultRifleMuzzleFlashSpawner" type="Marker3D" parent="Player/WeaponManager/WeaponContainer/AssaultRifle/AssaultRifleModel" unique_id=483966932]
+[node name="AssaultRifleMuzzleFlashSpawner" type="Marker3D" parent="WeaponManager/WeaponContainer/AssaultRifle/AssaultRifleModel" unique_id=20639915]
 unique_name_in_owner = true
 transform = Transform3D(1, 1.4210855e-14, -4.2351647e-22, -1.4210855e-14, 1, 3.5527137e-15, 0, -3.5527137e-15, 1, 0.005953776, 2.3283064e-10, -0.000275278)
 
-[node name="Shotgun" type="Node3D" parent="Player/WeaponManager/WeaponContainer" unique_id=728583594 node_paths=PackedStringArray("model", "attack_point", "muzzle_flash_spawner")]
+[node name="Shotgun" type="Node3D" parent="WeaponManager/WeaponContainer" unique_id=1838748512 node_paths=PackedStringArray("model", "attack_point", "muzzle_flash_spawner")]
 transform = Transform3D(-3.4969112e-06, -80, -3.4969112e-06, 0, -3.4969112e-06, 80, -80, 3.4969112e-06, 1.5285483e-13, 0.2009259, -0.12446213, -0.3076874)
 script = ExtResource("15_4ag61")
 resources = ExtResource("19_kjjxg")
@@ -1666,23 +1747,23 @@ model = NodePath(".")
 attack_point = NodePath("ShotgunModel/ShotgunAttackPoint")
 muzzle_flash_spawner = NodePath("ShotgunModel/ShotgunMuzzleFlashSpawner")
 
-[node name="ShotgunModel" type="Node3D" parent="Player/WeaponManager/WeaponContainer/Shotgun" unique_id=1324486446]
+[node name="ShotgunModel" type="Node3D" parent="WeaponManager/WeaponContainer/Shotgun" unique_id=508731420]
 transform = Transform3D(0.17364821, 0, 0.98480767, 0, 1, 0, -0.98480767, 0, 0.17364821, 0, 0, -0.006)
 
-[node name="Shotgun" type="MeshInstance3D" parent="Player/WeaponManager/WeaponContainer/Shotgun/ShotgunModel" unique_id=1264543927]
+[node name="Shotgun" type="MeshInstance3D" parent="WeaponManager/WeaponContainer/Shotgun/ShotgunModel" unique_id=1894981827]
 layers = 2
-material_override = SubResource("StandardMaterial3D_8yq60")
-mesh = SubResource("ArrayMesh_s4fyg")
+material_override = SubResource("StandardMaterial3D_hm2oy")
+mesh = SubResource("ArrayMesh_gcgmp")
 
-[node name="ShotgunAttackPoint" type="Marker3D" parent="Player/WeaponManager/WeaponContainer/Shotgun/ShotgunModel" unique_id=1462092673]
+[node name="ShotgunAttackPoint" type="Marker3D" parent="WeaponManager/WeaponContainer/Shotgun/ShotgunModel" unique_id=1164246131]
 unique_name_in_owner = true
 transform = Transform3D(1, 7.1054274e-15, -1.6940659e-21, -1.4210855e-14, 1, 2.1316282e-14, -5.0821977e-21, -3.1974423e-14, 1, 0.004919603, 4.656613e-10, 0.0004789955)
 
-[node name="ShotgunMuzzleFlashSpawner" type="Marker3D" parent="Player/WeaponManager/WeaponContainer/Shotgun/ShotgunModel" unique_id=1124049237]
+[node name="ShotgunMuzzleFlashSpawner" type="Marker3D" parent="WeaponManager/WeaponContainer/Shotgun/ShotgunModel" unique_id=1333314399]
 unique_name_in_owner = true
 transform = Transform3D(1, 7.1054274e-15, -2.5410988e-21, -1.4210855e-14, 1, 2.1316282e-14, -6.7762636e-21, -3.907985e-14, 1, 0.004635501, 4.656613e-10, 0.0002517118)
 
-[node name="SniperRifle" type="Node3D" parent="Player/WeaponManager/WeaponContainer" unique_id=1836101246 node_paths=PackedStringArray("model", "attack_point", "muzzle_flash_spawner")]
+[node name="SniperRifle" type="Node3D" parent="WeaponManager/WeaponContainer" unique_id=1336466263 node_paths=PackedStringArray("model", "attack_point", "muzzle_flash_spawner")]
 transform = Transform3D(-3.4969112e-06, -80, -3.4969112e-06, 0, -3.4969112e-06, 80, -80, 3.4969112e-06, 1.5285483e-13, 0.2009259, -0.06782913, -0.3076874)
 script = ExtResource("15_4ag61")
 resources = ExtResource("20_63wpp")
@@ -1690,23 +1771,23 @@ model = NodePath(".")
 attack_point = NodePath("SniperRifleModel/SniperRifleAttackPoint")
 muzzle_flash_spawner = NodePath("SniperRifleModel/SniperRifleMuzzleFlashSpawner")
 
-[node name="SniperRifleModel" type="Node3D" parent="Player/WeaponManager/WeaponContainer/SniperRifle" unique_id=1003657263]
+[node name="SniperRifleModel" type="Node3D" parent="WeaponManager/WeaponContainer/SniperRifle" unique_id=540819697]
 transform = Transform3D(0.17364821, 0, 0.98480767, 0, 1, 0, -0.98480767, 0, 0.17364821, 0, 0, -0.006)
 
-[node name="Sniper" type="MeshInstance3D" parent="Player/WeaponManager/WeaponContainer/SniperRifle/SniperRifleModel" unique_id=1387583548]
+[node name="Sniper" type="MeshInstance3D" parent="WeaponManager/WeaponContainer/SniperRifle/SniperRifleModel" unique_id=1440629047]
 layers = 2
-material_override = SubResource("StandardMaterial3D_kxghy")
-mesh = SubResource("ArrayMesh_i3wqj")
+material_override = SubResource("StandardMaterial3D_pvxqr")
+mesh = SubResource("ArrayMesh_c0jkj")
 
-[node name="SniperRifleAttackPoint" type="Marker3D" parent="Player/WeaponManager/WeaponContainer/SniperRifle/SniperRifleModel" unique_id=279541192]
+[node name="SniperRifleAttackPoint" type="Marker3D" parent="WeaponManager/WeaponContainer/SniperRifle/SniperRifleModel" unique_id=430573734]
 unique_name_in_owner = true
 transform = Transform3D(1, 7.1054274e-15, -1.6940659e-21, -1.4210855e-14, 1, 2.1316282e-14, -5.0821977e-21, -3.1974423e-14, 1, 0.008009374, 2.3283064e-10, -0.00023095217)
 
-[node name="SniperRifleMuzzleFlashSpawner" type="Marker3D" parent="Player/WeaponManager/WeaponContainer/SniperRifle/SniperRifleModel" unique_id=10764853]
+[node name="SniperRifleMuzzleFlashSpawner" type="Marker3D" parent="WeaponManager/WeaponContainer/SniperRifle/SniperRifleModel" unique_id=312281400]
 unique_name_in_owner = true
 transform = Transform3D(1, 7.1054274e-15, -2.1175824e-21, -1.4210855e-14, 1, 2.1316282e-14, -5.9292306e-21, -3.5527137e-14, 1, 0.007792936, 2.3283064e-10, -0.000689988)
 
-[node name="RocketLauncher" type="Node3D" parent="Player/WeaponManager/WeaponContainer" unique_id=315878779 node_paths=PackedStringArray("model", "attack_point", "muzzle_flash_spawner")]
+[node name="RocketLauncher" type="Node3D" parent="WeaponManager/WeaponContainer" unique_id=713978304 node_paths=PackedStringArray("model", "attack_point", "muzzle_flash_spawner")]
 transform = Transform3D(-0.04, 0, -3.496911e-09, 0, 0.04, 0, 3.496911e-09, 0, -0.04, 0.2009259, -0.06782913, -0.21825519)
 script = ExtResource("15_4ag61")
 resources = ExtResource("21_l6txn")
@@ -1714,167 +1795,155 @@ model = NodePath(".")
 attack_point = NodePath("RockerLauncherModel/RocketLauncherAttackPoint")
 muzzle_flash_spawner = NodePath("RockerLauncherModel/RocketLauncherMuzzleFlashSpawner")
 
-[node name="RockerLauncherModel" type="Node3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher" unique_id=1286541129]
+[node name="RockerLauncherModel" type="Node3D" parent="WeaponManager/WeaponContainer/RocketLauncher" unique_id=66459383]
 transform = Transform3D(1, 0, 0, 0, 0.17364821, -0.98480767, 0, 0.98480767, 0.17364821, 0, -21, 0)
 
-[node name="RocketLauncher" type="Node3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel" unique_id=1203831204]
+[node name="RocketLauncher" type="Node3D" parent="WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel" unique_id=36707554]
 
-[node name="Tube13_copy16_1" type="Node3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher" unique_id=695954377]
+[node name="Tube13_copy16_1" type="Node3D" parent="WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher" unique_id=849083198]
 
-[node name="Object_9" type="MeshInstance3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher/Tube13_copy16_1" unique_id=840934274]
+[node name="Object_9" type="MeshInstance3D" parent="WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher/Tube13_copy16_1" unique_id=727595709]
 layers = 2
-mesh = SubResource("ArrayMesh_7qx7s")
+mesh = SubResource("ArrayMesh_c2jgv")
 
-[node name="Tube13_copy15_2" type="Node3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher" unique_id=555889971]
+[node name="Tube13_copy15_2" type="Node3D" parent="WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher" unique_id=415224315]
 
-[node name="Object_11" type="MeshInstance3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher/Tube13_copy15_2" unique_id=769383216]
+[node name="Object_11" type="MeshInstance3D" parent="WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher/Tube13_copy15_2" unique_id=406874517]
 layers = 2
-mesh = SubResource("ArrayMesh_obyny")
+mesh = SubResource("ArrayMesh_um6v1")
 
-[node name="Tube13_copy14_3" type="Node3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher" unique_id=1863978195]
+[node name="Tube13_copy14_3" type="Node3D" parent="WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher" unique_id=775997177]
 
-[node name="Object_13" type="MeshInstance3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher/Tube13_copy14_3" unique_id=1747100704]
+[node name="Object_13" type="MeshInstance3D" parent="WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher/Tube13_copy14_3" unique_id=107885701]
 layers = 2
-mesh = SubResource("ArrayMesh_tj2dg")
+mesh = SubResource("ArrayMesh_u1xr7")
 
-[node name="Tube13_4" type="Node3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher" unique_id=668031868]
+[node name="Tube13_4" type="Node3D" parent="WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher" unique_id=692077125]
 
-[node name="Object_15" type="MeshInstance3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher/Tube13_4" unique_id=682024586]
+[node name="Object_15" type="MeshInstance3D" parent="WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher/Tube13_4" unique_id=1746412758]
 layers = 2
-mesh = SubResource("ArrayMesh_xjsho")
+mesh = SubResource("ArrayMesh_oyd6l")
 
-[node name="Cylinder10_copy12_5" type="Node3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher" unique_id=151450870]
+[node name="Cylinder10_copy12_5" type="Node3D" parent="WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher" unique_id=2034031816]
 
-[node name="Object_17" type="MeshInstance3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher/Cylinder10_copy12_5" unique_id=574780190]
+[node name="Object_17" type="MeshInstance3D" parent="WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher/Cylinder10_copy12_5" unique_id=1742321694]
 layers = 2
-mesh = SubResource("ArrayMesh_dbrfi")
+mesh = SubResource("ArrayMesh_xah0d")
 
-[node name="Cylinder10_copy11_6" type="Node3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher" unique_id=1267216269]
+[node name="Cylinder10_copy11_6" type="Node3D" parent="WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher" unique_id=398130820]
 
-[node name="Object_19" type="MeshInstance3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher/Cylinder10_copy11_6" unique_id=933804622]
+[node name="Object_19" type="MeshInstance3D" parent="WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher/Cylinder10_copy11_6" unique_id=2059967091]
 layers = 2
-mesh = SubResource("ArrayMesh_1m8gt")
+mesh = SubResource("ArrayMesh_fpe1p")
 
-[node name="Cylinder10_7" type="Node3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher" unique_id=273187399]
+[node name="Cylinder10_7" type="Node3D" parent="WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher" unique_id=1736726630]
 
-[node name="Object_21" type="MeshInstance3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher/Cylinder10_7" unique_id=1651175654]
+[node name="Object_21" type="MeshInstance3D" parent="WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher/Cylinder10_7" unique_id=1736034566]
 layers = 2
-mesh = SubResource("ArrayMesh_2ae8x")
+mesh = SubResource("ArrayMesh_ts5xw")
 
-[node name="Tube6_copy9_8" type="Node3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher" unique_id=1975930166]
+[node name="Tube6_copy9_8" type="Node3D" parent="WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher" unique_id=1106545244]
 
-[node name="Object_23" type="MeshInstance3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher/Tube6_copy9_8" unique_id=857502805]
+[node name="Object_23" type="MeshInstance3D" parent="WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher/Tube6_copy9_8" unique_id=417178574]
 layers = 2
-mesh = SubResource("ArrayMesh_tjri6")
+mesh = SubResource("ArrayMesh_rvrpt")
 
-[node name="Tube6_copy8_9" type="Node3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher" unique_id=1779359277]
+[node name="Tube6_copy8_9" type="Node3D" parent="WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher" unique_id=541582372]
 
-[node name="Object_25" type="MeshInstance3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher/Tube6_copy8_9" unique_id=1509511693]
+[node name="Object_25" type="MeshInstance3D" parent="WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher/Tube6_copy8_9" unique_id=1520863853]
 layers = 2
-mesh = SubResource("ArrayMesh_8l3c8")
+mesh = SubResource("ArrayMesh_4ag61")
 
-[node name="Tube6_copy7_10" type="Node3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher" unique_id=145578630]
+[node name="Tube6_copy7_10" type="Node3D" parent="WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher" unique_id=1571574354]
 
-[node name="Object_27" type="MeshInstance3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher/Tube6_copy7_10" unique_id=1695720526]
+[node name="Object_27" type="MeshInstance3D" parent="WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher/Tube6_copy7_10" unique_id=1592401103]
 layers = 2
-mesh = SubResource("ArrayMesh_oht6v")
+mesh = SubResource("ArrayMesh_p7740")
 
-[node name="Tube6_11" type="Node3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher" unique_id=1319722481]
+[node name="Tube6_11" type="Node3D" parent="WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher" unique_id=458311940]
 
-[node name="Object_29" type="MeshInstance3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher/Tube6_11" unique_id=2049924114]
+[node name="Object_29" type="MeshInstance3D" parent="WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher/Tube6_11" unique_id=677580433]
 layers = 2
-mesh = SubResource("ArrayMesh_hgdm0")
+mesh = SubResource("ArrayMesh_hien3")
 
-[node name="Cube4_12" type="Node3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher" unique_id=1086419608]
+[node name="Cube4_12" type="Node3D" parent="WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher" unique_id=1834717347]
 
-[node name="Object_31" type="MeshInstance3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher/Cube4_12" unique_id=1025060301]
+[node name="Object_31" type="MeshInstance3D" parent="WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher/Cube4_12" unique_id=1115680985]
 layers = 2
-mesh = SubResource("ArrayMesh_fr0fl")
+mesh = SubResource("ArrayMesh_hs0vv")
 
-[node name="Cylinder3_13" type="Node3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher" unique_id=1853433075]
+[node name="Cylinder3_13" type="Node3D" parent="WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher" unique_id=1940374529]
 
-[node name="Object_33" type="MeshInstance3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher/Cylinder3_13" unique_id=393955915]
+[node name="Object_33" type="MeshInstance3D" parent="WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher/Cylinder3_13" unique_id=1439462276]
 layers = 2
-mesh = SubResource("ArrayMesh_04581")
+mesh = SubResource("ArrayMesh_kjjxg")
 
-[node name="Cylinder2_14" type="Node3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher" unique_id=1555264022]
+[node name="Cylinder2_14" type="Node3D" parent="WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher" unique_id=619085752]
 
-[node name="Object_35" type="MeshInstance3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher/Cylinder2_14" unique_id=1081256484]
+[node name="Object_35" type="MeshInstance3D" parent="WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher/Cylinder2_14" unique_id=584074439]
 layers = 2
-mesh = SubResource("ArrayMesh_j5162")
+mesh = SubResource("ArrayMesh_63wpp")
 
-[node name="Object_36" type="MeshInstance3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher/Cylinder2_14" unique_id=1321019543]
+[node name="Object_36" type="MeshInstance3D" parent="WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher/Cylinder2_14" unique_id=1518779453]
 layers = 2
-mesh = SubResource("ArrayMesh_wd51c")
+mesh = SubResource("ArrayMesh_l6txn")
 
-[node name="Cylinder1_15" type="Node3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher" unique_id=2068120641]
+[node name="Cylinder1_15" type="Node3D" parent="WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher" unique_id=1688590775]
 
-[node name="Object_38" type="MeshInstance3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher/Cylinder1_15" unique_id=583087634]
+[node name="Object_38" type="MeshInstance3D" parent="WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher/Cylinder1_15" unique_id=987222041]
 layers = 2
-mesh = SubResource("ArrayMesh_73w6j")
+mesh = SubResource("ArrayMesh_bjp6c")
 
-[node name="Object_39" type="MeshInstance3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher/Cylinder1_15" unique_id=1216379598]
+[node name="Object_39" type="MeshInstance3D" parent="WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher/Cylinder1_15" unique_id=109470705]
 layers = 2
-mesh = SubResource("ArrayMesh_cbhq0")
+mesh = SubResource("ArrayMesh_oa3pv")
 
-[node name="Object_40" type="MeshInstance3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher/Cylinder1_15" unique_id=1605364638]
+[node name="Object_40" type="MeshInstance3D" parent="WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel/RocketLauncher/Cylinder1_15" unique_id=1802664784]
 layers = 2
-mesh = SubResource("ArrayMesh_fb3fa")
+mesh = SubResource("ArrayMesh_uhtiy")
 
-[node name="RocketLauncherAttackPoint" type="Marker3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel" unique_id=263445615]
+[node name="RocketLauncherAttackPoint" type="Marker3D" parent="WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel" unique_id=928016309]
 unique_name_in_owner = true
 transform = Transform3D(1, 1.4210855e-14, 2.842171e-14, -1.4210855e-14, 1, 3.5527137e-15, -2.842171e-14, -3.5527135e-15, 1, 0.005953312, 0, 9.066198)
 
-[node name="RocketLauncherMuzzleFlashSpawner" type="Marker3D" parent="Player/WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel" unique_id=760826363]
+[node name="RocketLauncherMuzzleFlashSpawner" type="Marker3D" parent="WeaponManager/WeaponContainer/RocketLauncher/RockerLauncherModel" unique_id=799835681]
 unique_name_in_owner = true
 transform = Transform3D(1, 1.4210855e-14, 2.842171e-14, -1.4210855e-14, 1, 3.5527137e-15, -2.842171e-14, -3.5527135e-15, 1, 0.005953312, 0, 9.065714)
 
-[node name="ShootManager" type="Node3D" parent="Player/WeaponManager" unique_id=1604869066 node_paths=PackedStringArray("weapon_manager")]
+[node name="ShootManager" type="Node3D" parent="WeaponManager" unique_id=1796789850 node_paths=PackedStringArray("weapon_manager")]
 script = ExtResource("22_bjp6c")
 weapon_manager = NodePath("..")
 
-[node name="ReloadManager" type="Node3D" parent="Player/WeaponManager" unique_id=1431664873 node_paths=PackedStringArray("weapon_manager")]
+[node name="ReloadManager" type="Node3D" parent="WeaponManager" unique_id=811191576 node_paths=PackedStringArray("weapon_manager")]
 script = ExtResource("23_oa3pv")
 weapon_manager = NodePath("..")
 
-[node name="AmmunitionManager" type="Node3D" parent="Player/WeaponManager" unique_id=1394673496]
+[node name="AmmunitionManager" type="Node3D" parent="WeaponManager" unique_id=240941927]
 script = ExtResource("24_uhtiy")
 
-[node name="AnimationManager" type="Node3D" parent="Player/WeaponManager" unique_id=2093228660 node_paths=PackedStringArray("camera_holder", "play_char", "anim_player", "weapon_manager")]
+[node name="AnimationManager" type="Node3D" parent="WeaponManager" unique_id=1632658382 node_paths=PackedStringArray("camera_holder", "play_char", "anim_player", "weapon_manager")]
 script = ExtResource("25_80sse")
 camera_holder = NodePath("../../CameraHolder")
-play_char = NodePath("../..")
+play_char = NodePath("../../Player")
 anim_player = NodePath("../AnimationPlayer")
 weapon_manager = NodePath("..")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="Player/WeaponManager" unique_id=1765553026]
-libraries/ = SubResource("AnimationLibrary_i3wqj")
+[node name="AnimationPlayer" type="AnimationPlayer" parent="WeaponManager" unique_id=43291020]
+libraries/ = SubResource("AnimationLibrary_80sse")
 
-[node name="Raycasts" type="Node3D" parent="Player" unique_id=2092964782]
+[node name="LinkComponent" type="Node" parent="WeaponManager" unique_id=2105073646 node_paths=PackedStringArray("ammo_manager")]
+script = ExtResource("26_rond0")
+ammo_manager = NodePath("../AmmunitionManager")
 
-[node name="CeilingCheck" type="RayCast3D" parent="Player/Raycasts" unique_id=534014381]
-unique_name_in_owner = true
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.758088, 0)
-exclude_parent = false
-target_position = Vector3(0, 3, 0)
-debug_shape_custom_color = Color(1, 0, 0, 1)
-
-[node name="FloorCheck" type="RayCast3D" parent="Player/Raycasts" unique_id=1770001057]
-unique_name_in_owner = true
-exclude_parent = false
-target_position = Vector3(0, -3, 0)
-debug_shape_custom_color = Color(0, 0.823529, 0.956863, 1)
-
-[node name="CameraHolder" type="Node3D" parent="Player" unique_id=64760859 node_paths=PackedStringArray("view_camera", "recoil_holder")]
+[node name="CameraHolder" type="Node3D" parent="." unique_id=2089703602 node_paths=PackedStringArray("recoil_holder")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0.715, 0)
 script = ExtResource("33_ts5xw")
-view_camera = NodePath("../Head/CameraMotion/Camera3D")
 recoil_holder = NodePath("CameraRecoilHolder")
 
-[node name="CameraRecoilHolder" type="Node3D" parent="Player/CameraHolder" unique_id=555241331]
+[node name="CameraRecoilHolder" type="Node3D" parent="CameraHolder" unique_id=837187915]
 script = ExtResource("34_rvrpt")
 
-[node name="Camera" type="Camera3D" parent="Player/CameraHolder/CameraRecoilHolder" unique_id=2046200144]
+[node name="Camera" type="Camera3D" parent="CameraHolder/CameraRecoilHolder" unique_id=1981467633]
 unique_name_in_owner = true
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, 1, 0)
 cull_mask = 1
@@ -1882,190 +1951,5 @@ fov = 90.0
 near = 0.01
 far = 1000.0
 
-[node name="PlayerInput" type="Node" parent="Player" unique_id=1003773154]
-script = ExtResource("6_c0jkj")
-
-[node name="PlayerState" type="Node" parent="Player" unique_id=1085758552]
-script = ExtResource("7_c2jgv")
-
-[node name="PlayerMovement" type="Node" parent="Player" unique_id=902360245]
-script = ExtResource("8_um6v1")
-gravity_while_falling = 20.25
-
-[node name="PlayerCamera" type="Node" parent="Player" unique_id=719292467]
-script = ExtResource("9_u1xr7")
-bob_frequency = 1.0
-bob_amplitude = 0.023
-
-[node name="Grapple" type="Node" parent="Player" unique_id=891205374 groups=["grapple_controller"]]
-script = ExtResource("10_oyd6l")
-grapple_max_distance = 15.0
-
-[node name="TargetIndicator" type="Node3D" parent="Player/Grapple" unique_id=666799498]
-
-[node name="LatchPoint" type="MeshInstance3D" parent="Player/Grapple/TargetIndicator" unique_id=1500152259]
-visible = false
-material_override = SubResource("StandardMaterial3D_grapple_target")
-mesh = SubResource("SphereMesh_grapple_target")
-
-[node name="GrappleRope" type="MeshInstance3D" parent="Player/Grapple" unique_id=336199534]
-visible = false
-script = ExtResource("11_xah0d")
-
-[node name="Traversal" type="Node" parent="Player" unique_id=2104839174]
-script = ExtResource("12_fpe1p")
-traversal_input_grace_time = 0.22
-traversal_forward_detection_distance = 1.6
-scramble_min_speed = 1.75
-hurdle_detection_distance = 1.6
-scramble_detection_distance = 1.25
-scramble_detection_angle = 40.0
-scramble_front_dot_threshold = 0.7
-scramble_max_wall_distance = 1.0
-scramble_required_probe_hits = 1
-scramble_entry_velocity_dot_threshold = 0.0
-scramble_max_wall_angle = 28.0
-scramble_wall_normal_tolerance = 30.0
-scramble_speed = 7.0
-scramble_steering_strength = 0.7
-scramble_steering_response = 10.0
-scramble_horizontal_control = 0.55
-scramble_lateral_control = 0.65
-scramble_upward_speed = 7.2
-scramble_exit_direction_influence = 0.0
-hurdle_max_distance = 2.2
-hurdle_speed_influence = 1.0
-hurdle_momentum_preservation = 1.0
-hurdle_exit_speed_multiplier = 1.05
-
-[node name="TraversalCameraLayer" type="Node" parent="Player/Traversal" unique_id=2104839175]
-script = ExtResource("13_ts5xw")
-
-[node name="LinkComponent" type="Node" parent="Player" unique_id=914659595 node_paths=PackedStringArray("ammo_manager")]
-script = ExtResource("26_rond0")
-ammo_manager = NodePath("../WeaponManager/AmmunitionManager")
-
-[node name="HUD" type="CanvasLayer" parent="Player" unique_id=114361223 node_paths=PackedStringArray("weapon_manager")]
-script = ExtResource("27_xah0d")
-weapon_manager = NodePath("../WeaponManager")
-metadata/_edit_use_anchors_ = true
-
-[node name="WeaponProperties" type="MarginContainer" parent="Player/HUD" unique_id=1613097381]
-anchors_preset = -1
-anchor_left = 1.0017362
-anchor_top = 0.9212963
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -177.0
-offset_top = -43.0
-grow_horizontal = 0
-grow_vertical = 0
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
-metadata/_edit_use_anchors_ = true
-
-[node name="PanelContainer" type="PanelContainer" parent="Player/HUD/WeaponProperties" unique_id=1646040264]
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_ts5xw")
-
-[node name="HBoxContainer" type="HBoxContainer" parent="Player/HUD/WeaponProperties/PanelContainer" unique_id=2117934840]
-layout_mode = 2
-
-[node name="VBoxContainer" type="VBoxContainer" parent="Player/HUD/WeaponProperties/PanelContainer/HBoxContainer" unique_id=154450809]
-layout_mode = 2
-
-[node name="WeaponStackLabel" type="Label" parent="Player/HUD/WeaponProperties/PanelContainer/HBoxContainer/VBoxContainer" unique_id=1424421949]
-visible = false
-texture_filter = 1
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "Available weapons :"
-label_settings = ExtResource("31_4ag61")
-vertical_alignment = 1
-
-[node name="WeaponNameLabel" type="Label" parent="Player/HUD/WeaponProperties/PanelContainer/HBoxContainer/VBoxContainer" unique_id=472426092]
-texture_filter = 1
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "Weapon name :"
-label_settings = ExtResource("31_4ag61")
-vertical_alignment = 1
-
-[node name="NbAmmoInMagLabel" type="Label" parent="Player/HUD/WeaponProperties/PanelContainer/HBoxContainer/VBoxContainer" unique_id=1542918161]
-texture_filter = 1
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "Nb ammo in mag : "
-label_settings = ExtResource("31_4ag61")
-vertical_alignment = 1
-
-[node name="NbAmmoTotalLabel" type="Label" parent="Player/HUD/WeaponProperties/PanelContainer/HBoxContainer/VBoxContainer" unique_id=1481684022]
-texture_filter = 1
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "Nb total ammo :"
-label_settings = ExtResource("31_4ag61")
-vertical_alignment = 1
-
-[node name="VBoxContainer2" type="VBoxContainer" parent="Player/HUD/WeaponProperties/PanelContainer/HBoxContainer" unique_id=129941515]
-layout_mode = 2
-
-[node name="WeaponStackLabelText" type="Label" parent="Player/HUD/WeaponProperties/PanelContainer/HBoxContainer/VBoxContainer2" unique_id=568960589]
-unique_name_in_owner = true
-visible = false
-texture_filter = 1
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "....."
-label_settings = ExtResource("31_4ag61")
-vertical_alignment = 1
-
-[node name="WeaponNameLabelText" type="Label" parent="Player/HUD/WeaponProperties/PanelContainer/HBoxContainer/VBoxContainer2" unique_id=1564871236]
-unique_name_in_owner = true
-texture_filter = 1
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "....."
-label_settings = ExtResource("31_4ag61")
-vertical_alignment = 1
-
-[node name="NbAmmoInMagLabelText" type="Label" parent="Player/HUD/WeaponProperties/PanelContainer/HBoxContainer/VBoxContainer2" unique_id=26325338]
-unique_name_in_owner = true
-texture_filter = 1
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "....."
-label_settings = ExtResource("31_4ag61")
-vertical_alignment = 1
-
-[node name="NbAmmoTotalLabelText" type="Label" parent="Player/HUD/WeaponProperties/PanelContainer/HBoxContainer/VBoxContainer2" unique_id=1024320281]
-unique_name_in_owner = true
-texture_filter = 1
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "....."
-label_settings = ExtResource("31_4ag61")
-vertical_alignment = 1
-
-[node name="SubViewportContainer" type="SubViewportContainer" parent="." unique_id=382225445]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="SubViewport" type="SubViewport" parent="SubViewportContainer" unique_id=1367464104]
-transparent_bg = true
-handle_input_locally = false
-size = Vector2i(1152, 648)
-render_target_update_mode = 4
-
-[node name="ViewportCam" type="Camera3D" parent="SubViewportContainer/SubViewport" unique_id=1077420672]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0.540581, 0)
-cull_mask = 2
-attributes = SubResource("CameraAttributesPractical_ts5xw")
-fov = 90.0
-near = 0.01
-far = 1000.0
-
-[node name="UiManager" parent="." unique_id=315761469 instance=ExtResource("5_0snqu")]
+[node name="Player" parent="." unique_id=893122104 instance=ExtResource("7_ip6xv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 2, -4)
