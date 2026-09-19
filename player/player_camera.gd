@@ -172,6 +172,10 @@ func _ready() -> void:
 	camera.fov = fov_value
 	camera.current = true
 
+	var viewport_camera: Camera3D = $"../../SubViewportContainer/SubViewport/ViewportCam" as Camera3D
+	if viewport_camera != null:
+		viewport_camera.set_physics_interpolation_mode(Node.PHYSICS_INTERPOLATION_MODE_OFF)
+
 func _process(delta: float) -> void:
 	if player == null or head == null or camera_motion == null or camera == null or player_input == null or player_state == null or player_movement == null:
 		return
