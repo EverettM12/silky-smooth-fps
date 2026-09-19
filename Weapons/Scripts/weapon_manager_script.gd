@@ -32,7 +32,7 @@ const HEAD_TO_WEAPON_Y : float = -0.05
 signal weapon_stack_updated
 
 func _ready() -> void:
-	head = $"..".get_node("Player/Head")
+	head = $"../Head"
 	camera_recoil_holder = $"../CameraHolder/CameraRecoilHolder"
 	await initialize()
 
