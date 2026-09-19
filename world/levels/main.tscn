@@ -74,15 +74,6 @@ auto_exposure_scale = 0.5
 radius = 0.35
 height = 1.9
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_grapple_target"]
-albedo_color = Color(0.3019608, 0.9490196, 1, 0)
-emission_enabled = true
-emission = Color(0.15, 0.8, 1, 1)
-
-[sub_resource type="SphereMesh" id="SphereMesh_grapple_target"]
-radius = 0.08
-height = 0.16
-
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ql4cm"]
 albedo_texture = ExtResource("17_hien3")
 
@@ -1484,6 +1475,15 @@ _data = {
 &"UnequipAnimSniperRifle": SubResource("Animation_tj2dg")
 }
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_grapple_target"]
+albedo_color = Color(0.3019608, 0.9490196, 1, 0)
+emission_enabled = true
+emission = Color(0.15, 0.8, 1, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_grapple_target"]
+radius = 0.08
+height = 0.16
+
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_jv0i6"]
 frequency = 0.15
 
@@ -1501,20 +1501,7 @@ shader_parameter/mask_size = 0.1
 shader_parameter/mask_edge = 0.800000038
 shader_parameter/animation_speed = 20.0
 
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_kxghy"]
-sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
-ground_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
-
-[sub_resource type="Sky" id="Sky_wyaf1"]
-sky_material = SubResource("ProceduralSkyMaterial_kxghy")
-
-[sub_resource type="Environment" id="Environment_i3wqj"]
-background_mode = 2
-sky = SubResource("Sky_wyaf1")
-tonemap_mode = 2
-glow_enabled = true
-adjustment_enabled = true
-adjustment_brightness = 1.6
+[sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_ts5xw"]
 
 [node name="Main" type="Node3D" unique_id=1073433833]
 script = ExtResource("1_8e8k6")
@@ -1593,8 +1580,6 @@ shadow_bias = 0.05
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 49.8991, 25.834, -30.0061)
 size = Vector3(10000, 10000, 1000)
 
-[node name="UiManager" parent="." unique_id=315761469 instance=ExtResource("5_0snqu")]
-
 [node name="Player" type="CharacterBody3D" parent="." unique_id=1930534967]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 2, -4)
 collision_layer = 2
@@ -1610,68 +1595,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.65, 0)
 [node name="CameraMotion" type="Node3D" parent="Player/Head" unique_id=1030615224]
 
 [node name="Camera3D" type="Camera3D" parent="Player/Head/CameraMotion" unique_id=287350200]
+cull_mask = 1
 current = true
 
 [node name="Visuals" type="Node3D" parent="Player" unique_id=1549703221]
-
-[node name="PlayerInput" type="Node" parent="Player" unique_id=1003773154]
-script = ExtResource("6_c0jkj")
-
-[node name="PlayerState" type="Node" parent="Player" unique_id=1085758552]
-script = ExtResource("7_c2jgv")
-
-[node name="PlayerMovement" type="Node" parent="Player" unique_id=902360245]
-script = ExtResource("8_um6v1")
-gravity_while_falling = 20.25
-
-[node name="PlayerCamera" type="Node" parent="Player" unique_id=719292467]
-script = ExtResource("9_u1xr7")
-bob_frequency = 1.0
-bob_amplitude = 0.023
-
-[node name="Grapple" type="Node" parent="Player" unique_id=891205374 groups=["grapple_controller"]]
-script = ExtResource("10_oyd6l")
-grapple_max_distance = 15.0
-
-[node name="TargetIndicator" type="Node3D" parent="Player/Grapple" unique_id=666799498]
-
-[node name="LatchPoint" type="MeshInstance3D" parent="Player/Grapple/TargetIndicator" unique_id=1500152259]
-visible = false
-material_override = SubResource("StandardMaterial3D_grapple_target")
-mesh = SubResource("SphereMesh_grapple_target")
-
-[node name="GrappleRope" type="MeshInstance3D" parent="Player/Grapple" unique_id=336199534]
-visible = false
-script = ExtResource("11_xah0d")
-
-[node name="Traversal" type="Node" parent="Player" unique_id=2104839174]
-script = ExtResource("12_fpe1p")
-traversal_input_grace_time = 0.22
-traversal_forward_detection_distance = 1.6
-scramble_min_speed = 1.75
-hurdle_detection_distance = 1.6
-scramble_detection_distance = 1.25
-scramble_detection_angle = 40.0
-scramble_front_dot_threshold = 0.7
-scramble_max_wall_distance = 1.0
-scramble_required_probe_hits = 1
-scramble_entry_velocity_dot_threshold = 0.0
-scramble_max_wall_angle = 28.0
-scramble_wall_normal_tolerance = 30.0
-scramble_speed = 7.0
-scramble_steering_strength = 0.7
-scramble_steering_response = 10.0
-scramble_horizontal_control = 0.55
-scramble_lateral_control = 0.65
-scramble_upward_speed = 7.2
-scramble_exit_direction_influence = 0.0
-hurdle_max_distance = 2.2
-hurdle_speed_influence = 1.0
-hurdle_momentum_preservation = 1.0
-hurdle_exit_speed_multiplier = 1.05
-
-[node name="TraversalCameraLayer" type="Node" parent="Player/Traversal" unique_id=2104839175]
-script = ExtResource("13_ts5xw")
 
 [node name="WeaponManager" type="Node3D" parent="Player" unique_id=1082769642 node_paths=PackedStringArray("start_weapons")]
 unique_name_in_owner = true
@@ -1936,6 +1863,82 @@ unique_name_in_owner = true
 exclude_parent = false
 target_position = Vector3(0, -3, 0)
 debug_shape_custom_color = Color(0, 0.823529, 0.956863, 1)
+
+[node name="CameraHolder" type="Node3D" parent="Player" unique_id=64760859]
+unique_name_in_owner = true
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0.715, 0)
+script = ExtResource("33_ts5xw")
+
+[node name="CameraRecoilHolder" type="Node3D" parent="Player/CameraHolder" unique_id=555241331]
+unique_name_in_owner = true
+script = ExtResource("34_rvrpt")
+
+[node name="Camera" type="Camera3D" parent="Player/CameraHolder/CameraRecoilHolder" unique_id=2046200144]
+unique_name_in_owner = true
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, 1, 0)
+cull_mask = 1
+fov = 90.0
+near = 0.01
+far = 1000.0
+
+[node name="PlayerInput" type="Node" parent="Player" unique_id=1003773154]
+script = ExtResource("6_c0jkj")
+
+[node name="PlayerState" type="Node" parent="Player" unique_id=1085758552]
+script = ExtResource("7_c2jgv")
+
+[node name="PlayerMovement" type="Node" parent="Player" unique_id=902360245]
+script = ExtResource("8_um6v1")
+gravity_while_falling = 20.25
+
+[node name="PlayerCamera" type="Node" parent="Player" unique_id=719292467]
+script = ExtResource("9_u1xr7")
+bob_frequency = 1.0
+bob_amplitude = 0.023
+
+[node name="Grapple" type="Node" parent="Player" unique_id=891205374 groups=["grapple_controller"]]
+script = ExtResource("10_oyd6l")
+grapple_max_distance = 15.0
+
+[node name="TargetIndicator" type="Node3D" parent="Player/Grapple" unique_id=666799498]
+
+[node name="LatchPoint" type="MeshInstance3D" parent="Player/Grapple/TargetIndicator" unique_id=1500152259]
+visible = false
+material_override = SubResource("StandardMaterial3D_grapple_target")
+mesh = SubResource("SphereMesh_grapple_target")
+
+[node name="GrappleRope" type="MeshInstance3D" parent="Player/Grapple" unique_id=336199534]
+visible = false
+script = ExtResource("11_xah0d")
+
+[node name="Traversal" type="Node" parent="Player" unique_id=2104839174]
+script = ExtResource("12_fpe1p")
+traversal_input_grace_time = 0.22
+traversal_forward_detection_distance = 1.6
+scramble_min_speed = 1.75
+hurdle_detection_distance = 1.6
+scramble_detection_distance = 1.25
+scramble_detection_angle = 40.0
+scramble_front_dot_threshold = 0.7
+scramble_max_wall_distance = 1.0
+scramble_required_probe_hits = 1
+scramble_entry_velocity_dot_threshold = 0.0
+scramble_max_wall_angle = 28.0
+scramble_wall_normal_tolerance = 30.0
+scramble_speed = 7.0
+scramble_steering_strength = 0.7
+scramble_steering_response = 10.0
+scramble_horizontal_control = 0.55
+scramble_lateral_control = 0.65
+scramble_upward_speed = 7.2
+scramble_exit_direction_influence = 0.0
+hurdle_max_distance = 2.2
+hurdle_speed_influence = 1.0
+hurdle_momentum_preservation = 1.0
+hurdle_exit_speed_multiplier = 1.05
+
+[node name="TraversalCameraLayer" type="Node" parent="Player/Traversal" unique_id=2104839175]
+script = ExtResource("13_ts5xw")
 
 [node name="LinkComponent" type="Node" parent="Player" unique_id=914659595]
 unique_name_in_owner = true
@@ -2358,43 +2361,27 @@ text = "....."
 label_settings = ExtResource("31_4ag61")
 vertical_alignment = 1
 
-[node name="SubViewportContainer" type="SubViewportContainer" parent="Player" unique_id=382225445]
+[node name="SubViewportContainer" type="SubViewportContainer" parent="." unique_id=382225445]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="SubViewport" type="SubViewport" parent="Player/SubViewportContainer" unique_id=1367464104]
+[node name="SubViewport" type="SubViewport" parent="SubViewportContainer" unique_id=1367464104]
 transparent_bg = true
 handle_input_locally = false
 size = Vector2i(1152, 648)
 render_target_update_mode = 4
 
-[node name="ViewportCam" type="Camera3D" parent="Player/SubViewportContainer/SubViewport" unique_id=1077420672]
+[node name="ViewportCam" type="Camera3D" parent="SubViewportContainer/SubViewport" unique_id=1077420672]
 unique_name_in_owner = true
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0.540581, 0)
 cull_mask = 2
-environment = SubResource("Environment_i3wqj")
+attributes = SubResource("CameraAttributesPractical_ts5xw")
 fov = 90.0
 near = 0.01
 far = 1000.0
 script = ExtResource("32_p7740")
 
-[node name="CameraHolder" type="Node3D" parent="Player" unique_id=64760859]
-unique_name_in_owner = true
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0.715, 0)
-script = ExtResource("33_ts5xw")
-
-[node name="CameraRecoilHolder" type="Node3D" parent="Player/CameraHolder" unique_id=555241331]
-unique_name_in_owner = true
-script = ExtResource("34_rvrpt")
-
-[node name="Camera" type="Camera3D" parent="Player/CameraHolder/CameraRecoilHolder" unique_id=2046200144]
-unique_name_in_owner = true
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, 1, 0)
-cull_mask = 1
-current = true
-fov = 90.0
-near = 0.01
-far = 1000.0
+[node name="UiManager" parent="." unique_id=315761469 instance=ExtResource("5_0snqu")]

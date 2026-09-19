@@ -38,6 +38,7 @@ func reload_start() -> void:
 			#for example, for a shotgun that can contain 8 shells, the number of parts to reload possible are : 1, 2, 4, 8
 			#if you choose a number like 3, or 5, it will reload 3/8, or 5/8 at once, which is not possible, so be sure to enter a number of part allowing the weapon to reload ammunition units
 			if (current_weapon.resources.total_ammo_in_mag_ref % current_weapon.resources.nb_parts_needed) != 0:
+				@warning_ignore("integer_division")
 				push_error("The number of parts set is not correct, cannot insert %d of ammunition" % (current_weapon.resources.nb_parts_needed / current_weapon.resources.total_ammo_in_mag_ref))
 				current_weapon.resources.is_reloading = false
 			else:
@@ -90,6 +91,7 @@ func one_part_reload_calculus() -> void:
 		weapon_manager.ammo_manager.ammo_dict[current_weapon.resources.ammo_type] -= nb_ammo_to_refill
 		
 func multi_part_reload_calculus() -> void:
+	@warning_ignore("integer_division")
 	var nb_ammo_to_refill : int = current_weapon.resources.total_ammo_in_mag_ref / current_weapon.resources.nb_parts_needed
 	if weapon_manager.ammo_manager.ammo_dict[current_weapon.resources.ammo_type] >= nb_ammo_to_refill and \
 	current_weapon.resources.total_ammo_in_mag <= current_weapon.resources.total_ammo_in_mag_ref - nb_ammo_to_refill:

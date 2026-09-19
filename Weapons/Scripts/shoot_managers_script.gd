@@ -62,40 +62,22 @@ func shoot() -> void:
 				
 		current_weapon.resources.is_shooting = false
 		
-func get_camera_fov() -> Vector3:  
-	var camera : Camera3D = %Camera
-	var window : Window = get_window()
-	var viewport : Vector2i
-	
-	#match viewport to window size, to ensure that the raycast goes in the right direction
-	match window.content_scale_mode:
-		window.CONTENT_SCALE_MODE_VIEWPORT:
-			viewport = window.content_scale_size
-		window.CONTENT_SCALE_MODE_CANVAS_ITEMS:
-			viewport = window.content_scale_size
-		window.CONTENT_SCALE_MODE_DISABLED:
-			viewport = window.get_size()
-			
-	#Start raycast in camera position, and launch it in camera direction 
-	var raycast_start : Vector3 = camera.project_ray_origin(viewport/2.0)
-	var raycast_end : Vector3 = Vector3.ZERO
-	@warning_ignore("integer_division")
-	if current_weapon.resources.type == current_weapon.resources.TYPES.HITSCAN: raycast_end = raycast_start + camera.project_ray_normal(viewport/2) * current_weapon.resources.max_range 
-	@warning_ignore("integer_division")
-	if current_weapon.resources.type == current_weapon.resources.TYPES.PROJECTILE: raycast_end = raycast_start + camera.project_ray_normal(viewport/2) * 280
-	
-	#Create intersection space to contain possible collisions 
-	var new_intersection : PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(raycast_start, raycast_end)
-	var intersection : Dictionary = get_world_3d().direct_space_state.intersect_ray(new_intersection)
-	
-	#If the raycast has collide with something, return collision point transform properties
-	if !intersection.is_empty():
-		var collision_point : Vector3 = intersection.position
-		return collision_point 
-	#Else, return the end of the raycast (so nothing, because he hasn't collide with anything) 
-	else:
-		return raycast_end 
-		
+func get_camera_fov() -> Vector3:
+	var viewport : Viewport = get_viewport()
+	var camera : Camera3D = viewport.get_camera_3d()
+	var center : Vector2 = viewport.get_visible_rect().size / 2.0
+
+	var origin : Vector3 = camera.project_ray_origin(center)
+	var direction : Vector3 = camera.project_ray_normal(center)
+	var ray_length : float = 280.0
+	if current_weapon.resources.type == current_weapon.resources.TYPES.HITSCAN:
+		ray_length = current_weapon.resources.max_range
+
+	var end : Vector3 = origin + direction * ray_length
+	var query : PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(origin, end)
+	var hit : Dictionary = get_world_3d().direct_space_state.intersect_ray(query)
+	return hit.position if !hit.is_empty() else end
+
 func hitscan_shot(point_of_collision_hitscan : Vector3) -> void:
 	rng = RandomNumberGenerator.new()
 	
