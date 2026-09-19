@@ -4,7 +4,7 @@ var current_weapon : WeaponSlot
 var point_of_collision : Vector3 = Vector3.ZERO
 var rng : RandomNumberGenerator
 
-@onready var weapon_manager : Node3D = %WeaponManager
+@export var weapon_manager : Node3D
 
 func get_current_weapon(current_weapon_ref : WeaponSlot) -> void:
 	#get current weapon resources

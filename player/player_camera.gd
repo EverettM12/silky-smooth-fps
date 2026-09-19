@@ -186,6 +186,7 @@ func _process(delta: float) -> void:
 	previous_velocity = player.velocity
 	previous_player_yaw = player.rotation.y
 	dash_was_active = player_movement.is_dashing
+	$"../../SubViewportContainer/SubViewport/ViewportCam".global_transform = $"../Head/CameraMotion/Camera3D".global_transform
 
 func calculate_movement_data(delta: float) -> Dictionary:
 	var horizontal_velocity: Vector3 = Vector3(player.velocity.x, 0.0, player.velocity.z)

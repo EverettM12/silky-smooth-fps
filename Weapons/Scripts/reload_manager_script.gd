@@ -7,7 +7,7 @@ var play_sound_and_anim : bool
 var force_reload_stop : bool = false
 
 var current_weapon : WeaponSlot
-@onready var weapon_manager : Node3D = %WeaponManager
+@export var weapon_manager : Node3D
 
 func get_current_weapon(current_weapon_ref : WeaponSlot) -> void:
 	current_weapon = current_weapon_ref

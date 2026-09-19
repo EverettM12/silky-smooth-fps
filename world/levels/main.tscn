@@ -27,11 +27,7 @@
 [ext_resource type="Script" uid="uid://bc64rms0gin6g" path="res://Weapons/Scripts/animation_manager_script.gd" id="25_80sse"]
 [ext_resource type="Script" uid="uid://cnpa03x4ajc8b" path="res://PlayerCharacter/Misc/link_component_script.gd" id="26_rond0"]
 [ext_resource type="Script" uid="uid://dx02l6p6behb8" path="res://PlayerCharacter/HUD/Scripts/hud_script.gd" id="27_xah0d"]
-[ext_resource type="Shader" uid="uid://b34228uop3gdf" path="res://PlayerCharacter/Shaders/speed_lines_shader.gdshader" id="28_fpe1p"]
-[ext_resource type="Texture2D" uid="uid://jwucel52ti1u" path="res://Weapons/Images/weapon_crosshair.png" id="29_ts5xw"]
-[ext_resource type="StyleBox" uid="uid://c50syhy1a4dmh" path="res://PlayerCharacter/HUD/Arts/player_character_hud_theme.tres" id="30_rvrpt"]
 [ext_resource type="LabelSettings" uid="uid://bs0stms0b56kp" path="res://PlayerCharacter/HUD/Arts/label_settings.tres" id="31_4ag61"]
-[ext_resource type="Script" uid="uid://cptlccjp685rs" path="res://Weapons/Scripts/Camera/viewport_camera_script.gd" id="32_p7740"]
 [ext_resource type="Script" uid="uid://b0fbr48rbvn27" path="res://PlayerCharacter/Camera/camera_script.gd" id="33_ts5xw"]
 [ext_resource type="Script" uid="uid://k7djd8c1xge2" path="res://Weapons/Scripts/Camera/camera_recoil_holder_script.gd" id="34_rvrpt"]
 
@@ -1484,22 +1480,17 @@ emission = Color(0.15, 0.8, 1, 1)
 radius = 0.08
 height = 0.16
 
-[sub_resource type="FastNoiseLite" id="FastNoiseLite_jv0i6"]
-frequency = 0.15
-
-[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_khex2"]
-noise = SubResource("FastNoiseLite_jv0i6")
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_khex2"]
-shader = ExtResource("28_fpe1p")
-shader_parameter/noise = SubResource("NoiseTexture2D_khex2")
-shader_parameter/line_color = Color(1, 1, 1, 1)
-shader_parameter/line_count = 2.0
-shader_parameter/line_density = 0.800000038
-shader_parameter/line_faloff = 1.0
-shader_parameter/mask_size = 0.1
-shader_parameter/mask_edge = 0.800000038
-shader_parameter/animation_speed = 20.0
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ts5xw"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(0, 0, 0, 0.49411765)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+corner_detail = 12
 
 [sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_ts5xw"]
 
@@ -1600,14 +1591,22 @@ current = true
 
 [node name="Visuals" type="Node3D" parent="Player" unique_id=1549703221]
 
-[node name="WeaponManager" type="Node3D" parent="Player" unique_id=1082769642 node_paths=PackedStringArray("start_weapons")]
-unique_name_in_owner = true
+[node name="WeaponManager" type="Node3D" parent="Player" unique_id=1082769642 node_paths=PackedStringArray("start_weapons", "camera_recoil_holder", "viewport_cam", "weapon_container", "shoot_manager", "reload_manager", "ammo_manager", "anim_player", "anim_manager", "hud", "link_component")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 1.6, 0)
 script = ExtResource("14_rvrpt")
 start_weapons = [NodePath("WeaponContainer/Pistol"), NodePath("WeaponContainer/AssaultRifle"), NodePath("WeaponContainer/Shotgun"), NodePath("WeaponContainer/SniperRifle"), NodePath("WeaponContainer/RocketLauncher")]
+camera_recoil_holder = NodePath("../CameraHolder/CameraRecoilHolder")
+viewport_cam = NodePath("../../SubViewportContainer/SubViewport/ViewportCam")
+weapon_container = NodePath("WeaponContainer")
+shoot_manager = NodePath("ShootManager")
+reload_manager = NodePath("ReloadManager")
+ammo_manager = NodePath("AmmunitionManager")
+anim_player = NodePath("AnimationPlayer")
+anim_manager = NodePath("AnimationManager")
+hud = NodePath("../HUD")
+link_component = NodePath("../LinkComponent")
 
 [node name="WeaponContainer" type="Node3D" parent="Player/WeaponManager" unique_id=1682546542]
-unique_name_in_owner = true
 
 [node name="Pistol" type="Node3D" parent="Player/WeaponManager/WeaponContainer" unique_id=1689632630 node_paths=PackedStringArray("model", "attack_point", "muzzle_flash_spawner")]
 transform = Transform3D(-3.059797e-06, -70, -3.059797e-06, 0, -3.059797e-06, 70, -70, 3.059797e-06, 1.3374798e-13, 0.2009259, -0.12446213, -0.26282233)
@@ -1642,7 +1641,7 @@ attack_point = NodePath("AssaultRifleModel/AssaultRifleAttackPoint")
 muzzle_flash_spawner = NodePath("AssaultRifleModel/AssaultRifleMuzzleFlashSpawner")
 
 [node name="AssaultRifleModel" type="Node3D" parent="Player/WeaponManager/WeaponContainer/AssaultRifle" unique_id=13834469]
-transform = Transform3D(0.17364821, 0, 0.9848076, 0, 1, 0, -0.9848076, 0, 0.17364821, 0, 0, -0.006)
+transform = Transform3D(0.1736482, 0, 0.98480755, 0, 1, 0, -0.98480755, 0, 0.1736482, 0, 0, -0.006)
 
 [node name="AssaultRifle" type="MeshInstance3D" parent="Player/WeaponManager/WeaponContainer/AssaultRifle/AssaultRifleModel" unique_id=131802581]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0014336891, -2.3283064e-10, 0)
@@ -1829,24 +1828,25 @@ transform = Transform3D(1, 1.4210855e-14, 2.842171e-14, -1.4210855e-14, 1, 3.552
 unique_name_in_owner = true
 transform = Transform3D(1, 1.4210855e-14, 2.842171e-14, -1.4210855e-14, 1, 3.5527137e-15, -2.842171e-14, -3.5527135e-15, 1, 0.005953312, 0, 9.065714)
 
-[node name="ShootManager" type="Node3D" parent="Player/WeaponManager" unique_id=1604869066]
-unique_name_in_owner = true
+[node name="ShootManager" type="Node3D" parent="Player/WeaponManager" unique_id=1604869066 node_paths=PackedStringArray("weapon_manager")]
 script = ExtResource("22_bjp6c")
+weapon_manager = NodePath("..")
 
-[node name="ReloadManager" type="Node3D" parent="Player/WeaponManager" unique_id=1431664873]
-unique_name_in_owner = true
+[node name="ReloadManager" type="Node3D" parent="Player/WeaponManager" unique_id=1431664873 node_paths=PackedStringArray("weapon_manager")]
 script = ExtResource("23_oa3pv")
+weapon_manager = NodePath("..")
 
 [node name="AmmunitionManager" type="Node3D" parent="Player/WeaponManager" unique_id=1394673496]
-unique_name_in_owner = true
 script = ExtResource("24_uhtiy")
 
-[node name="AnimationManager" type="Node3D" parent="Player/WeaponManager" unique_id=2093228660]
-unique_name_in_owner = true
+[node name="AnimationManager" type="Node3D" parent="Player/WeaponManager" unique_id=2093228660 node_paths=PackedStringArray("camera_holder", "play_char", "anim_player", "weapon_manager")]
 script = ExtResource("25_80sse")
+camera_holder = NodePath("../../CameraHolder")
+play_char = NodePath("../..")
+anim_player = NodePath("../AnimationPlayer")
+weapon_manager = NodePath("..")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="Player/WeaponManager" unique_id=1765553026]
-unique_name_in_owner = true
 libraries/ = SubResource("AnimationLibrary_i3wqj")
 
 [node name="Raycasts" type="Node3D" parent="Player" unique_id=2092964782]
@@ -1865,12 +1865,10 @@ target_position = Vector3(0, -3, 0)
 debug_shape_custom_color = Color(0, 0.823529, 0.956863, 1)
 
 [node name="CameraHolder" type="Node3D" parent="Player" unique_id=64760859]
-unique_name_in_owner = true
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0.715, 0)
 script = ExtResource("33_ts5xw")
 
 [node name="CameraRecoilHolder" type="Node3D" parent="Player/CameraHolder" unique_id=555241331]
-unique_name_in_owner = true
 script = ExtResource("34_rvrpt")
 
 [node name="Camera" type="Camera3D" parent="Player/CameraHolder/CameraRecoilHolder" unique_id=2046200144]
@@ -1941,335 +1939,17 @@ hurdle_exit_speed_multiplier = 1.05
 script = ExtResource("13_ts5xw")
 
 [node name="LinkComponent" type="Node" parent="Player" unique_id=914659595]
-unique_name_in_owner = true
 script = ExtResource("26_rond0")
 
-[node name="HUD" type="CanvasLayer" parent="Player" unique_id=114361223]
-unique_name_in_owner = true
+[node name="HUD" type="CanvasLayer" parent="Player" unique_id=114361223 node_paths=PackedStringArray("weapon_manager")]
 script = ExtResource("27_xah0d")
+weapon_manager = NodePath("../WeaponManager")
 metadata/_edit_use_anchors_ = true
-
-[node name="SpeedLinesContainer" type="ColorRect" parent="Player/HUD" unique_id=1585618360]
-unique_name_in_owner = true
-visible = false
-material = SubResource("ShaderMaterial_khex2")
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 1
-
-[node name="Crosshair" type="TextureRect" parent="Player/HUD" unique_id=1063686422]
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -20.0
-offset_right = 20.0
-offset_bottom = 20.0
-grow_horizontal = 2
-grow_vertical = 2
-texture = ExtResource("29_ts5xw")
-expand_mode = 1
-
-[node name="PlayerCharacterProperties" type="MarginContainer" parent="Player/HUD" unique_id=1495220077]
-visible = false
-offset_right = 295.0
-offset_bottom = 291.0
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-
-[node name="PanelContainer" type="PanelContainer" parent="Player/HUD/PlayerCharacterProperties" unique_id=1645126123]
-layout_mode = 2
-theme_override_styles/panel = ExtResource("30_rvrpt")
-
-[node name="HBoxContainer" type="HBoxContainer" parent="Player/HUD/PlayerCharacterProperties/PanelContainer" unique_id=1564512583]
-layout_mode = 2
-
-[node name="VBoxContainer" type="VBoxContainer" parent="Player/HUD/PlayerCharacterProperties/PanelContainer/HBoxContainer" unique_id=788907706]
-layout_mode = 2
-
-[node name="CurrentStateLabel" type="Label" parent="Player/HUD/PlayerCharacterProperties/PanelContainer/HBoxContainer/VBoxContainer" unique_id=1693795448]
-texture_filter = 1
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "Current state : "
-label_settings = ExtResource("31_4ag61")
-vertical_alignment = 1
-
-[node name="DesiredMoveSpeedLabel" type="Label" parent="Player/HUD/PlayerCharacterProperties/PanelContainer/HBoxContainer/VBoxContainer" unique_id=1179283396]
-texture_filter = 1
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "Desired move speed : "
-label_settings = ExtResource("31_4ag61")
-vertical_alignment = 1
-
-[node name="VelocityLabel" type="Label" parent="Player/HUD/PlayerCharacterProperties/PanelContainer/HBoxContainer/VBoxContainer" unique_id=97209567]
-texture_filter = 1
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "Velocity : "
-label_settings = ExtResource("31_4ag61")
-vertical_alignment = 1
-
-[node name="VelocityVectorLabel" type="Label" parent="Player/HUD/PlayerCharacterProperties/PanelContainer/HBoxContainer/VBoxContainer" unique_id=1858714436]
-texture_filter = 1
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "Velocity vector : "
-label_settings = ExtResource("31_4ag61")
-vertical_alignment = 1
-
-[node name="IsOnFloorLabel" type="Label" parent="Player/HUD/PlayerCharacterProperties/PanelContainer/HBoxContainer/VBoxContainer" unique_id=496461814]
-texture_filter = 1
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "Is on floor :"
-label_settings = ExtResource("31_4ag61")
-vertical_alignment = 1
-
-[node name="CeilingCheckLabel" type="Label" parent="Player/HUD/PlayerCharacterProperties/PanelContainer/HBoxContainer/VBoxContainer" unique_id=414164319]
-texture_filter = 1
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "Ceiling raycast colliding :"
-label_settings = ExtResource("31_4ag61")
-vertical_alignment = 1
-
-[node name="JumpBufferLabel" type="Label" parent="Player/HUD/PlayerCharacterProperties/PanelContainer/HBoxContainer/VBoxContainer" unique_id=567680631]
-texture_filter = 1
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "Jump buffering  on :"
-label_settings = ExtResource("31_4ag61")
-vertical_alignment = 1
-
-[node name="CoyoteTimeLabel" type="Label" parent="Player/HUD/PlayerCharacterProperties/PanelContainer/HBoxContainer/VBoxContainer" unique_id=160576783]
-texture_filter = 1
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "Coyote time :"
-label_settings = ExtResource("31_4ag61")
-vertical_alignment = 1
-
-[node name="NbJumpsInAirAllowedLabel" type="Label" parent="Player/HUD/PlayerCharacterProperties/PanelContainer/HBoxContainer/VBoxContainer" unique_id=1884624972]
-texture_filter = 1
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "Nb jumps in air allowed :"
-label_settings = ExtResource("31_4ag61")
-vertical_alignment = 1
-
-[node name="JumpCooldownLabel" type="Label" parent="Player/HUD/PlayerCharacterProperties/PanelContainer/HBoxContainer/VBoxContainer" unique_id=847839600]
-texture_filter = 1
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "Time before can jump again :"
-label_settings = ExtResource("31_4ag61")
-vertical_alignment = 1
-
-[node name="HSeparator" type="HSeparator" parent="Player/HUD/PlayerCharacterProperties/PanelContainer/HBoxContainer/VBoxContainer" unique_id=546995975]
-layout_mode = 2
-theme_override_constants/separation = 40
-
-[node name="CameraRotationLabel" type="Label" parent="Player/HUD/PlayerCharacterProperties/PanelContainer/HBoxContainer/VBoxContainer" unique_id=1273405881]
-texture_filter = 1
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "Camera rotation :"
-label_settings = ExtResource("31_4ag61")
-vertical_alignment = 1
-
-[node name="CurrentFOVLabel" type="Label" parent="Player/HUD/PlayerCharacterProperties/PanelContainer/HBoxContainer/VBoxContainer" unique_id=1904442584]
-texture_filter = 1
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "Current FOV :"
-label_settings = ExtResource("31_4ag61")
-vertical_alignment = 1
-
-[node name="CameraBobVerticalOffsetLabel" type="Label" parent="Player/HUD/PlayerCharacterProperties/PanelContainer/HBoxContainer/VBoxContainer" unique_id=298498014]
-texture_filter = 1
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "Camera bob vertical offset :"
-label_settings = ExtResource("31_4ag61")
-vertical_alignment = 1
-
-[node name="VBoxContainer2" type="VBoxContainer" parent="Player/HUD/PlayerCharacterProperties/PanelContainer/HBoxContainer" unique_id=752981758]
-layout_mode = 2
-
-[node name="CurrentStateLabelText" type="Label" parent="Player/HUD/PlayerCharacterProperties/PanelContainer/HBoxContainer/VBoxContainer2" unique_id=876248071]
-unique_name_in_owner = true
-texture_filter = 1
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "..................."
-label_settings = ExtResource("31_4ag61")
-vertical_alignment = 1
-
-[node name="DesiredMoveSpeedLabelText" type="Label" parent="Player/HUD/PlayerCharacterProperties/PanelContainer/HBoxContainer/VBoxContainer2" unique_id=1741164504]
-unique_name_in_owner = true
-texture_filter = 1
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "..................."
-label_settings = ExtResource("31_4ag61")
-vertical_alignment = 1
-
-[node name="VelocityLabelText" type="Label" parent="Player/HUD/PlayerCharacterProperties/PanelContainer/HBoxContainer/VBoxContainer2" unique_id=650659841]
-unique_name_in_owner = true
-texture_filter = 1
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "..................."
-label_settings = ExtResource("31_4ag61")
-vertical_alignment = 1
-
-[node name="VelocityVectorLabelText" type="Label" parent="Player/HUD/PlayerCharacterProperties/PanelContainer/HBoxContainer/VBoxContainer2" unique_id=939694974]
-unique_name_in_owner = true
-texture_filter = 1
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "..................."
-label_settings = ExtResource("31_4ag61")
-vertical_alignment = 1
-
-[node name="IsOnFloorLabelText" type="Label" parent="Player/HUD/PlayerCharacterProperties/PanelContainer/HBoxContainer/VBoxContainer2" unique_id=1880837689]
-unique_name_in_owner = true
-texture_filter = 1
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "..................."
-label_settings = ExtResource("31_4ag61")
-vertical_alignment = 1
-
-[node name="CeilingCheckLabelText" type="Label" parent="Player/HUD/PlayerCharacterProperties/PanelContainer/HBoxContainer/VBoxContainer2" unique_id=843592696]
-unique_name_in_owner = true
-texture_filter = 1
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "..................."
-label_settings = ExtResource("31_4ag61")
-vertical_alignment = 1
-
-[node name="JumpBufferLabelText" type="Label" parent="Player/HUD/PlayerCharacterProperties/PanelContainer/HBoxContainer/VBoxContainer2" unique_id=1486012808]
-unique_name_in_owner = true
-texture_filter = 1
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "..................."
-label_settings = ExtResource("31_4ag61")
-vertical_alignment = 1
-
-[node name="CoyoteTimeLabelText" type="Label" parent="Player/HUD/PlayerCharacterProperties/PanelContainer/HBoxContainer/VBoxContainer2" unique_id=877914626]
-unique_name_in_owner = true
-texture_filter = 1
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "..................."
-label_settings = ExtResource("31_4ag61")
-vertical_alignment = 1
-
-[node name="NbJumpsInAirAllowedLabelText" type="Label" parent="Player/HUD/PlayerCharacterProperties/PanelContainer/HBoxContainer/VBoxContainer2" unique_id=1069776267]
-unique_name_in_owner = true
-texture_filter = 1
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "..................."
-label_settings = ExtResource("31_4ag61")
-vertical_alignment = 1
-
-[node name="JumpCooldownLabelText" type="Label" parent="Player/HUD/PlayerCharacterProperties/PanelContainer/HBoxContainer/VBoxContainer2" unique_id=947046878]
-unique_name_in_owner = true
-texture_filter = 1
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "..................."
-label_settings = ExtResource("31_4ag61")
-vertical_alignment = 1
-
-[node name="HSeparator2" type="HSeparator" parent="Player/HUD/PlayerCharacterProperties/PanelContainer/HBoxContainer/VBoxContainer2" unique_id=869103047]
-layout_mode = 2
-theme_override_constants/separation = 40
-
-[node name="CameraRotationLabelText" type="Label" parent="Player/HUD/PlayerCharacterProperties/PanelContainer/HBoxContainer/VBoxContainer2" unique_id=858129008]
-unique_name_in_owner = true
-texture_filter = 1
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "..................."
-label_settings = ExtResource("31_4ag61")
-vertical_alignment = 1
-
-[node name="CurrentFOVLabelText" type="Label" parent="Player/HUD/PlayerCharacterProperties/PanelContainer/HBoxContainer/VBoxContainer2" unique_id=591126123]
-unique_name_in_owner = true
-texture_filter = 1
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "..................."
-label_settings = ExtResource("31_4ag61")
-vertical_alignment = 1
-
-[node name="CameraBobVerticalOffsetLabelText" type="Label" parent="Player/HUD/PlayerCharacterProperties/PanelContainer/HBoxContainer/VBoxContainer2" unique_id=1550518124]
-unique_name_in_owner = true
-texture_filter = 1
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "..................."
-label_settings = ExtResource("31_4ag61")
-vertical_alignment = 1
-
-[node name="FPSProperties" type="MarginContainer" parent="Player/HUD" unique_id=1935369048]
-visible = false
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -167.0
-offset_bottom = 33.0
-grow_horizontal = 0
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-metadata/_edit_use_anchors_ = true
-
-[node name="PanelContainer" type="PanelContainer" parent="Player/HUD/FPSProperties" unique_id=1869177028]
-layout_mode = 2
-theme_override_styles/panel = ExtResource("30_rvrpt")
-
-[node name="HBoxContainer" type="HBoxContainer" parent="Player/HUD/FPSProperties/PanelContainer" unique_id=2038051359]
-layout_mode = 2
-
-[node name="VBoxContainer" type="VBoxContainer" parent="Player/HUD/FPSProperties/PanelContainer/HBoxContainer" unique_id=129191316]
-layout_mode = 2
-
-[node name="FramesPerSecondLabel" type="Label" parent="Player/HUD/FPSProperties/PanelContainer/HBoxContainer/VBoxContainer" unique_id=1943940492]
-texture_filter = 1
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "Frames per seconds : "
-label_settings = ExtResource("31_4ag61")
-vertical_alignment = 1
-
-[node name="VBoxContainer2" type="VBoxContainer" parent="Player/HUD/FPSProperties/PanelContainer/HBoxContainer" unique_id=894873773]
-layout_mode = 2
-
-[node name="FramesPerSecondLabelText" type="Label" parent="Player/HUD/FPSProperties/PanelContainer/HBoxContainer/VBoxContainer2" unique_id=782177773]
-unique_name_in_owner = true
-texture_filter = 1
-layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "....."
-label_settings = ExtResource("31_4ag61")
-vertical_alignment = 1
 
 [node name="WeaponProperties" type="MarginContainer" parent="Player/HUD" unique_id=1613097381]
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
+anchors_preset = -1
+anchor_left = 1.0017362
+anchor_top = 0.9212963
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = -177.0
@@ -2282,7 +1962,7 @@ metadata/_edit_use_anchors_ = true
 
 [node name="PanelContainer" type="PanelContainer" parent="Player/HUD/WeaponProperties" unique_id=1646040264]
 layout_mode = 2
-theme_override_styles/panel = ExtResource("30_rvrpt")
+theme_override_styles/panel = SubResource("StyleBoxFlat_ts5xw")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Player/HUD/WeaponProperties/PanelContainer" unique_id=2117934840]
 layout_mode = 2
@@ -2291,6 +1971,7 @@ layout_mode = 2
 layout_mode = 2
 
 [node name="WeaponStackLabel" type="Label" parent="Player/HUD/WeaponProperties/PanelContainer/HBoxContainer/VBoxContainer" unique_id=1424421949]
+visible = false
 texture_filter = 1
 layout_mode = 2
 theme_override_font_sizes/font_size = 40
@@ -2327,6 +2008,7 @@ layout_mode = 2
 
 [node name="WeaponStackLabelText" type="Label" parent="Player/HUD/WeaponProperties/PanelContainer/HBoxContainer/VBoxContainer2" unique_id=568960589]
 unique_name_in_owner = true
+visible = false
 texture_filter = 1
 layout_mode = 2
 theme_override_font_sizes/font_size = 40
@@ -2375,13 +2057,11 @@ size = Vector2i(1152, 648)
 render_target_update_mode = 4
 
 [node name="ViewportCam" type="Camera3D" parent="SubViewportContainer/SubViewport" unique_id=1077420672]
-unique_name_in_owner = true
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0.540581, 0)
 cull_mask = 2
 attributes = SubResource("CameraAttributesPractical_ts5xw")
 fov = 90.0
 near = 0.01
 far = 1000.0
-script = ExtResource("32_p7740")
 
 [node name="UiManager" parent="." unique_id=315761469 instance=ExtResource("5_0snqu")]
