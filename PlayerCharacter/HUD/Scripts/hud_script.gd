@@ -3,7 +3,7 @@ extends CanvasLayer
 class_name HUD
 
 #player character reference variable
-@onready var play_char: PlayerCharacter = $".."
+@onready var play_char: Node3D = $".."
 @onready var weapon_manager: Node3D = %WeaponManager
 
 #play char label references variables
@@ -35,28 +35,28 @@ func _ready() -> void:
 func _process(_delta : float) -> void:
 	display_current_FPS()
 	
-	display_play_char_properties()
+	#display_play_char_properties()
 	
 	display_weapon_properties()
 	
-func display_play_char_properties() -> void:
-	#player character properties
-	current_state_label_text.set_text(str(play_char.state_machine.curr_state_name))
-	desired_move_speed_label_text.set_text(str(round_to_3_decimals(play_char.desired_move_speed)))
-	velocity_label_text.set_text(str(round_to_3_decimals(play_char.velocity.length())))
-	velocity_vector_label_text.set_text(str("[ ", round_to_3_decimals(play_char.velocity.x)," ", round_to_3_decimals(play_char.velocity.y)," ", round_to_3_decimals(play_char.velocity.z), " ]"))
-	is_on_floor_label_text.set_text(str(play_char.is_on_floor()))
-	ceiling_check_label_text.set_text(str(play_char.ceiling_check.is_colliding()))
-	jump_buffer_label_text.set_text(str(play_char.jump_buff_on))
-	coyote_time_label_text.set_text(str(round_to_3_decimals(play_char.coyote_jump_cooldown)))
-	nb_jumps_in_air_allowed_label_text.set_text(str(play_char.nb_jumps_in_air_allowed))
-	jump_cooldown_label_text.set_text(str(round_to_3_decimals(play_char.jump_cooldown)))
-	
-	#camera properties
-	camera_rotation_label_text.set_text(str("[ ", round_to_3_decimals(play_char.cam.rotation.x)," ", round_to_3_decimals(play_char.cam.rotation.y)," ", round_to_3_decimals(play_char.cam.rotation.z), " ]"))
-	current_fov_label_text.set_text(str(play_char.cam.fov))
-	camera_bob_vertical_offset_label_text.set_text(str(round_to_3_decimals(play_char.cam.v_offset)))
-	
+#func display_play_char_properties() -> void:
+	##player character properties
+	#current_state_label_text.set_text(str(play_char.state_machine.curr_state_name))
+	#desired_move_speed_label_text.set_text(str(round_to_3_decimals(play_char.desired_move_speed)))
+	#velocity_label_text.set_text(str(round_to_3_decimals(play_char.velocity.length())))
+	#velocity_vector_label_text.set_text(str("[ ", round_to_3_decimals(play_char.velocity.x)," ", round_to_3_decimals(play_char.velocity.y)," ", round_to_3_decimals(play_char.velocity.z), " ]"))
+	#is_on_floor_label_text.set_text(str(play_char.is_on_floor()))
+	#ceiling_check_label_text.set_text(str(play_char.ceiling_check.is_colliding()))
+	#jump_buffer_label_text.set_text(str(play_char.jump_buff_on))
+	#coyote_time_label_text.set_text(str(round_to_3_decimals(play_char.coyote_jump_cooldown)))
+	#nb_jumps_in_air_allowed_label_text.set_text(str(play_char.nb_jumps_in_air_allowed))
+	#jump_cooldown_label_text.set_text(str(round_to_3_decimals(play_char.jump_cooldown)))
+	#
+	##camera properties
+	#camera_rotation_label_text.set_text(str("[ ", round_to_3_decimals(play_char.cam.rotation.x)," ", round_to_3_decimals(play_char.cam.rotation.y)," ", round_to_3_decimals(play_char.cam.rotation.z), " ]"))
+	#current_fov_label_text.set_text(str(play_char.cam.fov))
+	#camera_bob_vertical_offset_label_text.set_text(str(round_to_3_decimals(play_char.cam.v_offset)))
+	#
 func update_weapon_stack_display() -> void:
 	var available_weapons_name_list : Array[String] = []
 	for weapon_id in weapon_manager.weapon_list.keys():

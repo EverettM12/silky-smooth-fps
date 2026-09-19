@@ -43,31 +43,23 @@ class_name InputManagementComponent
 var default_input_actions : Dictionary
 
 #references variables
-@onready var play_char_ref : PlayerCharacter = $".."
+@onready var play_char_ref : Node3D = $".."
 @onready var cam_holder_ref : CameraHolder = %CameraHolder
 @onready var weapon_manager_ref : WeaponManager = %WeaponManager
 
 func _ready() -> void:
-	attribute_keybinds()
+	#attribute_keybinds()
 	build_default_keybinding()
 	input_actions_check()
 	
-func attribute_keybinds() -> void:
-	play_char_ref.move_forward_action = move_forward_action
-	play_char_ref.move_backward_action = move_backward_action
-	play_char_ref.move_left_action = move_left_action
-	play_char_ref.move_right_action = move_right_action
-	play_char_ref.run_action = run_action
-	play_char_ref.crouch_action = crouch_action
-	play_char_ref.jump_action = jump_action
-	
-	cam_holder_ref.zoom_action = zoom_action
-	cam_holder_ref.mouse_mode_action = mouse_mode_action
-	
-	weapon_manager_ref.shoot_action = shoot_action
-	weapon_manager_ref.reload_action = reload_action
-	weapon_manager_ref.weapon_wheel_up_action = weapon_wheel_up_action
-	weapon_manager_ref.weapon_wheel_down_action = weapon_wheel_down_action
+#func attribute_keybinds() -> void:
+	#cam_holder_ref.zoom_action = zoom_action
+	#cam_holder_ref.mouse_mode_action = mouse_mode_action
+	#
+	#weapon_manager_ref.shoot_action = shoot_action
+	#weapon_manager_ref.reload_action = reload_action
+	#weapon_manager_ref.weapon_wheel_up_action = weapon_wheel_up_action
+	#weapon_manager_ref.weapon_wheel_down_action = weapon_wheel_down_action
 	
 func build_default_keybinding() -> void:
 	#build it in runtime to ensure that export variables have been set

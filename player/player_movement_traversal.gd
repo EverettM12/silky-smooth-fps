@@ -3,6 +3,8 @@ extends PlayerMovement
 
 @onready var traversal: PlayerTraversal = get_node("../Traversal") as PlayerTraversal
 
+var input_direction: Vector2
+
 func _physics_process(delta: float) -> void:
 	if player == null or input == null or state == null or grapple == null or capsule_shape == null or traversal == null:
 		return

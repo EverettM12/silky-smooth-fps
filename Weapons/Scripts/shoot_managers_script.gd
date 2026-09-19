@@ -79,7 +79,9 @@ func get_camera_fov() -> Vector3:
 	#Start raycast in camera position, and launch it in camera direction 
 	var raycast_start : Vector3 = camera.project_ray_origin(viewport/2.0)
 	var raycast_end : Vector3 = Vector3.ZERO
+	@warning_ignore("integer_division")
 	if current_weapon.resources.type == current_weapon.resources.TYPES.HITSCAN: raycast_end = raycast_start + camera.project_ray_normal(viewport/2) * current_weapon.resources.max_range 
+	@warning_ignore("integer_division")
 	if current_weapon.resources.type == current_weapon.resources.TYPES.PROJECTILE: raycast_end = raycast_start + camera.project_ray_normal(viewport/2) * 280
 	
 	#Create intersection space to contain possible collisions 
@@ -117,14 +119,17 @@ func hitscan_shot(point_of_collision_hitscan : Vector3) -> void:
 		var final_damage : int = 0
 		
 		if collider.is_in_group("Enemies") and collider.has_method("hitscan_hit"):
+			@warning_ignore("narrowing_conversion")
 			final_damage = current_weapon.resources.damage_per_proj * current_weapon.resources.damage_dropoff.sample(point_of_collision_hitscan.distance_to(global_position) / current_weapon.resources.max_range)
 			collider.hitscan_hit(final_damage, hitscan_bullet_direction, hitscan_bullet_collision.position)
 		
 		elif collider.is_in_group("EnemiesHead") and collider.has_method("hitscan_hit"):
+				@warning_ignore("narrowing_conversion")
 				final_damage = current_weapon.resources.damage_per_proj * current_weapon.resources.headshot_damage_mult * current_weapon.resources.damage_dropoff.sample(point_of_collision_hitscan.distance_to(global_position) / current_weapon.resources.max_range)
 				collider.hitscan_hit(final_damage, hitscan_bullet_direction, hitscan_bullet_collision.position)
 		
 		elif collider.is_in_group("HitableObjects") and collider.has_method("hitscan_hit"): 
+			@warning_ignore("narrowing_conversion")
 			final_damage = current_weapon.resources.damage_per_proj * current_weapon.resources.damage_dropoff.sample(point_of_collision_hitscan.distance_to(global_position) / current_weapon.resources.max_range)
 			collider.hitscan_hit(final_damage/6.0, hitscan_bullet_direction, hitscan_bullet_collision.position)
 			weapon_manager.display_bullet_hole(collider_point, collider_normal)

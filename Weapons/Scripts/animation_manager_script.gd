@@ -11,7 +11,7 @@ var current_sway_rot_val : Vector3 = Vector3.ZERO
 var current_bob_val : Vector3 = Vector3.ZERO
 
 @onready var camera_holder : CameraHolder = %CameraHolder
-@onready var play_char : PlayerCharacter = $"../.."
+@onready var play_char : Node3D = $"../.."
 @onready var anim_player : AnimationPlayer = %AnimationPlayer
 @onready var weapon_manager : Node3D = %WeaponManager
 
@@ -22,7 +22,7 @@ func get_current_weapon(current_weapon_ref : WeaponSlot) -> void:
 func _process(delta : float) -> void:
 	if current_weapon and current_weapon.model:
 		#get tilt, sway, bob, recoil values
-		var tilt_values : Vector3 = weapon_tilt_calculus(play_char.input_direction, delta) #rot
+		var tilt_values : Vector3 = weapon_tilt_calculus(play_char.player_movement.input_direction, delta) #rot
 		var sway_values : Array[Vector3] = weapon_sway_calculus(camera_holder.mouse_input, delta) #pos and rot
 		var bob_values : Vector3 = weapon_bob_calculus(play_char.velocity.length(),delta) #pos
 		

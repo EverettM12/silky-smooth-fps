@@ -13,12 +13,6 @@ var weapon_index : int = 0
 var can_change_weapons : bool = true
 var can_use_weapon : bool = true
 
-@export_group("Keybind variables")
-var shoot_action : StringName
-var reload_action : StringName
-var weapon_wheel_up_action : StringName
-var weapon_wheel_down_action : StringName
-
 @onready var camera_recoil_holder: CameraRecoilHolder = %CameraRecoilHolder
 @onready var viewport_cam: ViewportCamera = %ViewportCam
 @onready var weapon_container : Node3D = %WeaponContainer
@@ -31,7 +25,6 @@ var weapon_wheel_down_action : StringName
 @onready var bullet_decal : PackedScene = preload("../../Weapons/Scenes/bullet_decal_scene.tscn")
 @onready var hud : HUD = %HUD
 @onready var link_component : Node = %LinkComponent
-@onready var input_management_component: InputManagementComponent = %InputManagementComponent
 
 signal weapon_stack_updated
 
@@ -107,16 +100,16 @@ func _process(_delta : float) -> void:
 	rotate_relative_to_viewport_camera()
 		
 func weapon_inputs() -> void:
-	if Input.is_action_pressed(shoot_action): shoot_manager.shoot()
+	if Input.is_action_pressed("shoot_action"): shoot_manager.shoot()
 			
-	if Input.is_action_just_pressed(reload_action): reload_manager.reload()
+	if Input.is_action_just_pressed("reload_action"): reload_manager.reload()
 	
-	if Input.is_action_just_pressed(weapon_wheel_up_action):
+	if Input.is_action_just_pressed("weapon_wheel_up_action"):
 		if can_change_weapons and !current_weapon.resources.is_shooting and !current_weapon.resources.is_reloading:
 			weapon_index = min(weapon_index + 1, weapon_stack.size() - 1) #from first element of weapon stack to last element 
 			await change_weapon(weapon_stack[weapon_index])
 			
-	if Input.is_action_just_pressed(weapon_wheel_down_action):
+	if Input.is_action_just_pressed("weapon_wheel_down_action"):
 		if can_change_weapons and !current_weapon.resources.is_shooting and !current_weapon.resources.is_reloading:
 			weapon_index = max(weapon_index - 1, 0) #from last element of weapon stack to first element 
 			await change_weapon(weapon_stack[weapon_index])

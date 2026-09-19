@@ -15,12 +15,12 @@ func enter(play_char_ref : CharacterBody3D) -> void:
 func verifications() -> void:
 	#manage the appliements that need to be set at the start of the state
 	play_char.floor_snap_length = 1.0
-	if play_char.nb_jumps_in_air_allowed < play_char.nb_jumps_in_air_allowed_ref: play_char.nb_jumps_in_air_allowed = play_char.nb_jumps_in_air_allowed_ref
-	if play_char.coyote_jump_cooldown < play_char.coyote_jump_cooldown_ref: play_char.coyote_jump_cooldown = play_char.coyote_jump_cooldown_ref
-	
-	play_char.tween_hitbox_height(play_char.base_hitbox_height)
-	play_char.tween_model_height(play_char.base_model_height)
-	
+	#if play_char.nb_jumps_in_air_allowed < play_char.nb_jumps_in_air_allowed_ref: play_char.nb_jumps_in_air_allowed = play_char.nb_jumps_in_air_allowed_ref
+	#if play_char.coyote_jump_cooldown < play_char.coyote_jump_cooldown_ref: play_char.coyote_jump_cooldown = play_char.coyote_jump_cooldown_ref
+	#
+	#play_char.tween_hitbox_height(play_char.base_hitbox_height)
+	#play_char.tween_model_height(play_char.base_model_height)
+	pass
 func physics_update(delta : float) -> void:
 	applies(delta)
 	
