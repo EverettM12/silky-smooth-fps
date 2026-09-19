@@ -428,7 +428,8 @@ func process_slide(delta: float) -> void:
 			)
 		else:
 			horizontal_velocity = horizontal_velocity.move_toward(Vector3.ZERO, slide_deceleration * delta)
-		var downhill_direction: Vector3 = Vector3.DOWN.slide(player.get_floor_normal())
+		var downhill_direction: Vector3 = Vector3.DOWN.slide(player.get_floor_normal()).normalized()
+		
 		if downhill_direction.length_squared() > 0.001:
 			horizontal_velocity += downhill_direction.normalized() * slide_slope_influence * delta
 		horizontal_velocity = horizontal_velocity.move_toward(Vector3.ZERO, slide_friction * delta)

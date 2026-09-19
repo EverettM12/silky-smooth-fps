@@ -2,7 +2,7 @@ extends Node
 
 class_name LinkComponent
 
-@onready var ammo_manager : Node3D = %AmmunitionManager
+@export var ammo_manager : Node3D
 
 func ammo_refill_link(ammo_dict : Dictionary) -> void:
 	for key in ammo_dict.keys():

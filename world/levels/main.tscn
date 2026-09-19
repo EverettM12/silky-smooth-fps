@@ -1591,7 +1591,7 @@ current = true
 
 [node name="Visuals" type="Node3D" parent="Player" unique_id=1549703221]
 
-[node name="WeaponManager" type="Node3D" parent="Player" unique_id=1082769642 node_paths=PackedStringArray("start_weapons", "camera_recoil_holder", "viewport_cam", "weapon_container", "shoot_manager", "reload_manager", "ammo_manager", "anim_player", "anim_manager", "hud", "link_component")]
+[node name="WeaponManager" type="Node3D" parent="Player" unique_id=1082769642 node_paths=PackedStringArray("start_weapons", "camera_recoil_holder", "viewport_cam", "weapon_container", "shoot_manager", "reload_manager", "ammo_manager", "anim_player", "anim_manager", "hud", "link_component", "head")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 1.6, 0)
 script = ExtResource("14_rvrpt")
 start_weapons = [NodePath("WeaponContainer/Pistol"), NodePath("WeaponContainer/AssaultRifle"), NodePath("WeaponContainer/Shotgun"), NodePath("WeaponContainer/SniperRifle"), NodePath("WeaponContainer/RocketLauncher")]
@@ -1605,6 +1605,7 @@ anim_player = NodePath("AnimationPlayer")
 anim_manager = NodePath("AnimationManager")
 hud = NodePath("../HUD")
 link_component = NodePath("../LinkComponent")
+head = NodePath("../Head")
 
 [node name="WeaponContainer" type="Node3D" parent="Player/WeaponManager" unique_id=1682546542]
 
@@ -1864,9 +1865,11 @@ exclude_parent = false
 target_position = Vector3(0, -3, 0)
 debug_shape_custom_color = Color(0, 0.823529, 0.956863, 1)
 
-[node name="CameraHolder" type="Node3D" parent="Player" unique_id=64760859]
+[node name="CameraHolder" type="Node3D" parent="Player" unique_id=64760859 node_paths=PackedStringArray("view_camera", "recoil_holder")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0.715, 0)
 script = ExtResource("33_ts5xw")
+view_camera = NodePath("../Head/CameraMotion/Camera3D")
+recoil_holder = NodePath("CameraRecoilHolder")
 
 [node name="CameraRecoilHolder" type="Node3D" parent="Player/CameraHolder" unique_id=555241331]
 script = ExtResource("34_rvrpt")
@@ -1938,8 +1941,9 @@ hurdle_exit_speed_multiplier = 1.05
 [node name="TraversalCameraLayer" type="Node" parent="Player/Traversal" unique_id=2104839175]
 script = ExtResource("13_ts5xw")
 
-[node name="LinkComponent" type="Node" parent="Player" unique_id=914659595]
+[node name="LinkComponent" type="Node" parent="Player" unique_id=914659595 node_paths=PackedStringArray("ammo_manager")]
 script = ExtResource("26_rond0")
+ammo_manager = NodePath("../WeaponManager/AmmunitionManager")
 
 [node name="HUD" type="CanvasLayer" parent="Player" unique_id=114361223 node_paths=PackedStringArray("weapon_manager")]
 script = ExtResource("27_xah0d")
