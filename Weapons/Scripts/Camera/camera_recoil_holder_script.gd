@@ -1,8 +1,6 @@
 extends Node3D
-
 class_name CameraRecoilHolder
 
-#Camera recoil variables
 var current_rotation : Vector3
 var target_rotation : Vector3 
 var base_rotation_speed : float
@@ -12,8 +10,6 @@ func _process(delta : float) -> void:
 	handle_recoil(delta)
 	
 func handle_recoil(delta : float) -> void:
-	#first phase, the camera will aim according the recoil values
-	#second phase, the camera back down to her initial rotation value
 	target_rotation = lerp(target_rotation, Vector3.ZERO, base_rotation_speed * delta)
 	current_rotation = lerp(current_rotation, target_rotation, target_rotation_speed * delta)
 	

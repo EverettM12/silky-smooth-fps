@@ -1,6 +1,8 @@
 class_name CameraHolder
 extends Node3D
 
+@export var player: Player
+
 @export_group("References")
 var view_camera: Camera3D
 @export var recoil_holder: CameraRecoilHolder
@@ -13,7 +15,7 @@ var _mouse_moved_this_frame: bool = false
 
 
 func _ready() -> void:
-	view_camera = $"../Player".get_node("Head/CameraMotion/Camera3D")
+	view_camera = player.camera
 	process_priority = -100
 	if not is_instance_valid(view_camera) or not is_instance_valid(recoil_holder):
 		push_error("CameraHolder: assign 'View Camera' and 'Recoil Holder' in the Inspector.")

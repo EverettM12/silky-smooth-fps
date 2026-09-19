@@ -13,7 +13,7 @@ var can_use_weapon : bool = true
 
 @export var start_weapons : Array[WeaponSlot]
 
-var camera_recoil_holder: CameraRecoilHolder
+@export var camera_recoil_holder: CameraRecoilHolder
 @export var viewport_cam: Camera3D
 @export var weapon_container : Node3D
 @export var shoot_manager : Node3D 
@@ -35,7 +35,6 @@ signal weapon_stack_updated
 
 func _ready() -> void:
 	head = player.head
-	camera_recoil_holder = $"../CameraHolder/CameraRecoilHolder"
 	await initialize()
 
 func initialize() -> void:

@@ -17,6 +17,7 @@ extends CharacterBody3D
 @export var head: Node3D
 @export var player_input: PlayerInput 
 @export var player_movement: PlayerMovement
+@export var camera: Camera3D
 
 var target_pitch: float = 0.0
 var smoothed_look_input: Vector2 = Vector2.ZERO
