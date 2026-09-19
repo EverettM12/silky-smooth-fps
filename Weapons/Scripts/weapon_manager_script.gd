@@ -28,6 +28,11 @@ var can_use_weapon : bool = true
 
 signal weapon_stack_updated
 
+@onready var head : Node3D = get_parent().get_node("Head")
+const HEAD_TO_WEAPON_Y : float = -0.05 # WeaponManager's current y (1.6) minus standing head y (1.65)
+@export var weapon_follow_speed : float = 100.0 # lower = floatier, higher = tighter
+
+
 func _ready() -> void:
 	await initialize()
 	
@@ -89,9 +94,11 @@ func enter_weapon(next_weapon : int) -> void:
 	can_use_weapon = true
 	can_change_weapons = true
 	
-	weapon_stack_updated.emit() #let in here for now, since there isn't any mechanic that can influence the weapon stack (for example a pick and drop weapon mechanic)
+	weapon_stack_updated.emit()
 	
-func _process(_delta : float) -> void:
+func _process(delta : float) -> void:
+	var target_y : float = head.position.y + HEAD_TO_WEAPON_Y
+	position.y = lerpf(position.y, target_y, 1.0 - exp(-weapon_follow_speed * delta))
 	if current_weapon and current_weapon.resources and can_use_weapon:
 		await weapon_inputs()
 		
