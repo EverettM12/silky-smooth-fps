@@ -12,10 +12,11 @@ extends CharacterBody3D
 
 @export_group("Cursor")
 @export var capture_mouse_on_ready: bool = true
+@export_group("")
 
-@onready var head: Node3D = $Head
-@onready var player_input: PlayerInput = $PlayerInput
-@onready var player_movement: PlayerMovement = $PlayerMovement
+@export var head: Node3D
+@export var player_input: PlayerInput 
+@export var player_movement: PlayerMovement
 
 var target_pitch: float = 0.0
 var smoothed_look_input: Vector2 = Vector2.ZERO

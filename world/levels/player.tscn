@@ -23,9 +23,12 @@ emission = Color(0.15, 0.8, 1, 1)
 radius = 0.08
 height = 0.16
 
-[node name="Player" type="CharacterBody3D" unique_id=893122104]
+[node name="Player" type="CharacterBody3D" unique_id=893122104 node_paths=PackedStringArray("head", "player_input", "player_movement")]
 collision_layer = 2
 script = ExtResource("1_w4ary")
+head = NodePath("Head")
+player_input = NodePath("PlayerInput")
+player_movement = NodePath("PlayerMovement")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=2090540045]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95, 0)

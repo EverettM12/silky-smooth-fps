@@ -1,6 +1,8 @@
 class_name WeaponManager
 extends Node3D
 
+@export var player: Player
+
 var weapon_stack : Array[int]
 var weapon_list : Dictionary[int, WeaponSlot]
 
@@ -32,7 +34,7 @@ const HEAD_TO_WEAPON_Y : float = -0.05
 signal weapon_stack_updated
 
 func _ready() -> void:
-	head = $"../Head"
+	head = player.head
 	camera_recoil_holder = $"../CameraHolder/CameraRecoilHolder"
 	await initialize()
 

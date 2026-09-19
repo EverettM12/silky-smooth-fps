@@ -1674,9 +1674,10 @@ shadow_bias = 0.05
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 49.8991, 25.834, -30.0061)
 size = Vector3(10000, 10000, 1000)
 
-[node name="WeaponManager" type="Node3D" parent="." unique_id=1231999646 node_paths=PackedStringArray("start_weapons", "viewport_cam", "weapon_container", "shoot_manager", "reload_manager", "ammo_manager", "anim_player", "anim_manager", "hud", "link_component")]
+[node name="WeaponManager" type="Node3D" parent="." unique_id=1231999646 node_paths=PackedStringArray("player", "start_weapons", "viewport_cam", "weapon_container", "shoot_manager", "reload_manager", "ammo_manager", "anim_player", "anim_manager", "hud", "link_component")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 1.6, 0)
 script = ExtResource("14_rvrpt")
+player = NodePath("../Player")
 start_weapons = [NodePath("WeaponContainer/Pistol"), NodePath("WeaponContainer/AssaultRifle"), NodePath("WeaponContainer/Shotgun"), NodePath("WeaponContainer/SniperRifle"), NodePath("WeaponContainer/RocketLauncher")]
 viewport_cam = NodePath("../SubViewportContainer/SubViewport/ViewportCam")
 weapon_container = NodePath("WeaponContainer")
