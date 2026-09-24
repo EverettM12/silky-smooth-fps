@@ -12,20 +12,28 @@ func get_current_weapon(current_weapon_ref : WeaponSlot) -> void:
 	
 func shoot() -> void:
 	if !current_weapon.resources.is_shooting and (
-	#magazine isn't empty, and has >= ammo than the number of projectiles required for a shot
-	(current_weapon.resources.total_ammo_in_mag > 0 and current_weapon.resources.total_ammo_in_mag >= current_weapon.resources.nb_proj_shots_at_same_time)
-	or 
-	#has all ammos in the magazine, and number of ammo is positive
-	(current_weapon.resources.all_ammo_in_mag and weapon_manager.ammo_manager.ammo_dict[current_weapon.resources.ammo_type] > 0 and 	#has >= ammo than the number of projectiles required for a shot
-	weapon_manager.ammo_manager.amm_dict[current_weapon.resources.ammo_type] >= current_weapon.resources.nb_proj_shots_at_same_time)
+		(current_weapon.resources.total_ammo_in_mag > 0 and current_weapon.resources.total_ammo_in_mag >= current_weapon.resources.nb_proj_shots_at_same_time)
+		or
+		(
+			current_weapon.resources.all_ammo_in_mag
+			and weapon_manager.ammo_manager.ammo_dict[current_weapon.resources.ammo_type] > 0
+			and weapon_manager.ammo_manager.amm_dict[current_weapon.resources.ammo_type] >= current_weapon.resources.nb_proj_shots_at_same_time
+		)
 	) and !current_weapon.resources.is_reloading:
 		current_weapon.resources.is_shooting = true
 		
 		#number of successive shots (for example if 3, the weapon will shot 3 times in a row)
 		for i in range(current_weapon.resources.nb_proj_shots):
 			#same conditions has before, are checked before every shot
-			if ((current_weapon.resources.total_ammo_in_mag > 0 and current_weapon.resources.total_ammo_in_mag >= current_weapon.resources.nb_proj_shots_at_same_time) 
-			or (current_weapon.resources.all_ammo_in_mag and weapon_manager.ammo_manager.ammo_dict[current_weapon.resources.ammo_type] > 0) and 			weapon_manager.ammo_manager.ammo_dict[current_weapon.resources.ammo_type] >= current_weapon.resources.nb_proj_shots_at_same_time):
+			if (
+				(current_weapon.resources.total_ammo_in_mag > 0 and current_weapon.resources.total_ammo_in_mag >= current_weapon.resources.nb_proj_shots_at_same_time)
+				or
+				(
+					current_weapon.resources.all_ammo_in_mag
+					and weapon_manager.ammo_manager.ammo_dict[current_weapon.resources.ammo_type] > 0
+					and weapon_manager.ammo_manager.ammo_dict[current_weapon.resources.ammo_type] >= current_weapon.resources.nb_proj_shots_at_same_time
+				)
+			):
 				
 				weapon_manager.weapon_sound_management(current_weapon.resources.shoot_sound, current_weapon.resources.shoot_sound_speed)
 				
