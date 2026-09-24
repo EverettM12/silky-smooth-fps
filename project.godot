@@ -189,7 +189,7 @@ reload_action={
 
 [netfox]
 
-time/tickrate=300
+time/tickrate=60
 
 [physics]
 
