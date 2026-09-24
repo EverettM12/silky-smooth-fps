@@ -11,17 +11,20 @@ var session: CMSession
 var transport: CMNetTransportENet
 var host_code: String = ""
 var party_code: String = ""
+var session_creation_started: bool = false
 
 func _ready() -> void:
 	_create_session.call_deferred()
 
 func _create_session() -> void:
-	if session != null:
+	if session != null or session_creation_started:
 		return
+	session_creation_started = true
 	session = CMSession.new()
 	session.name = "CMSession"
 	get_tree().root.add_child(session)
 	if session.net == null or session.player == null:
+		session_creation_started = false
 		network_failed.emit("CM.gd session failed to initialize.")
 		return
 	transport = CMNetTransportENet.new()
@@ -34,9 +37,13 @@ func _create_session() -> void:
 	session.net.server_connection_failure.connect(_on_connection_failure)
 	session.net.server_disconnected.connect(_on_server_disconnected)
 	session.net.net_stopped.connect(_on_net_stopped)
+	session_creation_started = false
 
 func start_host() -> void:
 	_create_session()
+	if session == null or session.net == null or transport == null:
+		network_failed.emit("CM.gd session is not ready.")
+		return
 	if session.net.is_net_active:
 		return
 	host_code = get_local_join_code()
@@ -47,20 +54,26 @@ func start_host() -> void:
 
 func start_client(join_code: String) -> void:
 	_create_session()
+	if session == null or session.net == null or transport == null:
+		network_failed.emit("CM.gd session is not ready.")
+		return
 	var address: String = join_code.strip_edges()
+	if address == "":
+		network_failed.emit("Enter the party code.")
+		return
 	var parts: PackedStringArray = address.split(":")
 	var host: String = address
 	var port: int = DEFAULT_PORT
 	if parts.size() == 2:
-		host = parts[0]
+		host = parts[0].strip_edges()
 		port = int(parts[1])
 	if host == "":
 		host = "127.0.0.1"
 	if port < 1 or port > 65535:
-		network_failed.emit("The join address has an invalid port.")
+		network_failed.emit("The party code has an invalid port.")
 		return
 	host_code = ""
-	party_code = address
+	party_code = "%s:%d" % [host, port]
 	transport.port = port
 	transport.connect_address = host
 	session.net.start_client()
@@ -80,23 +93,26 @@ func get_local_join_code() -> String:
 	return "127.0.0.1:%d" % DEFAULT_PORT
 
 func is_network_ready() -> bool:
-	return session != null and session.net.is_net_active
+	return session != null and session.net != null and session.net.is_net_active
 
 func ensure_local_player() -> CMPlayer:
-	if session == null or not session.net.is_net_active:
+	if not is_network_ready():
 		return null
 	for player in session.player.players:
 		if player.is_local:
+			return player
+		if player.net_peer != null and is_instance_valid(player.net_peer) and player.net_peer.peer_id == multiplayer.get_unique_id():
 			return player
 	var player: CMPlayer = await session.player.add_player_async()
 	return player
 
 func stop_session() -> void:
-	if session == null:
+	if session == null or session.net == null:
 		return
 	party_code = ""
 	host_code = ""
-	session.net.stop_net()
+	if session.net.is_net_active:
+		session.net.stop_net()
 
 func _on_net_activated() -> void:
 	network_ready.emit()
