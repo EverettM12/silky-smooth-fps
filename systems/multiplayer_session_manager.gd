@@ -1,5 +1,5 @@
 extends Node
-class_name MultiplayerSessionManager
+#class_name MultiplayerSessionManager
 
 signal network_ready
 signal network_failed(message: String)
