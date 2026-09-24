@@ -23,6 +23,10 @@ var dash_pressed: bool = false
 var grapple_pressed: bool = false
 
 func _physics_process(_delta: float) -> void:
+	if get_parent() is Player:
+		var player: Player = get_parent() as Player
+		if player.networked and not player.is_local_player:
+			return
 	movement_input = Input.get_vector(move_left_action, move_right_action, move_forward_action, move_backward_action)
 	jump_just_pressed = Input.is_action_just_pressed(jump_action)
 	jump_pressed = Input.is_action_pressed(jump_action)
