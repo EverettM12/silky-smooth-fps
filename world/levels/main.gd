@@ -23,14 +23,11 @@ func _ready() -> void:
 		push_error("Main: CM.gd session was not ready after waiting.")
 		return
 
+	MultiplayerSessionManager.set_player_spawn_root(self)
 	var spawner: CMPlayerSpawner = session.player.player_spawner as CMPlayerSpawner
 	if spawner == null or not is_instance_valid(spawner):
-		spawner = CMPlayerSpawner.new()
-		spawner.name = "PlayerSpawner"
-		session.player.add_child(spawner, true)
-		session.player.player_spawner = spawner
-
-	spawner.spawn_root = self
+		push_error("Main: CM.gd player spawner is unavailable.")
+		return
 
 	var local_player: CMPlayer = await _wait_for_local_player()
 	if local_player == null:
