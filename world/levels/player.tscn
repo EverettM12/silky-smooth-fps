@@ -190,3 +190,45 @@ custom_maximum_size = Vector2(754.688, 525)
 layout_mode = 2
 mouse_filter = 2
 texture = ExtResource("10_8ladg")
+
+[node name="HealthUI" type="CanvasLayer" parent="."]
+layer = 20
+
+[node name="Root" type="Control" parent="HealthUI"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="HealthUI/Root"]
+layout_mode = 0
+anchor_left = 0.0
+anchor_top = 1.0
+anchor_right = 0.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = -92.0
+offset_right = 324.0
+offset_bottom = -24.0
+mouse_filter = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HealthUI/Root/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 4
+mouse_filter = 2
+
+[node name="HealthBar" type="ProgressBar" parent="HealthUI/Root/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(300, 24)
+layout_mode = 2
+mouse_filter = 2
+show_percentage = false
+value = 100.0
+
+[node name="HealthLabel" type="Label" parent="HealthUI/Root/MarginContainer/VBoxContainer"]
+layout_mode = 2
+mouse_filter = 2
+text = "100 / 100"
+horizontal_alignment = 1
