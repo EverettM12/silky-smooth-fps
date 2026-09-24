@@ -39,9 +39,18 @@ func _create_session() -> void:
 	session.net.net_stopped.connect(_on_net_stopped)
 	session_creation_started = false
 
+func _ensure_session_ready() -> bool:
+	if session != null and session.net != null and transport != null:
+		return true
+	if not session_creation_started:
+		_create_session()
+	while session_creation_started:
+		await get_tree().process_frame
+	return session != null and session.net != null and transport != null
+
 func start_host() -> void:
-	_create_session()
-	if session == null or session.net == null or transport == null:
+	var ready: bool = await _ensure_session_ready()
+	if not ready:
 		network_failed.emit("CM.gd session is not ready.")
 		return
 	if session.net.is_net_active:
@@ -53,8 +62,8 @@ func start_host() -> void:
 	session.net.start_server()
 
 func start_client(join_code: String) -> void:
-	_create_session()
-	if session == null or session.net == null or transport == null:
+	var ready: bool = await _ensure_session_ready()
+	if not ready:
 		network_failed.emit("CM.gd session is not ready.")
 		return
 	var address: String = join_code.strip_edges()
