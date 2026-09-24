@@ -187,6 +187,10 @@ reload_action={
 3d_physics/layer_1="world"
 3d_physics/layer_2="player"
 
+[netfox]
+
+time/tickrate=300
+
 [physics]
 
 3d/physics_engine="Jolt Physics"

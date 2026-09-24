@@ -49,4 +49,5 @@ func _process(_delta: float) -> void:
 	_mouse_moved_this_frame = false
 
 	if apply_recoil_to_view:
-		view_camera.rotation = recoil_holder.current_rotation
+		if view_camera:
+			view_camera.rotation = recoil_holder.current_rotation
