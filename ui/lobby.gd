@@ -234,6 +234,11 @@ func _start_game() -> void:
 		return
 	transitioning = true
 	status_label.text = "Starting game..."
+	_start_game_deferred.call_deferred()
+
+func _start_game_deferred() -> void:
+	if not is_instance_valid(self):
+		return
 	var error: Error = get_tree().change_scene_to_file("res://world/levels/main.tscn")
 	if error != OK:
 		transitioning = false
