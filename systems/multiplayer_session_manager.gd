@@ -169,3 +169,10 @@ func _load_game_scene(scene_path: String) -> void:
 
 func _load_game_scene_deferred(scene_path: String) -> void:
 	get_tree().change_scene_to_file(scene_path)
+
+func is_party_ready_to_start() -> bool:
+	if session == null or session.net == null:
+		return false
+	if not session.net.is_net_active or not session.net.is_server:
+		return false
+	return session.player.player_count >= session.net.connected_peers.size()
