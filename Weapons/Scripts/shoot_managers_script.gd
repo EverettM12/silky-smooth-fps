@@ -28,11 +28,10 @@ func shoot() -> void:
 			shot_damage_total = 0.0
 			#same conditions has before, are checked before every shot
 			if (
-				(current_weapon.resources.total_ammo_in_mag > 0 and current_weapon.resources.total_ammo_in_mag >= current_weapon.resources.nb_proj_shots_at_same_time)
+				(current_weapon.resources.total_ammo_in_mag > 0)
 				or
 				(
 					current_weapon.resources.all_ammo_in_mag
-					and weapon_manager.ammo_manager.ammo_dict[current_weapon.resources.ammo_type] > 0
 					and weapon_manager.ammo_manager.ammo_dict[current_weapon.resources.ammo_type] > 0
 				)
 			):
