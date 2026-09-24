@@ -78,7 +78,7 @@ func _on_logout_pressed() -> void:
 		return
 	transitioning = true
 	MultiplayerSessionManager.stop_session()
-	await Supabase.auth.sign_out().completed
+	Supabase.auth.clear_local_session()
 	InviteManager.wipe_sent_invites()
 	UserProfile.clear_profile()
 	get_tree().change_scene_to_file("res://ui/startup.tscn")
