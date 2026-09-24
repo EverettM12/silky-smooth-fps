@@ -13,10 +13,10 @@ extends Control
 @onready var switch_account_button: Button = $BottomPanel/VBoxContainer/SwitchAccountButton
 
 @onready var party_slot_labels: Array[Label] = [
-	$PartyStage/Slot1/Username,
-	$PartyStage/Slot2/Username,
-	$PartyStage/Slot3/Username,
-	$PartyStage/Slot4/Username
+	$PartyStage/HBoxContainer/Slot1/Username,
+	$PartyStage/HBoxContainer/Slot2/Username,
+	$PartyStage/HBoxContainer/Slot3/Username,
+	$PartyStage/HBoxContainer/Slot4/Username
 ]
 
 var transitioning: bool = false
