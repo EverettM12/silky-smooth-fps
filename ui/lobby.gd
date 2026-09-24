@@ -225,25 +225,10 @@ func _on_accept_invite_pressed() -> void:
 func _on_start_game_pressed() -> void:
 	if transitioning or not party_initialized or not multiplayer.is_server():
 		return
-	start_game_button.disabled = true
-	_start_game.rpc()
-
-@rpc("authority", "call_local", "reliable")
-func _start_game() -> void:
-	if transitioning:
-		return
 	transitioning = true
+	start_game_button.disabled = true
 	status_label.text = "Starting game..."
-	_start_game_deferred.call_deferred()
-
-func _start_game_deferred() -> void:
-	if not is_instance_valid(self):
-		return
-	var error: Error = get_tree().change_scene_to_file("res://world/levels/main.tscn")
-	if error != OK:
-		transitioning = false
-		start_game_button.disabled = false
-		status_label.text = "Failed to start the game."
+	MultiplayerSessionManager.start_game_scene("res://world/levels/main.tscn")
 
 func _on_network_failed(message: String) -> void:
 	if transitioning:
