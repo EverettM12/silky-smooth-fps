@@ -88,6 +88,7 @@ func _physics_process(delta: float) -> void:
 	head.rotation.x = lerp_angle(head.rotation.x, network_target_pitch, 1.0 - exp(-20.0 * delta))
 
 @rpc("authority", "unreliable_ordered", "call_remote")
+@warning_ignore("shadowed_variable")
 func _receive_network_state(target_position: Vector3, target_velocity: Vector3, target_yaw: float, target_pitch: float) -> void:
 	if not networked or is_local_player:
 		return
