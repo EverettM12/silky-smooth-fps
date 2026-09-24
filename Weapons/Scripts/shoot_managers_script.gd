@@ -18,7 +18,7 @@ func shoot() -> void:
 		(
 			current_weapon.resources.all_ammo_in_mag
 			and weapon_manager.ammo_manager.ammo_dict[current_weapon.resources.ammo_type] > 0
-			and weapon_manager.ammo_manager.amm_dict[current_weapon.resources.ammo_type] >= current_weapon.resources.nb_proj_shots_at_same_time
+			and weapon_manager.ammo_manager.ammo_dict[current_weapon.resources.ammo_type] > 0
 		)
 	) and !current_weapon.resources.is_reloading:
 		current_weapon.resources.is_shooting = true
