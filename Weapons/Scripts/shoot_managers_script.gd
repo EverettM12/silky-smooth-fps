@@ -107,7 +107,13 @@ func hitscan_shot(point_of_collision_hitscan : Vector3) -> void:
 		var collider_normal : Vector3 = hitscan_bullet_collision.normal 
 		var final_damage : float = 0.0
 		
-		if collider.is_in_group("Enemies") and collider.has_method("hitscan_hit"):
+		if collider is Player and collider.has_method("hitscan_hit"):
+			final_damage = current_weapon.resources.damage_per_proj * current_weapon.resources.damage_dropoff.sample(point_of_collision_hitscan.distance_to(global_position) / current_weapon.resources.max_range)
+			if current_weapon.resources.max_damage_per_shot >= 0.0:
+				final_damage = min(final_damage, max(current_weapon.resources.max_damage_per_shot - shot_damage_total, 0.0))
+				shot_damage_total += final_damage
+			collider.hitscan_hit(final_damage, hitscan_bullet_direction, hitscan_bullet_collision.position)
+		elif collider.is_in_group("Enemies") and collider.has_method("hitscan_hit"):
 			final_damage = current_weapon.resources.damage_per_proj * current_weapon.resources.damage_dropoff.sample(point_of_collision_hitscan.distance_to(global_position) / current_weapon.resources.max_range)
 			if current_weapon.resources.max_damage_per_shot >= 0.0:
 				final_damage = min(final_damage, max(current_weapon.resources.max_damage_per_shot - shot_damage_total, 0.0))
