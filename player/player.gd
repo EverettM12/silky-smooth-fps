@@ -114,6 +114,12 @@ func _receive_network_state(target_position: Vector3, target_velocity: Vector3, 
 func _send_network_state() -> void:
 	_receive_network_state.rpc(global_position, velocity, rotation.y, head.rotation.x)
 
+func hitscan_hit(damage_val: float, _hitscan_dir: Vector3, _hitscan_pos: Vector3) -> void:
+	apply_weapon_damage(damage_val)
+
+func projectile_hit(damage_val: float, _projectile_dir: Vector3) -> void:
+	apply_weapon_damage(damage_val)
+
 func apply_weapon_damage(damage: float) -> void:
 	if damage <= 0.0 or health <= 0.0:
 		return
