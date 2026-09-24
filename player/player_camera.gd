@@ -87,8 +87,10 @@ extends Node
 
 @export_group("Aiming")
 @export_range(45.0, 90.0, 0.1) var aim_fov: float = 65.0
+@export_range(1.0, 4.0, 0.1) var sniper_aim_zoom_multiplier: float = 2.0
 @export_range(0.0, 30.0, 0.1) var aim_fov_transition_speed: float = 18.0
 @export_range(0.0, 30.0, 0.1) var aim_fov_return_speed: float = 14.0
+@export var aim_overlay: Control
 
 @export_group("FOV")
 @export_range(45.0, 150.0, 0.1) var base_fov: float = 90.0
@@ -138,6 +140,7 @@ extends Node
 @onready var player_movement: PlayerMovement = player.get_node("PlayerMovement") as PlayerMovement
 
 var weapon_viewport_camera: Camera3D
+var weapon_manager: WeaponManager
 
 var base_head_position: Vector3 = Vector3.ZERO
 var previous_player_yaw: float = 0.0
@@ -178,6 +181,8 @@ func _ready() -> void:
 	fov_value = clamp(base_fov, minimum_fov, min(maximum_fov, maximum_final_fov))
 	camera.fov = fov_value
 	camera.current = true
+	if aim_overlay != null:
+		aim_overlay.visible = false
 
 func _process(delta: float) -> void:
 	if player == null or head == null or camera_motion == null or camera == null or player_input == null or player_state == null or player_movement == null:
@@ -439,7 +444,14 @@ func apply_camera_motion(delta: float, movement_data: Dictionary) -> void:
 	target_fov += wall_run_fov * wall_run_weight
 	target_fov = clamp(target_fov, minimum_fov, min(maximum_fov, maximum_final_fov))
 	if player_input.aim_pressed:
-		target_fov = min(target_fov, aim_fov)
+		var current_aim_fov: float = aim_fov
+		if weapon_manager != null and weapon_manager.current_weapon != null and weapon_manager.current_weapon.resources != null:
+			if weapon_manager.current_weapon.resources.weapon_name == "SniperRifle":
+				var aim_zoom_amount: float = max(base_fov - aim_fov, 0.0)
+				current_aim_fov = base_fov - aim_zoom_amount * sniper_aim_zoom_multiplier
+		target_fov = min(target_fov, current_aim_fov)
+	if aim_overlay != null:
+		aim_overlay.visible = player_input.aim_pressed
 	var fov_response_speed: float = fov_return_speed
 	if player_input.aim_pressed and target_fov < fov_value:
 		fov_response_speed = aim_fov_transition_speed
