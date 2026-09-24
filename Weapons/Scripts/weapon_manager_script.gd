@@ -57,7 +57,7 @@ func initialize() -> void:
 	if weapon_stack.size() > 0:
 		await enter_weapon(weapon_stack[0])
 	else:
-		push_error("Play har has no weapons in his inventory")
+		push_error("Player has no weapons configured.")
 
 func exit_weapon(next_weapon : int) -> void:
 	can_change_weapons = false
