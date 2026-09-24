@@ -36,6 +36,10 @@ func hit() -> void:
 	if is_explosive: explode()
 
 func apply_damage(body : Node3D) -> void:
+	if body is Player and body.has_method("projectile_hit"):
+		body.projectile_hit(damage, direction)
+		return
+			
 	if body.is_in_group("Enemies") and body.has_method("projectile_hit"):
 			body.projectile_hit(damage, direction)
 			
