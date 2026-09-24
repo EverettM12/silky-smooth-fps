@@ -41,6 +41,7 @@ run/max_fps=300
 
 [autoload]
 
+MPIO="*res://addons/MultiplayCore/MPIO.gd"
 SimpleGrass="*uid://bfq0snth8sj3h"
 CloseGame="*uid://c0ojvjqll0l67"
 Supabase="*uid://w2nx6eeq2fyf"

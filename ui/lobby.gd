@@ -28,6 +28,7 @@ func _ready() -> void:
 	MultiplayerSessionManager.network_ready.connect(_on_network_ready)
 	MultiplayerSessionManager.network_failed.connect(_on_network_failed)
 	MultiplayerSessionManager.network_stopped.connect(_on_network_stopped)
+	MultiplayerSessionManager.party_updated.connect(_on_party_updated)
 	InviteManager.invite_received.connect(_on_invite_received)
 	host_button.pressed.connect(_on_host_pressed)
 	join_button.pressed.connect(_on_join_pressed)
@@ -64,60 +65,25 @@ func _on_network_ready() -> void:
 	if transitioning or party_initialized:
 		return
 	party_initialized = true
-	var local_player: CMPlayer = await MultiplayerSessionManager.ensure_local_player()
-	if local_player == null:
-		party_initialized = false
-		MultiplayerSessionManager.stop_session()
-		status_label.text = "Could not create your party player."
-		host_button.disabled = false
-		join_button.disabled = false
-		return
-	local_player.set_username(UserProfile.current_username)
-	var player_manager: CMPlayerManager = MultiplayerSessionManager.session.player
-	if not player_manager.player_joined.is_connected(_on_player_joined):
-		player_manager.player_joined.connect(_on_player_joined)
-	if not player_manager.player_left.is_connected(_on_player_left):
-		player_manager.player_left.connect(_on_player_left)
-	for player in player_manager.players:
-		_connect_username_signal(player)
 	_set_party_ui(true)
 	_refresh_party_slots()
 	status_label.text = "Party ready." if multiplayer.is_server() else "Waiting for the party leader to start the game."
 
-func _on_player_joined(player: CMPlayer) -> void:
-	_connect_username_signal(player)
+func _on_party_updated() -> void:
+	if not party_initialized:
+		return
 	_refresh_party_slots()
 	if multiplayer.is_server():
 		status_label.text = "Party updated. Ready to start."
-
-func _on_player_left(_player: CMPlayer) -> void:
-	_refresh_party_slots()
-	if multiplayer.is_server():
-		status_label.text = "Party updated. Ready to start."
-
-func _connect_username_signal(player: CMPlayer) -> void:
-	if not player.username_changed.is_connected(_on_player_username_changed):
-		player.username_changed.connect(_on_player_username_changed)
-	_refresh_party_slots()
-
-func _on_player_username_changed(_username: String) -> void:
-	_refresh_party_slots()
 
 func _refresh_party_slots() -> void:
-	if not party_initialized or MultiplayerSessionManager.session == null:
+	if not party_initialized:
 		return
-	var players: Array[CMPlayer] = []
-	for player in MultiplayerSessionManager.session.player.players:
-		if is_instance_valid(player):
-			players.append(player)
+	var players: Array[MPPlayer] = MultiplayerSessionManager.get_players()
 	players.sort_custom(_sort_players)
 
-	var local_player: CMPlayer = null
-	var ordered_players: Array[CMPlayer] = []
-	for player in players:
-		if player.is_local:
-			local_player = player
-			break
+	var local_player: MPPlayer = MultiplayerSessionManager.ensure_local_player()
+	var ordered_players: Array[MPPlayer] = []
 
 	if local_player != null:
 		ordered_players.append(local_player)
@@ -130,17 +96,18 @@ func _refresh_party_slots() -> void:
 		label.text = "EMPTY"
 
 	for index in range(min(ordered_players.size(), party_slot_labels.size())):
-		var player: CMPlayer = ordered_players[index]
-		var username: String = player.username.strip_edges()
+		var player: MPPlayer = ordered_players[index]
+		var username: String = str(player.handshake_data.get("username", "")).strip_edges()
 		if username == "":
 			username = "Player %d" % (player.player_id + 1)
 		party_slot_labels[index].text = username
 
 	if multiplayer.is_server():
 		start_game_button.disabled = players.is_empty()
+
 	party_code_label.text = "Party Code: " + MultiplayerSessionManager.get_party_code()
 
-func _sort_players(a: CMPlayer, b: CMPlayer) -> bool:
+func _sort_players(a: MPPlayer, b: MPPlayer) -> bool:
 	return a.player_id < b.player_id
 
 func _set_party_ui(connected: bool) -> void:
@@ -194,6 +161,7 @@ func _on_accept_invite_pressed() -> void:
 func _on_start_game_pressed() -> void:
 	if transitioning or not party_initialized or not multiplayer.is_server():
 		return
+	MultiplayerSessionManager.prepare_game_start()
 	_start_game.rpc()
 
 @rpc("authority", "call_local", "reliable")
@@ -201,6 +169,7 @@ func _start_game() -> void:
 	if transitioning:
 		return
 	transitioning = true
+	MultiplayerSessionManager.mark_game_started()
 	status_label.text = "Starting game..."
 	get_tree().change_scene_to_file("res://world/levels/main.tscn")
 
@@ -218,6 +187,9 @@ func _on_network_stopped() -> void:
 		return
 	party_initialized = false
 	_set_party_ui(false)
+	host_button.disabled = false
+	join_button.disabled = false
+	status_label.text = "Party session stopped."
 
 func _on_switch_account_pressed() -> void:
 	if transitioning:
