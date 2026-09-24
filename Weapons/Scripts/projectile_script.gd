@@ -6,6 +6,7 @@ class_name Projectile
 var is_explosive : bool = false
 var direction : Vector3 
 var damage : float
+var structure_damage : float = -1.0
 var time_before_vanish : float 
 var bodies_list : Array = []
 
@@ -39,7 +40,8 @@ func apply_damage(body : Node3D) -> void:
 			body.projectile_hit(damage, direction)
 			
 	if body.is_in_group("HitableObjects") and body.has_method("projectile_hit"):
-		body.projectile_hit(damage, direction)
+		var applied_damage : float = structure_damage if structure_damage >= 0.0 else damage
+		body.projectile_hit(applied_damage, direction)
 	
 func explode() -> void:
 	#this function is visual and audio only, it doesn't affect the gameplay
