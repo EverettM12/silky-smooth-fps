@@ -132,6 +132,8 @@ extends Node
 @onready var player_state: PlayerState = player.get_node("PlayerState") as PlayerState
 @onready var player_movement: PlayerMovement = player.get_node("PlayerMovement") as PlayerMovement
 
+var weapon_viewport_camera: Camera3D
+
 var base_head_position: Vector3 = Vector3.ZERO
 var previous_player_yaw: float = 0.0
 var previous_velocity: Vector3 = Vector3.ZERO
@@ -186,7 +188,8 @@ func _process(delta: float) -> void:
 	previous_velocity = player.velocity
 	previous_player_yaw = player.rotation.y
 	dash_was_active = player_movement.is_dashing
-	$"../../SubViewportContainer/SubViewport/ViewportCam".global_transform = $"../Head/CameraMotion/Camera3D".global_transform
+	if weapon_viewport_camera != null:
+		weapon_viewport_camera.global_transform = camera.global_transform
 
 func calculate_movement_data(delta: float) -> Dictionary:
 	var horizontal_velocity: Vector3 = Vector3(player.velocity.x, 0.0, player.velocity.z)
