@@ -24,6 +24,10 @@ var party_initialized: bool = false
 var pending_invite_sender: String = ""
 var pending_invite_code: String = ""
 
+func _process(_delta: float) -> void:
+	if party_initialized:
+		_refresh_party_slots()
+
 func _ready() -> void:
 	if not MultiplayerSessionManager.network_ready.is_connected(_on_network_ready):
 		MultiplayerSessionManager.network_ready.connect(_on_network_ready)
