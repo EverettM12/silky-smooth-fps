@@ -146,6 +146,7 @@ func projectile_shot(point_of_collision_projectile : Vector3) -> void:
 	proj_ins.global_transform = current_weapon.attack_point.global_transform
 	proj_ins.direction = projectile_direction
 	proj_ins.damage = current_weapon.resources.damage_per_proj
+	proj_ins.structure_damage = current_weapon.resources.structure_damage_per_proj
 	proj_ins.time_before_vanish = current_weapon.resources.proj_time_before_vanish
 	proj_ins.gravity_scale = current_weapon.resources.proj_gravity_val
 	proj_ins.is_explosive = current_weapon.resources.is_proj_explosive
