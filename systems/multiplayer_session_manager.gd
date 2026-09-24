@@ -133,6 +133,14 @@ func stop_session() -> void:
 
 func _on_net_activated() -> void:
 	network_starting = false
+	if session == null or session.net == null:
+		network_failed.emit("CM.gd session is not available.")
+		return
+	if session.net.is_server:
+		var local_player: CMPlayer = await session.player.add_player_async()
+		if local_player == null:
+			network_failed.emit("Could not create the host player.")
+			return
 	network_ready.emit()
 
 func _on_connection_failure() -> void:
