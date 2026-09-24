@@ -630,4 +630,3 @@ func update_debug_state() -> void:
 	if current_state == grapple_last_debug_state:
 		return
 	grapple_last_debug_state = current_state
-	print("Grapple state: ", current_state)

@@ -1920,7 +1920,6 @@ func update_debug_state() -> void:
 	if state_name == last_debug_state:
 		return
 	last_debug_state = state_name
-	print("Traversal: ", state_name)
 
 func get_traversal_state_name() -> StringName:
 	if not traversal_active:

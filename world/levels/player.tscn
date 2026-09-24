@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://duaw88l443ytl"]
 
 [ext_resource type="Script" uid="uid://t3v3rookmm1" path="res://player/player.gd" id="1_w4ary"]
+[ext_resource type="Texture2D" uid="uid://di8cqk3jlanfy" path="res://ui/scopedin.png" id="10_8ladg"]
 [ext_resource type="Script" uid="uid://crmmp6d3qdv2n" path="res://player/player_input.gd" id="16_jrvaf"]
 [ext_resource type="Script" uid="uid://ckouwtkw57tmm" path="res://player/player_state.gd" id="17_4irhx"]
 [ext_resource type="Script" uid="uid://dtpp3w5b7q2je" path="res://player/player_movement_traversal.gd" id="18_tkje5"]
@@ -67,10 +68,11 @@ script = ExtResource("17_4irhx")
 script = ExtResource("18_tkje5")
 gravity_while_falling = 20.25
 
-[node name="PlayerCamera" type="Node" parent="." unique_id=1595783915]
+[node name="PlayerCamera" type="Node" parent="." unique_id=1595783915 node_paths=PackedStringArray("aim_overlay")]
 script = ExtResource("19_mt1sr")
 bob_frequency = 1.0
 bob_amplitude = 0.023
+aim_overlay = NodePath("../Control")
 
 [node name="Grapple" type="Node" parent="." unique_id=671995836 groups=["grapple_controller"]]
 script = ExtResource("20_3rg5b")
@@ -115,3 +117,71 @@ hurdle_exit_speed_multiplier = 1.05
 
 [node name="TraversalCameraLayer" type="Node" parent="Traversal" unique_id=1505623798]
 script = ExtResource("23_gr2o7")
+
+[node name="Control" type="Control" parent="." unique_id=916880363]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="CenterContainer" type="CenterContainer" parent="Control" unique_id=2104912146]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Scopedin" type="TextureRect" parent="Control/CenterContainer" unique_id=555546237]
+custom_maximum_size = Vector2(754.688, 525)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("10_8ladg")
+
+[node name="ColorRect" type="ColorRect" parent="Control" unique_id=313098394]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -836.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="ColorRect2" type="ColorRect" parent="Control" unique_id=943892773]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 832.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="ColorRect3" type="ColorRect" parent="Control" unique_id=4943868]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -577.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="ColorRect4" type="ColorRect" parent="Control" unique_id=1063354615]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 568.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)

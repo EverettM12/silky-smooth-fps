@@ -52,20 +52,15 @@ func start_listening(my_username: String) -> void:
 	_poll_invites_loop(_poll_generation)
 
 func _on_client_connected():
-	print("Realtime Connection Established! Now subscribing...")
-
 	_channel = _rt_client.channel("public", "party_invites", "receiver_username=eq." + _my_username)
 
 	_channel.insert.connect(_on_invite)
 	_channel.subscribe()
-	print("Mailman: Listening for invites for " + _my_username)
 
 @warning_ignore("shadowed_variable")
 func _on_invite(payload, _channel):
 	if payload.get("receiver_username", "") != _my_username:
 		return
-
-	print("Invite Data Received: ", payload)
 
 	_emit_invite_if_new(payload)
 
@@ -101,7 +96,7 @@ func _on_invite_insert_completed(task: DatabaseTask, receiver: String, party_cod
 		invite_failed.emit(receiver, reason)
 		return
 
-	print("Invite saved for %s: %s" % [receiver, task.data])
+	#print("Invite saved for %s: %s" % [receiver, task.data])
 	var invite_id := _get_inserted_invite_id(task.data)
 	if invite_id != "":
 		_sent_invites[invite_id] = receiver
@@ -161,7 +156,7 @@ func _emit_invite_if_new(invite: Dictionary) -> void:
 		push_warning("InviteManager: received an invite with missing sender or party code.")
 		return
 
-	print("Invite delivered to %s from %s with party code %s" % [_my_username, sender, code])
+	#print("Invite delivered to %s from %s with party code %s" % [_my_username, sender, code])
 	emit_signal("invite_received", sender, code)
 
 func _get_inserted_invite_id(data) -> String:
@@ -226,7 +221,7 @@ func _on_sent_invite_deleted(task: DatabaseTask, invite_id: String, receiver: St
 		push_warning("InviteManager: failed to delete %s invite %s for %s. %s" % [reason, invite_id, receiver, str(task.error)])
 		return
 
-	print("Invite %s for %s was removed from Supabase because it %s." % [invite_id, receiver, reason])
+	#print("Invite %s for %s was removed from Supabase because it %s." % [invite_id, receiver, reason])
 
 func _stop_listening() -> void:
 	_polling = false

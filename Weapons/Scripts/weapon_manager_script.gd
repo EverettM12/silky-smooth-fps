@@ -98,11 +98,12 @@ func enter_weapon(next_weapon : int) -> void:
 	weapon_stack_updated.emit()
 
 func _process(delta : float) -> void:
-	var target_position: Vector3 = player.global_position
-	target_position.y += head.position.y + HEAD_TO_WEAPON_Y
-	global_position.x = target_position.x
-	global_position.z = target_position.z
-	global_position.y = lerpf(global_position.y, target_position.y, 1.0 - exp(-weapon_follow_speed * delta))
+	if player:
+		var target_position: Vector3 = player.global_position
+		target_position.y += head.position.y + HEAD_TO_WEAPON_Y
+		global_position.x = target_position.x
+		global_position.z = target_position.z
+		global_position.y = lerpf(global_position.y, target_position.y, 1.0 - exp(-weapon_follow_speed * delta))
 	if current_weapon and current_weapon.resources and can_use_weapon:
 		await weapon_inputs()
 		
