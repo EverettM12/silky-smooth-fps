@@ -39,7 +39,7 @@ func _create_session() -> void:
 	player_spawner.name = "PlayerSpawner"
 	session.player.add_child(player_spawner, true)
 	session.player.player_spawner = player_spawner
-	session.net.net_activated.connect(_on_net_activated)
+	session.net.server_connected.connect(_on_server_connected)
 	session.net.server_connection_failure.connect(_on_connection_failure)
 	session.net.server_disconnected.connect(_on_server_disconnected)
 	session.net.net_stopped.connect(_on_net_stopped)
@@ -67,6 +67,11 @@ func start_host() -> void:
 	transport.port = DEFAULT_PORT
 	transport.host_bind_ip = "*"
 	session.net.start_server()
+	var local_player: CMPlayer = await session.player.add_player_async()
+	if local_player == null:
+		network_failed.emit("Could not create the host player.")
+		return
+	network_ready.emit()
 
 func start_client(join_code: String) -> void:
 	@warning_ignore("shadowed_variable_base_class")
@@ -131,16 +136,15 @@ func stop_session() -> void:
 	if session.net.is_net_active:
 		session.net.stop_net()
 
-func _on_net_activated() -> void:
+func _on_server_connected() -> void:
 	network_starting = false
 	if session == null or session.net == null:
 		network_failed.emit("CM.gd session is not available.")
 		return
-	if session.net.is_server:
-		var local_player: CMPlayer = await session.player.add_player_async()
-		if local_player == null:
-			network_failed.emit("Could not create the host player.")
-			return
+	var local_player: CMPlayer = await session.player.add_player_async()
+	if local_player == null:
+		network_failed.emit("Could not create the local player.")
+		return
 	network_ready.emit()
 
 func _on_connection_failure() -> void:
