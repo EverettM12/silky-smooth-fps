@@ -113,7 +113,9 @@ func _sign_in_saved_account(email: String) -> void:
 		auth_in_progress = false
 		_set_account_buttons_disabled(false)
 		add_account_button.disabled = false
-		status_label.text = "Saved sign-in failed. Use Add Account to sign in again."
+		_show_login_form()
+		email_input.text = email
+		status_label.text = "Saved sign-in expired. Enter the password once to refresh this account."
 		return
 	await _finish_authenticated_session(false)
 
