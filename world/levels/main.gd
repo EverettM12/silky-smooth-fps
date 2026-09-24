@@ -6,6 +6,7 @@ extends Node3D
 @onready var players_root: Node3D = get_node_or_null("Players") as Node3D
 @onready var weapon_viewport_camera: Camera3D = get_node_or_null("SubViewportContainer/SubViewport/ViewportCam") as Camera3D
 @onready var camera_holder: CameraHolder = get_node_or_null("CameraHolder") as CameraHolder
+@onready var weapon_manager: WeaponManager = get_node_or_null("WeaponManager") as WeaponManager
 
 func _ready() -> void:
 	if not is_instance_valid(start_pos):
@@ -46,6 +47,7 @@ func _ready() -> void:
 	var player_camera: PlayerCamera = player.get_node_or_null("PlayerCamera") as PlayerCamera
 	if player_camera != null:
 		player_camera.weapon_viewport_camera = weapon_viewport_camera
+		player_camera.weapon_manager = weapon_manager
 	if camera_holder != null:
 		camera_holder.configure_player(player)
 	start_pos.hide()
