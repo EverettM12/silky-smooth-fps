@@ -94,6 +94,20 @@ func sign_up_phone(phone : String, password : String) -> AuthTask:
 
 
 # If an account is created, users can login to your app.
+func restore_session(refresh_token: String) -> AuthTask:
+	if refresh_token.strip_edges() == "":
+		return _check_auth()
+	var payload : Dictionary = {"refresh_token": refresh_token}
+	var auth_task : AuthTask = AuthTask.new()._setup(
+		AuthTask.Task.REFRESH,
+		_config.supabaseUrl + _refresh_token_endpoint,
+		_header,
+		JSON.stringify(payload)
+	)
+	_process_task(auth_task)
+	return auth_task
+
+
 func sign_in(email : String, password : String = "") -> AuthTask:
 	if _auth != "": return _check_auth()
 	var payload : Dictionary = {"email":email, "password":password}
