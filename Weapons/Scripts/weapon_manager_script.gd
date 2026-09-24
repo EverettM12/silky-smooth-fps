@@ -34,7 +34,14 @@ const HEAD_TO_WEAPON_Y : float = -0.05
 signal weapon_stack_updated
 
 func _ready() -> void:
-	head = player.head
+	if player == null:
+		push_error("WeaponManager requires a Player reference.")
+		return
+	await player.ready
+	head = player.get_node_or_null("Head") as Node3D
+	if head == null:
+		push_error("WeaponManager could not find Player/Head.")
+		return
 	await initialize()
 
 func initialize() -> void:
