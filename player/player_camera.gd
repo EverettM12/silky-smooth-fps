@@ -85,6 +85,11 @@ extends Node
 @export_range(0.0, 2.0, 0.01) var airborne_sway: float = 0.35
 @export_range(0.0, 2.0, 0.01) var airborne_bob_multiplier: float = 0.0
 
+@export_group("Aiming")
+@export_range(45.0, 90.0, 0.1) var aim_fov: float = 65.0
+@export_range(0.0, 30.0, 0.1) var aim_fov_transition_speed: float = 18.0
+@export_range(0.0, 30.0, 0.1) var aim_fov_return_speed: float = 14.0
+
 @export_group("FOV")
 @export_range(45.0, 150.0, 0.1) var base_fov: float = 90.0
 @export_range(0.0, 30.0, 0.1) var maximum_movement_fov: float = 4.0
@@ -433,9 +438,15 @@ func apply_camera_motion(delta: float, movement_data: Dictionary) -> void:
 	target_fov += dash_fov_increase * dash_weight
 	target_fov += wall_run_fov * wall_run_weight
 	target_fov = clamp(target_fov, minimum_fov, min(maximum_fov, maximum_final_fov))
+	if player_input.aim_pressed:
+		target_fov = min(target_fov, aim_fov)
 	var fov_response_speed: float = fov_return_speed
-	if target_fov > fov_value:
+	if player_input.aim_pressed and target_fov < fov_value:
+		fov_response_speed = aim_fov_transition_speed
+	elif target_fov > fov_value:
 		fov_response_speed = fov_transition_speed
+	elif target_fov < fov_value:
+		fov_response_speed = aim_fov_return_speed
 	fov_response_speed = max(fov_response_speed, fov_spring_frequency)
 	var fov_spring: Dictionary = critical_damp_scalar(fov_value, fov_velocity, target_fov, fov_response_speed, delta)
 	fov_value = fov_spring["value"]
