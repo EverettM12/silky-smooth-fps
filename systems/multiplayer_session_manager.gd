@@ -50,6 +50,7 @@ func _ensure_session_ready() -> bool:
 	return session != null and session.net != null and transport != null
 
 func start_host() -> void:
+	@warning_ignore("shadowed_variable_base_class")
 	var ready: bool = await _ensure_session_ready()
 	if not ready:
 		network_failed.emit("CM.gd session is not ready.")
@@ -63,6 +64,7 @@ func start_host() -> void:
 	session.net.start_server()
 
 func start_client(join_code: String) -> void:
+	@warning_ignore("shadowed_variable_base_class")
 	var ready: bool = await _ensure_session_ready()
 	if not ready:
 		network_failed.emit("CM.gd session is not ready.")
