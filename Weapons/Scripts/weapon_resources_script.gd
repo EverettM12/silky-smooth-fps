@@ -60,6 +60,7 @@ var is_shooting : bool = false
 @export var max_spread : float 
 @export var max_range : float 
 @export var damage_per_proj : float 
+@export var structure_damage_per_proj : float = -1.0
 @export var damage_dropoff : Curve
 @export_range(0.0, 15.0, 0.01) var headshot_damage_mult : float = 1.0
 @export var time_between_shots : float 
