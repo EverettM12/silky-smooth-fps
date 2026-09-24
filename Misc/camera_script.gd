@@ -15,12 +15,26 @@ var _mouse_moved_this_frame: bool = false
 
 
 func _ready() -> void:
-	view_camera = player.camera
 	process_priority = -100
-	if not is_instance_valid(view_camera) or not is_instance_valid(recoil_holder):
-		push_error("CameraHolder: assign 'View Camera' and 'Recoil Holder' in the Inspector.")
+	if player == null:
 		set_process(false)
 		set_process_unhandled_input(false)
+		return
+	await player.ready
+	configure_player(player)
+
+func configure_player(target_player: Player) -> void:
+	player = target_player
+	view_camera = player.camera
+	if recoil_holder == null:
+		recoil_holder = get_node_or_null("CameraRecoilHolder") as CameraRecoilHolder
+	if not is_instance_valid(view_camera) or not is_instance_valid(recoil_holder):
+		push_error("CameraHolder could not initialize its camera references.")
+		set_process(false)
+		set_process_unhandled_input(false)
+		return
+	set_process(true)
+	set_process_unhandled_input(true)
 
 func _unhandled_input(event: InputEvent) -> void:
 	var motion: InputEventMouseMotion = event as InputEventMouseMotion
