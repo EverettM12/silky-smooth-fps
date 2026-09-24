@@ -67,7 +67,6 @@ func _apply_network_mode() -> void:
 		grapple_node.process_mode = Node.PROCESS_MODE_INHERIT
 	if traversal_node != null:
 		traversal_node.process_mode = Node.PROCESS_MODE_INHERIT
-	camera.visible = true
 	camera.current = true
 	if capture_mouse_on_ready:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
