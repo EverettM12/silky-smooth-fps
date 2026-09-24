@@ -159,7 +159,10 @@ func _refresh_party_slots() -> void:
 		party_slot_labels[index].text = username
 
 	party_code_label.text = "Party Code: " + MultiplayerSessionManager.get_party_code()
-	start_game_button.disabled = not multiplayer.is_server() or players.is_empty()
+	var party_ready: bool = MultiplayerSessionManager.is_party_ready_to_start()
+	start_game_button.disabled = not multiplayer.is_server() or not party_ready
+	if multiplayer.is_server() and players.size() < MultiplayerSessionManager.session.net.connected_peers.size():
+		status_label.text = "Waiting for all players to finish joining."
 
 func _clear_party_slots() -> void:
 	for label in party_slot_labels:
@@ -181,7 +184,7 @@ func _set_party_ui(connected: bool) -> void:
 
 	if connected:
 		join_input.text = ""
-		start_game_button.disabled = not is_host
+		start_game_button.disabled = not is_host or not MultiplayerSessionManager.is_party_ready_to_start()
 		if is_host:
 			status_label.text = "Party ready. Invite players or start the game."
 		else:
