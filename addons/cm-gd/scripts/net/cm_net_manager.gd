@@ -94,7 +94,6 @@ func _enter_tree() -> void:
 	super()
 	if Engine.is_editor_hint(): return
 	multiplayer.peer_disconnected.connect(_peer_disconnected)
-	multiplayer.peer_connected.connect(_peer_connected)
 	multiplayer.connected_to_server.connect(_connected_to_server)
 	multiplayer.connection_failed.connect(_connection_failed)
 	multiplayer.server_disconnected.connect(_disconnected_from_server)
@@ -200,11 +199,6 @@ func _cleanup_net(except_local: bool = false) -> void:
 
 func _connection_failed() -> void:
 	server_connection_failure.emit()
-
-func _peer_connected(peer_id: int) -> void:
-	if not is_server or peer_id == multiplayer.get_unique_id():
-		return
-	_init_peer_from_rpc_id(peer_id)
 
 func _connected_to_server() -> void:
 	my_peer_id = multiplayer.get_unique_id()
