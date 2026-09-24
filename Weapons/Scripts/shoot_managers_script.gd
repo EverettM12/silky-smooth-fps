@@ -16,8 +16,7 @@ func shoot() -> void:
 	(current_weapon.resources.total_ammo_in_mag > 0 and current_weapon.resources.total_ammo_in_mag >= current_weapon.resources.nb_proj_shots_at_same_time)
 	or 
 	#has all ammos in the magazine, and number of ammo is positive
-	(current_weapon.resources.all_ammo_in_mag and weapon_manager.ammo_manager.ammo_dict[current_weapon.resources.ammo_type] > 0 and \
-	#has >= ammo than the number of projectiles required for a shot
+	(current_weapon.resources.all_ammo_in_mag and weapon_manager.ammo_manager.ammo_dict[current_weapon.resources.ammo_type] > 0 and 	#has >= ammo than the number of projectiles required for a shot
 	weapon_manager.ammo_manager.amm_dict[current_weapon.resources.ammo_type] >= current_weapon.resources.nb_proj_shots_at_same_time)
 	) and !current_weapon.resources.is_reloading:
 		current_weapon.resources.is_shooting = true
@@ -26,8 +25,7 @@ func shoot() -> void:
 		for i in range(current_weapon.resources.nb_proj_shots):
 			#same conditions has before, are checked before every shot
 			if ((current_weapon.resources.total_ammo_in_mag > 0 and current_weapon.resources.total_ammo_in_mag >= current_weapon.resources.nb_proj_shots_at_same_time) 
-			or (current_weapon.resources.all_ammo_in_mag and weapon_manager.ammo_manager.ammo_dict[current_weapon.resources.ammo_type] > 0) and \
-			weapon_manager.ammo_manager.ammo_dict[current_weapon.resources.ammo_type] >= current_weapon.resources.nb_proj_shots_at_same_time):
+			or (current_weapon.resources.all_ammo_in_mag and weapon_manager.ammo_manager.ammo_dict[current_weapon.resources.ammo_type] > 0) and 			weapon_manager.ammo_manager.ammo_dict[current_weapon.resources.ammo_type] >= current_weapon.resources.nb_proj_shots_at_same_time):
 				
 				weapon_manager.weapon_sound_management(current_weapon.resources.shoot_sound, current_weapon.resources.shoot_sound_speed)
 				
@@ -110,10 +108,13 @@ func hitscan_shot(point_of_collision_hitscan : Vector3) -> void:
 				final_damage = current_weapon.resources.damage_per_proj * current_weapon.resources.headshot_damage_mult * current_weapon.resources.damage_dropoff.sample(point_of_collision_hitscan.distance_to(global_position) / current_weapon.resources.max_range)
 				collider.hitscan_hit(final_damage, hitscan_bullet_direction, hitscan_bullet_collision.position)
 		
-		elif collider.is_in_group("HitableObjects") and collider.has_method("hitscan_hit"): 
+		elif collider.is_in_group("HitableObjects") and collider.has_method("hitscan_hit"):
+			var structure_damage_per_proj : float = current_weapon.resources.structure_damage_per_proj
+			if structure_damage_per_proj < 0.0:
+				structure_damage_per_proj = current_weapon.resources.damage_per_proj / 6.0
 			@warning_ignore("narrowing_conversion")
-			final_damage = current_weapon.resources.damage_per_proj * current_weapon.resources.damage_dropoff.sample(point_of_collision_hitscan.distance_to(global_position) / current_weapon.resources.max_range)
-			collider.hitscan_hit(final_damage/6.0, hitscan_bullet_direction, hitscan_bullet_collision.position)
+			final_damage = structure_damage_per_proj * current_weapon.resources.damage_dropoff.sample(point_of_collision_hitscan.distance_to(global_position) / current_weapon.resources.max_range)
+			collider.hitscan_hit(final_damage, hitscan_bullet_direction, hitscan_bullet_collision.position)
 			weapon_manager.display_bullet_hole(collider_point, collider_normal)
 			
 		else:
