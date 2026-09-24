@@ -16,16 +16,18 @@ func spawn_player(cm_player: CMPlayer) -> Node:
 
 	var player: Player = null
 	var existing_player: Player = spawn_root.get_node_or_null("Player") as Player
+	var authority_id: int = cm_player.net_peer.peer_id
 	if cm_player.is_local and existing_player != null and not existing_player.networked:
 		player = existing_player
 		player.reparent(player_parent, false)
+		player.name = "Player_%d" % cm_player.player_id
+		player.configure_networked(true, cm_player.player_id, authority_id)
 	else:
 		player = PLAYER_SCENE.instantiate() as Player
+		player.name = "Player_%d" % cm_player.player_id
+		player.configure_networked(false, cm_player.player_id, authority_id)
 		player_parent.add_child(player)
 
-	player.name = "Player_%d" % cm_player.player_id
-	var authority_id: int = cm_player.net_peer.peer_id
-	player.configure_networked(cm_player.is_local, cm_player.player_id, authority_id)
 	player.global_position = _get_spawn_position(cm_player.player_id)
 	return player
 
