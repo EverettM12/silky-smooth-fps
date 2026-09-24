@@ -5,11 +5,12 @@ signal network_failed(message: String)
 signal network_stopped
 
 const DEFAULT_PORT: int = 6769
-const MAX_PLAYERS: int = 8
+const MAX_PLAYERS: int = 4
 
 var session: CMSession
 var transport: CMNetTransportENet
 var host_code: String = ""
+var party_code: String = ""
 
 func _ready() -> void:
 	_create_session.call_deferred()
@@ -39,6 +40,7 @@ func start_host() -> void:
 	if session.net.is_net_active:
 		return
 	host_code = get_local_join_code()
+	party_code = host_code
 	transport.port = DEFAULT_PORT
 	transport.host_bind_ip = "*"
 	session.net.start_server()
@@ -57,9 +59,14 @@ func start_client(join_code: String) -> void:
 	if port < 1 or port > 65535:
 		network_failed.emit("The join address has an invalid port.")
 		return
+	host_code = ""
+	party_code = address
 	transport.port = port
 	transport.connect_address = host
 	session.net.start_client()
+
+func get_party_code() -> String:
+	return party_code.strip_edges()
 
 func get_local_join_code() -> String:
 	var addresses: PackedStringArray = IP.get_local_addresses()
@@ -87,6 +94,8 @@ func ensure_local_player() -> CMPlayer:
 func stop_session() -> void:
 	if session == null:
 		return
+	party_code = ""
+	host_code = ""
 	session.net.stop_net()
 
 func _on_net_activated() -> void:
@@ -99,4 +108,6 @@ func _on_server_disconnected() -> void:
 	network_failed.emit("The host disconnected.")
 
 func _on_net_stopped() -> void:
+	party_code = ""
+	host_code = ""
 	network_stopped.emit()
