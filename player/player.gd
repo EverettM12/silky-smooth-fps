@@ -48,13 +48,6 @@ func configure_networked(local: bool, player_id: int, authority_id: int) -> void
 		_apply_network_mode()
 
 func _ready() -> void:
-	var multiplay_player: MPPlayer = get_parent() as MPPlayer
-	if multiplay_player != null:
-		networked = true
-		is_local_player = multiplay_player.is_local
-		network_player_id = multiplay_player.player_id
-		set_multiplayer_authority(multiplay_player.player_id)
-
 	health = clampf(max_health, 0.0, max_health)
 	health_changed.connect(_update_health_ui)
 	_update_health_ui(health, max_health)

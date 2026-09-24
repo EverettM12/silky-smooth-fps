@@ -3,62 +3,51 @@ extends Node
 signal network_ready
 signal network_failed(message: String)
 signal network_stopped
-signal party_updated
 
 const DEFAULT_PORT: int = 6769
 const MAX_PLAYERS: int = 4
 
-var mpc: MultiPlayCore
-var transport: ENetProtocol
+var session: CMSession
+var transport: CMNetTransportENet
 var host_code: String = ""
 var party_code: String = ""
-var game_started: bool = false
 
 func _ready() -> void:
-	_create_mpc()
+	_create_session.call_deferred()
 
-func _create_mpc() -> void:
-	if is_instance_valid(mpc):
+func _create_session() -> void:
+	if session != null:
 		return
-	mpc = MultiPlayCore.new()
-	mpc.name = "MultiPlayCore"
-	mpc.bind_address = "*"
-	mpc.port = DEFAULT_PORT
-	mpc.max_players = MAX_PLAYERS
-	mpc.player_scene = preload("res://world/levels/player.tscn")
-	mpc.assign_client_authority = true
-	mpc.auto_spawn_player_scene = true
-	mpc.debug_gui_enabled = false
-
-	transport = ENetProtocol.new()
-	transport.name = "ENetProtocol"
-	mpc.add_child(transport)
-
-	mpc.connected_to_server.connect(_on_connected_to_server)
-	mpc.player_connected.connect(_on_player_connected)
-	mpc.player_disconnected.connect(_on_player_disconnected)
-	mpc.server_stopped.connect(_on_server_stopped)
-	mpc.disconnected_from_server.connect(_on_disconnected_from_server)
-
-	get_tree().root.add_child(mpc)
+	session = CMSession.new()
+	session.name = "CMSession"
+	get_tree().root.add_child(session)
+	if session.net == null or session.player == null:
+		network_failed.emit("CM.gd session failed to initialize.")
+		return
+	transport = CMNetTransportENet.new()
+	transport.port = DEFAULT_PORT
+	transport.max_clients = MAX_PLAYERS
+	session.net.transport = transport
+	session.net.max_players_per_peer = 1
+	session.player.max_players = MAX_PLAYERS
+	session.net.net_activated.connect(_on_net_activated)
+	session.net.server_connection_failure.connect(_on_connection_failure)
+	session.net.server_disconnected.connect(_on_server_disconnected)
+	session.net.net_stopped.connect(_on_net_stopped)
 
 func start_host() -> void:
-	_create_mpc()
-	if mpc.online_connected or mpc.is_server:
+	_create_session()
+	if session.net.is_net_active:
 		return
-	game_started = false
 	host_code = get_local_join_code()
 	party_code = host_code
-	mpc.bind_address = "*"
-	mpc.port = DEFAULT_PORT
-	mpc.start_online_host(true, {"username": UserProfile.current_username})
+	transport.port = DEFAULT_PORT
+	transport.host_bind_ip = "*"
+	session.net.start_server()
 
 func start_client(join_code: String) -> void:
-	_create_mpc()
+	_create_session()
 	var address: String = join_code.strip_edges()
-	if address == "":
-		network_failed.emit("Enter the host address.")
-		return
 	var parts: PackedStringArray = address.split(":")
 	var host: String = address
 	var port: int = DEFAULT_PORT
@@ -72,34 +61,9 @@ func start_client(join_code: String) -> void:
 		return
 	host_code = ""
 	party_code = address
-	mpc.port = port
-	mpc.start_online_join(host, {"username": UserProfile.current_username})
-
-func ensure_local_player() -> MPPlayer:
-	if not is_instance_valid(mpc):
-		return null
-	if mpc.local_player == null or not is_instance_valid(mpc.local_player):
-		return null
-	return mpc.local_player
-
-func get_players() -> Array[MPPlayer]:
-	var result: Array[MPPlayer] = []
-	if not is_instance_valid(mpc) or mpc.players == null:
-		return result
-	for player in mpc.players.get_players().values():
-		if player is MPPlayer and is_instance_valid(player):
-			result.append(player)
-	return result
-
-func prepare_game_start() -> void:
-	if not is_instance_valid(mpc) or not mpc.is_server:
-		return
-	game_started = true
-	mpc.players.spawn_node_all()
-	party_updated.emit()
-
-func mark_game_started() -> void:
-	game_started = true
+	transport.port = port
+	transport.connect_address = host
+	session.net.start_client()
 
 func get_party_code() -> String:
 	return party_code.strip_edges()
@@ -115,70 +79,35 @@ func get_local_join_code() -> String:
 			return "%s:%d" % [address, DEFAULT_PORT]
 	return "127.0.0.1:%d" % DEFAULT_PORT
 
-func stop_session() -> void:
-	var active_mpc: MultiPlayCore = mpc
-	if not is_instance_valid(active_mpc):
-		return
+func is_network_ready() -> bool:
+	return session != null and session.net.is_net_active
 
-	mpc = null
-	transport = null
+func ensure_local_player() -> CMPlayer:
+	if session == null or not session.net.is_net_active:
+		return null
+	for player in session.player.players:
+		if player.is_local:
+			return player
+	var player: CMPlayer = await session.player.add_player_async()
+	return player
+
+func stop_session() -> void:
+	if session == null:
+		return
 	party_code = ""
 	host_code = ""
-	game_started = false
+	session.net.stop_net()
 
-	if active_mpc.connected_to_server.is_connected(_on_connected_to_server):
-		active_mpc.connected_to_server.disconnect(_on_connected_to_server)
-	if active_mpc.player_connected.is_connected(_on_player_connected):
-		active_mpc.player_connected.disconnect(_on_player_connected)
-	if active_mpc.player_disconnected.is_connected(_on_player_disconnected):
-		active_mpc.player_disconnected.disconnect(_on_player_disconnected)
-	if active_mpc.server_stopped.is_connected(_on_server_stopped):
-		active_mpc.server_stopped.disconnect(_on_server_stopped)
-	if active_mpc.disconnected_from_server.is_connected(_on_disconnected_from_server):
-		active_mpc.disconnected_from_server.disconnect(_on_disconnected_from_server)
-
-	if active_mpc.is_server:
-		active_mpc.close_server()
-	elif active_mpc.local_player != null:
-		active_mpc.local_player.disconnect_player()
-	elif active_mpc.online_peer != null:
-		active_mpc.online_peer.close()
-
-	if multiplayer.multiplayer_peer != null:
-		multiplayer.multiplayer_peer = null
-
-	active_mpc.queue_free()
-	_create_mpc()
-	network_stopped.emit()
-
-func leave_session() -> void:
-	stop_session()
-
-func _on_connected_to_server(_local_player: MPPlayer) -> void:
-	if not is_instance_valid(mpc):
-		return
-	if not game_started and mpc.is_server:
-		mpc.players.despawn_node_all()
-	party_updated.emit()
+func _on_net_activated() -> void:
 	network_ready.emit()
 
-func _on_player_connected(player: MPPlayer) -> void:
-	if not is_instance_valid(mpc):
-		return
-	if not game_started and mpc.is_server and is_instance_valid(player):
-		player.despawn_node()
-	party_updated.emit()
+func _on_connection_failure() -> void:
+	network_failed.emit("The connection to the host failed.")
 
-func _on_player_disconnected(_player: MPPlayer) -> void:
-	party_updated.emit()
+func _on_server_disconnected() -> void:
+	network_failed.emit("The host disconnected.")
 
-func _on_server_stopped() -> void:
-	party_updated.emit()
-
-func _on_disconnected_from_server(reason: String) -> void:
-	if game_started:
-		return
+func _on_net_stopped() -> void:
 	party_code = ""
 	host_code = ""
-	party_updated.emit()
-	network_failed.emit("Disconnected: " + reason)
+	network_stopped.emit()

@@ -92,7 +92,7 @@ func _despawn_player_node() -> void:
 		player_manager.player_spawner.despawn_player(self)
 		player_node = null
 	else:
-		return
+		push_warning("Can't despawn player ID: %d, there's no player_spawner" % [player_id])
 
 func _respawn_player_node() -> void:
 	if player_node == null:

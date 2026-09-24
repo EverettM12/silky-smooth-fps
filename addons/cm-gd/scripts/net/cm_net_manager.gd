@@ -74,9 +74,8 @@ var connected_peers: Array[CMNetPeer]:
 var remote_peers: Array[CMNetPeer]:
 	get:
 		var result: Array[CMNetPeer] = []
-		var connected_peer_ids: PackedInt32Array = multiplayer.get_peers()
 		for peer in connected_peers:
-			if peer.peer_id != my_peer_id and connected_peer_ids.has(peer.peer_id):
+			if peer.peer_id != my_peer_id:
 				result.append(peer)
 		return result
 
@@ -95,6 +94,7 @@ func _enter_tree() -> void:
 	super()
 	if Engine.is_editor_hint(): return
 	multiplayer.peer_disconnected.connect(_peer_disconnected)
+	multiplayer.peer_connected.connect(_peer_connected)
 	multiplayer.connected_to_server.connect(_connected_to_server)
 	multiplayer.connection_failed.connect(_connection_failed)
 	multiplayer.server_disconnected.connect(_disconnected_from_server)
@@ -180,8 +180,6 @@ func _deinit_mpeer() -> void:
 func stop_net() -> void:
 	if not is_net_active: return
 	is_net_active = false
-	is_connected_to_server = false
-	is_server = false
 	_deinit_mpeer()
 	_cleanup_net()
 	my_peer_id = 0
@@ -198,10 +196,16 @@ func _cleanup_net(except_local: bool = false) -> void:
 func _connection_failed() -> void:
 	server_connection_failure.emit()
 
+func _peer_connected(peer_id: int) -> void:
+	if peer_id == multiplayer.get_unique_id():
+		return
+	_init_peer_from_rpc_id(peer_id)
+
 func _connected_to_server() -> void:
 	my_peer_id = multiplayer.get_unique_id()
-	_init_peer_from_rpc_id(my_peer_id)
+	_init_peer_for_rpc_id(my_peer_id)
 	_debug_update_wintitle()
+	# request peer from server
 	_net_req_peer.rpc_id(1)
 	
 	if _is_debug and debug_warning_identifier:
@@ -249,12 +253,8 @@ func _remove_player(plr: CMPlayer) -> void:
 
 @rpc("reliable", "authority", "call_local")
 func _net_req_peer_complete() -> void:
-	_init_peer_from_rpc_id(1)
 	is_net_active = true
 	is_connected_to_server = true
-	_finish_client_connection.call_deferred()
-
-func _finish_client_connection() -> void:
 	server_connected.emit()
 	net_activated.emit()
 	_debug_update_wintitle()
@@ -372,9 +372,6 @@ func _init_peer_for_rpc_id(peer_id: int, plrids: Array[int] = []) -> CMNetPeer:
 		if peer_id != -1 and existing.peer_id == -1:
 			existing.peer_id = peer_id
 			peer_id_to_peer[peer_id] = existing
-		for plrid in plrids:
-			if not existing.player_ids.has(plrid):
-				_net_spawn_player(plrid, peer_id)
 		return existing
 
 	var peer := CMNetPeer.new()
@@ -437,13 +434,15 @@ func _rpc_raw(peer: int, object: Object, method_name: StringName, args: Array) -
 			
 			var call_myself_too := false
 			
-			if peer == 0: # Call every remote peers (everyone)
+			var active_peer_ids: PackedInt32Array = multiplayer.get_peers()
+			if peer == 0:
 				for pid in remote_peers:
-					rpc2call.rpc_id(pid.peer_id, n.get_path(), method_name, args)
+					if active_peer_ids.has(pid.peer_id):
+						rpc2call.rpc_id(pid.peer_id, n.get_path(), method_name, args)
 				call_myself_too = true
-			elif peer == my_peer_id: # Call yourself
+			elif peer == my_peer_id:
 				call_myself_too = true
-			else: # (Call a specific peer)
+			elif active_peer_ids.has(peer):
 				rpc2call.rpc_id(peer, n.get_path(), method_name, args)
 			
 			# Handle call_local
@@ -492,11 +491,12 @@ func _net_rpc_handler(_is_reliable: bool, obj_path: NodePath, method_name: Strin
 				var from_peer := get_peer_from_rpc_id(from_peer_id)
 
 				if from_peer == null:
-					var connected_peer_ids: PackedInt32Array = multiplayer.get_peers()
-					if from_peer_id == my_peer_id or connected_peer_ids.has(from_peer_id):
+					var active_peer_ids: PackedInt32Array = multiplayer.get_peers()
+					if from_peer_id == my_peer_id or active_peer_ids.has(from_peer_id):
 						from_peer = _init_peer_for_rpc_id(from_peer_id)
 
 				if from_peer == null:
+					push_error("_net_rpc_handler: received RPC from invalid peer with peer_id %d" % from_peer_id)
 					return
 				
 				if can_call:
