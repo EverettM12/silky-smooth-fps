@@ -21,6 +21,7 @@ enum Task {
 
 # EXPOSED VARIABLES ---------------------------------------------------------
 var user : SupabaseUser
+var session_generation: int = -1
 # ---------------------------------------------------------------------------
 
 func match_code(code: int = Task.NONE) -> int:
