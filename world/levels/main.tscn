@@ -17,10 +17,10 @@
 [ext_resource type="Script" uid="uid://cfbsp443am2jd" path="res://Weapons/Scripts/reload_manager_script.gd" id="23_oa3pv"]
 [ext_resource type="Script" uid="uid://b45mr122adhlv" path="res://Weapons/Scripts/Ammunition/ammunition_manager_script.gd" id="24_uhtiy"]
 [ext_resource type="Script" uid="uid://bc64rms0gin6g" path="res://Weapons/Scripts/animation_manager_script.gd" id="25_80sse"]
-[ext_resource type="Script" uid="uid://cnpa03x4ajc8b" path="res://PlayerCharacter/Misc/link_component_script.gd" id="26_rond0"]
-[ext_resource type="Script" uid="uid://dx02l6p6behb8" path="res://PlayerCharacter/HUD/Scripts/hud_script.gd" id="27_xah0d"]
-[ext_resource type="LabelSettings" uid="uid://bs0stms0b56kp" path="res://PlayerCharacter/HUD/Arts/label_settings.tres" id="31_4ag61"]
-[ext_resource type="Script" uid="uid://b0fbr48rbvn27" path="res://PlayerCharacter/Camera/camera_script.gd" id="33_ts5xw"]
+[ext_resource type="Script" uid="uid://cnpa03x4ajc8b" path="res://Misc/link_component_script.gd" id="26_rond0"]
+[ext_resource type="Script" uid="uid://dx02l6p6behb8" path="res://Misc/hud_script.gd" id="27_xah0d"]
+[ext_resource type="LabelSettings" uid="uid://bs0stms0b56kp" path="res://Misc/label_settings.tres" id="31_4ag61"]
+[ext_resource type="Script" uid="uid://b0fbr48rbvn27" path="res://Misc/camera_script.gd" id="33_ts5xw"]
 [ext_resource type="Script" uid="uid://k7djd8c1xge2" path="res://Weapons/Scripts/Camera/camera_recoil_holder_script.gd" id="34_rvrpt"]
 
 [sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_ts5xw"]
@@ -1462,6 +1462,7 @@ fog_light_energy = 2.62
 fog_density = 10.0
 fog_depth_begin = 2.0
 volumetric_fog_enabled = true
+volumetric_fog_density = 0.004
 volumetric_fog_gi_inject = 1.14
 volumetric_fog_anisotropy = 0.9
 volumetric_fog_ambient_inject = 0.12

@@ -1,0 +1,156 @@
+[gd_scene format=3 uid="uid://ds30ldnv7o6it"]
+
+[ext_resource type="Script" uid="uid://b42qc0gt676p7" path="res://ui/margin_container.gd" id="1_wplbs"]
+
+[node name="login_screen" type="Control" unique_id=1049563912]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=1873144387 node_paths=PackedStringArray("email_input", "password_input", "status_label", "login_btn", "register_btn", "username_input", "info_saved_label", "saved_info_email", "saved_info_password", "insert_info", "saved_info_username", "info_saved_label_2", "saved_info_email_2", "saved_info_password_2", "insert_info_2", "saved_info_username_2")]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_wplbs")
+email_input = NodePath("VBoxContainer2/HBoxContainer/VBoxContainer/EmailInput")
+password_input = NodePath("VBoxContainer2/HBoxContainer/VBoxContainer/PasswordInput")
+status_label = NodePath("VBoxContainer2/HBoxContainer/VBoxContainer/StatusLabel")
+login_btn = NodePath("VBoxContainer2/HBoxContainer/VBoxContainer/LoginButton")
+register_btn = NodePath("VBoxContainer2/HBoxContainer/VBoxContainer/RegisterButton")
+username_input = NodePath("VBoxContainer2/HBoxContainer/VBoxContainer/UsernameInput")
+info_saved_label = NodePath("VBoxContainer2/HBoxContainer/VBoxContainer2/info_saved_label")
+saved_info_email = NodePath("VBoxContainer2/HBoxContainer/VBoxContainer2/saved_info_email")
+saved_info_password = NodePath("VBoxContainer2/HBoxContainer/VBoxContainer2/saved_info_password")
+insert_info = NodePath("VBoxContainer2/HBoxContainer/VBoxContainer2/insert_info")
+saved_info_username = NodePath("VBoxContainer2/HBoxContainer/VBoxContainer2/saved_info_username")
+info_saved_label_2 = NodePath("VBoxContainer2/HBoxContainer/VBoxContainer3/info_saved_label_2")
+saved_info_email_2 = NodePath("VBoxContainer2/HBoxContainer/VBoxContainer3/saved_info_email_2")
+saved_info_password_2 = NodePath("VBoxContainer2/HBoxContainer/VBoxContainer3/saved_info_password_2")
+insert_info_2 = NodePath("VBoxContainer2/HBoxContainer/VBoxContainer3/insert_info_2")
+saved_info_username_2 = NodePath("VBoxContainer2/HBoxContainer/VBoxContainer3/saved_info_username_2")
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="CenterContainer" unique_id=1680352853]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/VBoxContainer2" unique_id=834963806]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/VBoxContainer2/HBoxContainer" unique_id=1170619340]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_constants/separation = 10
+
+[node name="StatusLabel" type="Label" parent="CenterContainer/VBoxContainer2/HBoxContainer/VBoxContainer" unique_id=960437909]
+layout_mode = 2
+text = "Ready"
+
+[node name="EmailInput" type="LineEdit" parent="CenterContainer/VBoxContainer2/HBoxContainer/VBoxContainer" unique_id=1119078328]
+layout_mode = 2
+placeholder_text = "Email"
+
+[node name="PasswordInput" type="LineEdit" parent="CenterContainer/VBoxContainer2/HBoxContainer/VBoxContainer" unique_id=75604223]
+layout_mode = 2
+placeholder_text = "Password"
+secret = true
+secret_character = "*"
+
+[node name="UsernameInput" type="LineEdit" parent="CenterContainer/VBoxContainer2/HBoxContainer/VBoxContainer" unique_id=712117470]
+layout_mode = 2
+placeholder_text = "Username"
+
+[node name="LoginButton" type="Button" parent="CenterContainer/VBoxContainer2/HBoxContainer/VBoxContainer" unique_id=216918894]
+visible = false
+layout_mode = 2
+text = "Log In"
+
+[node name="RegisterButton" type="Button" parent="CenterContainer/VBoxContainer2/HBoxContainer/VBoxContainer" unique_id=1872394071]
+layout_mode = 2
+text = "Register"
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="CenterContainer/VBoxContainer2/HBoxContainer" unique_id=1634556745]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="info_saved_label" type="Label" parent="CenterContainer/VBoxContainer2/HBoxContainer/VBoxContainer2" unique_id=978302405]
+layout_mode = 2
+text = "Save Login Information"
+
+[node name="saved_info_email" type="LineEdit" parent="CenterContainer/VBoxContainer2/HBoxContainer/VBoxContainer2" unique_id=2101204959]
+layout_mode = 2
+placeholder_text = "Email to Insert"
+
+[node name="saved_info_password" type="LineEdit" parent="CenterContainer/VBoxContainer2/HBoxContainer/VBoxContainer2" unique_id=1427991775]
+layout_mode = 2
+placeholder_text = "Password to Insert"
+secret = true
+secret_character = "*"
+
+[node name="saved_info_username" type="LineEdit" parent="CenterContainer/VBoxContainer2/HBoxContainer/VBoxContainer2" unique_id=1892982220]
+layout_mode = 2
+placeholder_text = "Username"
+
+[node name="insert_info" type="Button" parent="CenterContainer/VBoxContainer2/HBoxContainer/VBoxContainer2" unique_id=1965479970]
+layout_mode = 2
+text = "Insert Information"
+
+[node name="VBoxContainer3" type="VBoxContainer" parent="CenterContainer/VBoxContainer2/HBoxContainer" unique_id=1585794387]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="info_saved_label_2" type="Label" parent="CenterContainer/VBoxContainer2/HBoxContainer/VBoxContainer3" unique_id=606912980]
+layout_mode = 2
+text = "Save Login Information 2"
+
+[node name="saved_info_email_2" type="LineEdit" parent="CenterContainer/VBoxContainer2/HBoxContainer/VBoxContainer3" unique_id=718816604]
+layout_mode = 2
+placeholder_text = "Email to Insert"
+
+[node name="saved_info_password_2" type="LineEdit" parent="CenterContainer/VBoxContainer2/HBoxContainer/VBoxContainer3" unique_id=940271690]
+layout_mode = 2
+placeholder_text = "Password to Insert"
+secret = true
+secret_character = "*"
+
+[node name="saved_info_username_2" type="LineEdit" parent="CenterContainer/VBoxContainer2/HBoxContainer/VBoxContainer3" unique_id=1586513419]
+layout_mode = 2
+placeholder_text = "Username"
+
+[node name="insert_info_2" type="Button" parent="CenterContainer/VBoxContainer2/HBoxContainer/VBoxContainer3" unique_id=462701650]
+layout_mode = 2
+text = "Insert Information"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/VBoxContainer2" unique_id=981560465]
+custom_minimum_size = Vector2(200, 50)
+layout_mode = 2
+
+[node name="LoginSelected" type="Button" parent="CenterContainer/VBoxContainer2/VBoxContainer" unique_id=115961742]
+layout_mode = 2
+text = "Login"
+
+[node name="RegisterSelected" type="Button" parent="CenterContainer/VBoxContainer2/VBoxContainer" unique_id=1455354871]
+layout_mode = 2
+text = "Register"
+
+[node name="Return" type="Button" parent="CenterContainer/VBoxContainer2/VBoxContainer" unique_id=1555713498]
+layout_mode = 2
+text = "X"
+
+[connection signal="pressed" from="CenterContainer/VBoxContainer2/HBoxContainer/VBoxContainer/LoginButton" to="CenterContainer" method="_on_login_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer2/HBoxContainer/VBoxContainer/RegisterButton" to="CenterContainer" method="_on_register_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer2/HBoxContainer/VBoxContainer2/insert_info" to="CenterContainer" method="_on_insert_info_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer2/HBoxContainer/VBoxContainer3/insert_info_2" to="CenterContainer" method="_on_insert_info_2_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer2/VBoxContainer/LoginSelected" to="CenterContainer" method="_on_login_selected_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer2/VBoxContainer/RegisterSelected" to="CenterContainer" method="_on_register_selected_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer2/VBoxContainer/Return" to="CenterContainer" method="_on_return_pressed"]
