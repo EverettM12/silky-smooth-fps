@@ -13,7 +13,7 @@ var transport: CMNetTransportENet
 var host_code: String = ""
 
 func _ready() -> void:
-	_create_session()
+	_create_session.call_deferred()
 
 func _create_session() -> void:
 	if session != null:
@@ -21,6 +21,12 @@ func _create_session() -> void:
 	session = CMSession.new()
 	session.name = "CMSession"
 	get_tree().root.add_child(session)
+	await get_tree().process_frame
+	if not is_instance_valid(session):
+		return
+	if session.net == null or session.player == null:
+		network_failed.emit("CM.gd session failed to initialize.")
+		return
 	transport = CMNetTransportENet.new()
 	transport.port = DEFAULT_PORT
 	transport.max_clients = MAX_PLAYERS
