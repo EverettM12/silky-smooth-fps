@@ -1,7 +1,7 @@
 extends CMPlayerSpawnerBase
 class_name CMPlayerSpawner
 
-const PLAYER_SCENE: PackedScene = preload("res://player/player.tscn")
+const PLAYER_SCENE: PackedScene = preload("res://world/levels/player.tscn")
 
 var spawn_root: Node3D
 
