@@ -1,22 +1,18 @@
 extends Control
 
-@onready var party_code_label: Label = $PartyCode
-@onready var status_label: Label = $BottomPanel/VBoxContainer/StatusLabel
-@onready var join_input: LineEdit = $BottomPanel/VBoxContainer/ConnectionRow/JoinInput
-@onready var host_button: Button = $BottomPanel/VBoxContainer/ConnectionRow/HostButton
-@onready var join_button: Button = $BottomPanel/VBoxContainer/ConnectionRow/JoinButton
-@onready var invite_username_input: LineEdit = $BottomPanel/VBoxContainer/InviteRow/InviteUsername
-@onready var invite_button: Button = $BottomPanel/VBoxContainer/InviteRow/InviteButton
-@onready var pending_invite_label: Label = $BottomPanel/VBoxContainer/PendingInviteLabel
-@onready var accept_invite_button: Button = $BottomPanel/VBoxContainer/AcceptInviteButton
-@onready var start_game_button: Button = $BottomPanel/VBoxContainer/StartGameButton
-@onready var switch_account_button: Button = $BottomPanel/VBoxContainer/SwitchAccountButton
+@export var party_code_label: Label
+@export var status_label: Label
+@export var join_input: LineEdit
+@export var host_button: Button
+@export var join_button: Button
+@export var invite_username_input: LineEdit 
+@export var invite_button: Button 
+@export var pending_invite_label: Label 
+@export var accept_invite_button: Button
+@export var start_game_button: Button 
+@export var switch_account_button: Button 
 
-@onready var party_slot_labels: Array[Label] = [
-	$PartyStage/HBoxContainer/Slot1/Username,
-	$PartyStage/HBoxContainer/Slot2/Username,
-	$PartyStage/HBoxContainer/Slot3/Username,
-	$PartyStage/HBoxContainer/Slot4/Username
+@export var party_slot_labels: Array[Label] = [
 ]
 
 var transitioning: bool = false

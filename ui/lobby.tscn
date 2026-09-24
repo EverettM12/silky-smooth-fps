@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cmbhkkv1bwtp8" path="res://ui/lobby.gd" id="1"]
 
-[node name="Lobby" type="Control" unique_id=1205154688]
+[node name="Lobby" type="Control" unique_id=1205154688 node_paths=PackedStringArray("party_code_label", "status_label", "join_input", "host_button", "join_button", "invite_username_input", "invite_button", "pending_invite_label", "accept_invite_button", "start_game_button", "switch_account_button", "party_slot_labels")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -10,6 +10,18 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1")
+party_code_label = NodePath("PartyCode")
+status_label = NodePath("BottomPanel/VBoxContainer/MarginContainer3/HBoxContainer/StatusLabel")
+join_input = NodePath("BottomPanel/VBoxContainer/MarginContainer/ConnectionRow/JoinInput")
+host_button = NodePath("BottomPanel/VBoxContainer/MarginContainer/ConnectionRow/HostButton")
+join_button = NodePath("BottomPanel/VBoxContainer/MarginContainer/ConnectionRow/JoinButton")
+invite_username_input = NodePath("BottomPanel/VBoxContainer/MarginContainer2/InviteRow/InviteUsername")
+invite_button = NodePath("BottomPanel/VBoxContainer/MarginContainer2/InviteRow/InviteButton")
+pending_invite_label = NodePath("BottomPanel/VBoxContainer/MarginContainer3/HBoxContainer/PendingInviteLabel")
+accept_invite_button = NodePath("BottomPanel/VBoxContainer/MarginContainer6/AcceptInviteButton")
+start_game_button = NodePath("BottomPanel/VBoxContainer/MarginContainer4/StartGameButton")
+switch_account_button = NodePath("BottomPanel/VBoxContainer/MarginContainer5/SwitchAccountButton")
+party_slot_labels = [NodePath("PartyStage/HBoxContainer/Slot1/Username"), NodePath("PartyStage/HBoxContainer/Slot2/Username"), NodePath("PartyStage/HBoxContainer/Slot3/Username"), NodePath("PartyStage/HBoxContainer/Slot4/Username")]
 
 [node name="Background" type="ColorRect" parent="." unique_id=1702797308]
 layout_mode = 1
