@@ -49,6 +49,7 @@ var _bearer : PackedStringArray = ["Authorization: Bearer %s"]
 
 var _auth : String = ""
 var _expires_in : float = 0
+var _session_generation: int = 0
 
 var client : SupabaseUser
 
@@ -104,6 +105,7 @@ func restore_session(refresh_token: String) -> AuthTask:
 		_header,
 		JSON.stringify(payload)
 	)
+	auth_task.session_generation = _session_generation
 	_process_task(auth_task)
 	return auth_task
 
@@ -193,6 +195,7 @@ func sign_in_with_provider(provider : String, grab_from_browser : bool = true, p
 
 # If a user is logged in, this will log it out
 func clear_local_session() -> void:
+	_session_generation += 1
 	client = null
 	_auth = ""
 	_expires_in = 0
@@ -280,17 +283,19 @@ func invite_user_by_email(email : String) -> AuthTask:
 
 # Refresh the access_token of the authenticated client using the refresh_token
 # No need to call this manually except specific needs, since the process will be handled automatically
-func refresh_token(refresh_token : String = client.refresh_token, expires_in : float = client.expires_in) -> AuthTask:
-	await get_tree().create_timer(expires_in - 10).timeout
+func _schedule_refresh(refresh_token: String, expires_in: float, generation: int) -> void:
+	var wait_time: float = max(expires_in - 10.0, 1.0)
+	await get_tree().create_timer(wait_time).timeout
+	if generation != _session_generation or client == null or client.refresh_token != refresh_token:
+		return
 	var payload : Dictionary = {refresh_token = refresh_token}
 	var auth_task : AuthTask = AuthTask.new()._setup(
 		AuthTask.Task.REFRESH,
-		_config.supabaseUrl + _refresh_token_endpoint, 
+		_config.supabaseUrl + _refresh_token_endpoint,
 		_header + __get_session_header(),
 		JSON.stringify(payload))
+	auth_task.session_generation = generation
 	_process_task(auth_task)
-	return auth_task 
-
 
 
 # Retrieve the response from the server
@@ -318,10 +323,15 @@ func _process_task(task : AuthTask, _fake : bool = false) -> void:
 
 
 func _on_task_completed(task : AuthTask) -> void:
+	if task._code == AuthTask.Task.REFRESH and task.session_generation != _session_generation:
+		return
 	if task.error != null:
 		error.emit(task.error)
 	else:
 		if task.user != null:
+			var starts_new_session: bool = task._code != AuthTask.Task.REFRESH
+			if starts_new_session:
+				_session_generation += 1
 			client = task.user
 			_auth = client.access_token
 			_expires_in = client.expires_in
@@ -334,7 +344,7 @@ func _on_task_completed(task : AuthTask) -> void:
 					signed_in.emit(client)
 				AuthTask.Task.SIGNINOTP:
 					signed_in_otp.emit(client)
-				AuthTask.Task.UPDATE: 
+				AuthTask.Task.UPDATE:
 					user_updated.emit(client)
 				AuthTask.Task.REFRESH:
 					token_refreshed.emit(client)
@@ -342,8 +352,8 @@ func _on_task_completed(task : AuthTask) -> void:
 					otp_verified.emit(client)
 				AuthTask.Task.SIGNINANONYM:
 					signed_in_anonyous.emit()
-			refresh_token()
-		else: 
+			_schedule_refresh(client.refresh_token, client.expires_in, _session_generation)
+		else:
 			if task.data.is_empty() or task.data == null:
 				match task._code:
 					AuthTask.Task.MAGICLINK:
@@ -353,10 +363,12 @@ func _on_task_completed(task : AuthTask) -> void:
 					AuthTask.Task.INVITE:
 						user_invited.emit()
 					AuthTask.Task.LOGOUT:
+						_session_generation += 1
 						client = null
 						_auth = ""
 						_expires_in = 0
 						signed_out.emit()
+
 
 # A timer used to listen through TCP on the redirect uri of the request
 func _tcp_stream_timer() -> void:
