@@ -21,9 +21,6 @@ func _create_session() -> void:
 	session = CMSession.new()
 	session.name = "CMSession"
 	get_tree().root.add_child(session)
-	await get_tree().process_frame
-	if not is_instance_valid(session):
-		return
 	if session.net == null or session.player == null:
 		network_failed.emit("CM.gd session failed to initialize.")
 		return
