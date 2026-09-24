@@ -148,17 +148,17 @@ theme_override_constants/separation = 8
 [node name="HostButton" type="Button" parent="BottomPanel/VBoxContainer/ConnectionRow" unique_id=469165741]
 custom_minimum_size = Vector2(130, 42)
 layout_mode = 2
-text = "Host Game"
+text = "Host Party"
 
 [node name="JoinInput" type="LineEdit" parent="BottomPanel/VBoxContainer/ConnectionRow" unique_id=845855485]
 layout_mode = 2
 size_flags_horizontal = 3
-placeholder_text = "Host address"
+placeholder_text = "Party code or host address"
 
 [node name="JoinButton" type="Button" parent="BottomPanel/VBoxContainer/ConnectionRow" unique_id=1488984529]
 custom_minimum_size = Vector2(130, 42)
 layout_mode = 2
-text = "Join Game"
+text = "Join Party"
 
 [node name="InviteRow" type="HBoxContainer" parent="BottomPanel/VBoxContainer" unique_id=1391406655]
 layout_mode = 2
