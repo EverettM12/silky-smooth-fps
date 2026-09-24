@@ -44,6 +44,7 @@ run/max_fps=300
 SimpleGrass="*uid://bfq0snth8sj3h"
 CloseGame="*uid://c0ojvjqll0l67"
 Supabase="*uid://w2nx6eeq2fyf"
+SavedAccounts="*res://systems/saved_accounts.gd"
 MultiplayerSessionManager="*res://systems/multiplayer_session_manager.gd"
 NetworkTime="*uid://cnqdxyjptkfvp"
 NetworkTimeSynchronizer="*uid://5rmn2ik3kjo8"
