@@ -192,6 +192,13 @@ func sign_in_with_provider(provider : String, grab_from_browser : bool = true, p
 
 
 # If a user is logged in, this will log it out
+func clear_local_session() -> void:
+	client = null
+	_auth = ""
+	_expires_in = 0
+	signed_out.emit()
+
+
 func sign_out() -> AuthTask:
 	var auth_task : AuthTask = AuthTask.new()._setup(
 		AuthTask.Task.LOGOUT,
