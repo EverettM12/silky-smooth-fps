@@ -39,7 +39,7 @@ func load_config() -> void:
 				else:
 					config[key] = value
 		else:
-			printerr("Unable to read .env file at path 'res://.env'")
+			printerr("Unable to read .env file at path 'res://addons/supabase/.env'")
 	header.append("apikey: %s"%[config.supabaseKey])
 
 func load_nodes() -> void:
