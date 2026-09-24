@@ -13,6 +13,7 @@ var host_code: String = ""
 var party_code: String = ""
 var session_creation_started: bool = false
 var network_starting: bool = false
+var player_spawner: CMPlayerSpawner
 
 func _ready() -> void:
 	_create_session.call_deferred()
@@ -34,6 +35,10 @@ func _create_session() -> void:
 	session.net.transport = transport
 	session.net.max_players_per_peer = 1
 	session.player.max_players = MAX_PLAYERS
+	player_spawner = CMPlayerSpawner.new()
+	player_spawner.name = "PlayerSpawner"
+	session.player.add_child(player_spawner, true)
+	session.player.player_spawner = player_spawner
 	session.net.net_activated.connect(_on_net_activated)
 	session.net.server_connection_failure.connect(_on_connection_failure)
 	session.net.server_disconnected.connect(_on_server_disconnected)
@@ -143,3 +148,24 @@ func _on_net_stopped() -> void:
 	party_code = ""
 	host_code = ""
 	network_stopped.emit()
+
+func set_player_spawn_root(root: Node3D) -> void:
+	if player_spawner == null or not is_instance_valid(player_spawner):
+		return
+	player_spawner.spawn_root = root
+
+func start_game_scene(scene_path: String) -> void:
+	if session == null or session.net == null or not session.net.is_net_active:
+		return
+	if not session.net.is_server:
+		return
+	_load_game_scene.rpc(scene_path)
+
+@rpc("authority", "call_local", "reliable")
+func _load_game_scene(scene_path: String) -> void:
+	if scene_path.strip_edges() == "":
+		return
+	_load_game_scene_deferred.call_deferred(scene_path)
+
+func _load_game_scene_deferred(scene_path: String) -> void:
+	get_tree().change_scene_to_file(scene_path)
