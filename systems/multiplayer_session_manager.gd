@@ -99,7 +99,7 @@ func stop_session() -> void:
 	session.net.stop_net()
 
 func _on_net_activated() -> void:
-	network_ready.emit()
+	network_ready.call_deferred()
 
 func _on_connection_failure() -> void:
 	network_failed.emit("The connection to the host failed.")
