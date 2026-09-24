@@ -3,6 +3,7 @@ extends Node3D
 var current_weapon : WeaponSlot
 var point_of_collision : Vector3 = Vector3.ZERO
 var rng : RandomNumberGenerator
+var shot_damage_total : float = 0.0
 
 @export var weapon_manager : Node3D
 
@@ -12,7 +13,7 @@ func get_current_weapon(current_weapon_ref : WeaponSlot) -> void:
 	
 func shoot() -> void:
 	if !current_weapon.resources.is_shooting and (
-		(current_weapon.resources.total_ammo_in_mag > 0 and current_weapon.resources.total_ammo_in_mag >= current_weapon.resources.nb_proj_shots_at_same_time)
+		(current_weapon.resources.total_ammo_in_mag > 0)
 		or
 		(
 			current_weapon.resources.all_ammo_in_mag
@@ -24,6 +25,7 @@ func shoot() -> void:
 		
 		#number of successive shots (for example if 3, the weapon will shot 3 times in a row)
 		for i in range(current_weapon.resources.nb_proj_shots):
+			shot_damage_total = 0.0
 			#same conditions has before, are checked before every shot
 			if (
 				(current_weapon.resources.total_ammo_in_mag > 0 and current_weapon.resources.total_ammo_in_mag >= current_weapon.resources.nb_proj_shots_at_same_time)
@@ -31,7 +33,7 @@ func shoot() -> void:
 				(
 					current_weapon.resources.all_ammo_in_mag
 					and weapon_manager.ammo_manager.ammo_dict[current_weapon.resources.ammo_type] > 0
-					and weapon_manager.ammo_manager.ammo_dict[current_weapon.resources.ammo_type] >= current_weapon.resources.nb_proj_shots_at_same_time
+					and weapon_manager.ammo_manager.ammo_dict[current_weapon.resources.ammo_type] > 0
 				)
 			):
 				
@@ -42,13 +44,13 @@ func shoot() -> void:
 				else:
 					print("%s doesn't have a shoot animation" % current_weapon.resources.weapon_name)
 					
+				if current_weapon.resources.all_ammo_in_mag: weapon_manager.ammo_manager.ammo_dict[current_weapon.resources.ammo_type] -= 1
+				else: current_weapon.resources.total_ammo_in_mag -= 1
+				
 				#number projectiles shots at the same time (for example, 
 				#a shotgun shell is constituted of ~ 20 pellets that are spread across the target, 
 				#so 20 projectiles shots at the same time)
 				for j in range(0, current_weapon.resources.nb_proj_shots_at_same_time):
-					if current_weapon.resources.all_ammo_in_mag: weapon_manager.ammo_manager.ammo_dict[current_weapon.resources.ammo_type] -= 1
-					else: current_weapon.resources.total_ammo_in_mag -= 1
-					
 					#get the collision point
 					point_of_collision = get_camera_fov()
 					
@@ -104,17 +106,18 @@ func hitscan_shot(point_of_collision_hitscan : Vector3) -> void:
 		var collider = hitscan_bullet_collision.collider
 		var collider_point : Vector3 = hitscan_bullet_collision.position
 		var collider_normal : Vector3 = hitscan_bullet_collision.normal 
-		var final_damage : int = 0
+		var final_damage : float = 0.0
 		
 		if collider.is_in_group("Enemies") and collider.has_method("hitscan_hit"):
-			@warning_ignore("narrowing_conversion")
 			final_damage = current_weapon.resources.damage_per_proj * current_weapon.resources.damage_dropoff.sample(point_of_collision_hitscan.distance_to(global_position) / current_weapon.resources.max_range)
+			if current_weapon.resources.max_damage_per_shot >= 0.0:
+				final_damage = min(final_damage, max(current_weapon.resources.max_damage_per_shot - shot_damage_total, 0.0))
+				shot_damage_total += final_damage
 			collider.hitscan_hit(final_damage, hitscan_bullet_direction, hitscan_bullet_collision.position)
 		
 		elif collider.is_in_group("EnemiesHead") and collider.has_method("hitscan_hit"):
-				@warning_ignore("narrowing_conversion")
-				final_damage = current_weapon.resources.damage_per_proj * current_weapon.resources.headshot_damage_mult * current_weapon.resources.damage_dropoff.sample(point_of_collision_hitscan.distance_to(global_position) / current_weapon.resources.max_range)
-				collider.hitscan_hit(final_damage, hitscan_bullet_direction, hitscan_bullet_collision.position)
+			final_damage = current_weapon.resources.damage_per_proj * current_weapon.resources.headshot_damage_mult * current_weapon.resources.damage_dropoff.sample(point_of_collision_hitscan.distance_to(global_position) / current_weapon.resources.max_range)
+			collider.hitscan_hit(final_damage, hitscan_bullet_direction, hitscan_bullet_collision.position)
 		
 		elif collider.is_in_group("HitableObjects") and collider.has_method("hitscan_hit"):
 			var structure_damage_per_proj : float = current_weapon.resources.structure_damage_per_proj
