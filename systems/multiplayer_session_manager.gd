@@ -12,6 +12,7 @@ var transport: CMNetTransportENet
 var host_code: String = ""
 var party_code: String = ""
 var session_creation_started: bool = false
+var network_starting: bool = false
 
 func _ready() -> void:
 	_create_session.call_deferred()
@@ -34,7 +35,6 @@ func _create_session() -> void:
 	session.net.max_players_per_peer = 1
 	session.player.max_players = MAX_PLAYERS
 	session.net.net_activated.connect(_on_net_activated)
-	session.net.server_connected.connect(_on_net_activated)
 	session.net.server_connection_failure.connect(_on_connection_failure)
 	session.net.server_disconnected.connect(_on_server_disconnected)
 	session.net.net_stopped.connect(_on_net_stopped)
@@ -127,15 +127,19 @@ func stop_session() -> void:
 		session.net.stop_net()
 
 func _on_net_activated() -> void:
+	network_starting = false
 	network_ready.emit()
 
 func _on_connection_failure() -> void:
+	network_starting = false
 	network_failed.emit("The connection to the host failed.")
 
 func _on_server_disconnected() -> void:
+	network_starting = false
 	network_failed.emit("The host disconnected.")
 
 func _on_net_stopped() -> void:
+	network_starting = false
 	party_code = ""
 	host_code = ""
 	network_stopped.emit()
