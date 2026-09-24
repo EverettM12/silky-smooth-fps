@@ -4,6 +4,8 @@ extends Node3D
 @onready var player: Player = get_node_or_null("Player") as Player
 @onready var start_pos: Node3D = get_node_or_null("Start Pos") as Node3D
 @onready var players_root: Node3D = get_node_or_null("Players") as Node3D
+@onready var weapon_viewport_camera: Camera3D = get_node_or_null("SubViewportContainer/SubViewport/ViewportCam") as Camera3D
+@onready var camera_holder: CameraHolder = get_node_or_null("CameraHolder") as CameraHolder
 
 func _ready() -> void:
 	if not is_instance_valid(start_pos):
@@ -36,6 +38,16 @@ func _ready() -> void:
 		if network_player.player_node == null or not is_instance_valid(network_player.player_node):
 			network_player._spawn_player_node()
 
+	var local_player_node: Player = local_player.player_node as Player
+	if local_player_node == null:
+		CloseGame.close("Local player node could not be resolved.")
+		return
+	player = local_player_node
+	var player_camera: PlayerCamera = player.get_node_or_null("PlayerCamera") as PlayerCamera
+	if player_camera != null:
+		player_camera.weapon_viewport_camera = weapon_viewport_camera
+	if camera_holder != null:
+		camera_holder.configure_player(player)
 	start_pos.hide()
 
 func _input(event: InputEvent) -> void:
