@@ -84,4 +84,4 @@ horizontal_alignment = 1
 
 [node name="LogoutButton" type="Button" parent="CenterContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
-text = "Sign Out"
+text = "Switch Account"
