@@ -34,6 +34,7 @@ func _create_session() -> void:
 	session.net.max_players_per_peer = 1
 	session.player.max_players = MAX_PLAYERS
 	session.net.net_activated.connect(_on_net_activated)
+	session.net.server_connected.connect(_on_net_activated)
 	session.net.server_connection_failure.connect(_on_connection_failure)
 	session.net.server_disconnected.connect(_on_server_disconnected)
 	session.net.net_stopped.connect(_on_net_stopped)
