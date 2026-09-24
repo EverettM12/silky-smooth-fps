@@ -112,16 +112,29 @@ func _refresh_party_slots() -> void:
 			players.append(player)
 	players.sort_custom(_sort_players)
 
+	var local_player: CMPlayer = null
+	var ordered_players: Array[CMPlayer] = []
+	for player in players:
+		if player.is_local:
+			local_player = player
+			break
+
+	if local_player != null:
+		ordered_players.append(local_player)
+
+	for player in players:
+		if player != local_player:
+			ordered_players.append(player)
+
 	for label in party_slot_labels:
 		label.text = "EMPTY"
 
-	var slot_order: Array[int] = [0, 1, 2, 3]
-	for index in range(min(players.size(), slot_order.size())):
-		var player: CMPlayer = players[index]
+	for index in range(min(ordered_players.size(), party_slot_labels.size())):
+		var player: CMPlayer = ordered_players[index]
 		var username: String = player.username.strip_edges()
 		if username == "":
 			username = "Player %d" % (player.player_id + 1)
-		party_slot_labels[slot_order[index]].text = username
+		party_slot_labels[index].text = username
 
 	if multiplayer.is_server():
 		start_game_button.disabled = players.is_empty()
