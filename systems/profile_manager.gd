@@ -1,50 +1,52 @@
 extends Node
 
-signal profile_loaded(username, score)
+signal profile_loaded(username: String, score: int)
 
-var current_username = ""
+var current_username: String = ""
 
-func get_my_id():
-	if Supabase.auth.client:
-		return Supabase.auth.client.id
-	return null
+func get_my_id() -> String:
+	if Supabase.auth.client != null:
+		return str(Supabase.auth.client.id)
+	return ""
 
-func load_profile():
-	var my_id = get_my_id()
-	if not my_id:
-		print("Error: Not logged in.")
-		return
+func load_profile() -> Dictionary:
+	var my_id: String = get_my_id()
+	if my_id == "":
+		return {}
+	var query: SupabaseQuery = SupabaseQuery.new().from("profiles").select(["username", "score"]).eq("id", my_id)
+	var task: DatabaseTask = Supabase.database.query(query)
+	var completed_task: DatabaseTask = await task.completed
+	if completed_task.error or completed_task.data == null:
+		return {}
+	if completed_task.data.size() == 0:
+		return {}
+	var profile: Dictionary = completed_task.data[0]
+	current_username = str(profile.get("username", "")).strip_edges()
+	var score: int = int(profile.get("score", 0))
+	profile_loaded.emit(current_username, score)
+	return profile
 
-	var query = SupabaseQuery.new().from("profiles").select(["username", "score"]).eq("id", my_id)
-	
-	var task = Supabase.database.query(query)
-	task.completed.connect(_on_load_completed)
+func set_username(username: String) -> bool:
+	var my_id: String = get_my_id()
+	var clean_username: String = username.strip_edges()
+	if my_id == "" or clean_username == "":
+		return false
+	var query: SupabaseQuery = SupabaseQuery.new().from("profiles").update({"username": clean_username}).eq("id", my_id)
+	var task: DatabaseTask = Supabase.database.query(query)
+	var completed_task: DatabaseTask = await task.completed
+	if completed_task.error:
+		return false
+	current_username = clean_username
+	return true
 
-func _on_load_completed(task):
-	if task.error:
-		print("Error loading profile: ", task.error)
-	else:
-		if task.data.size() > 0:
-			var profile = task.data[0]
-			print("Profile Loaded: ", profile)
-			
-			var username = profile.get("username", "Unknown")
-			var score = profile.get("score", 0)
-			current_username = username
-			
-			emit_signal("profile_loaded", username, score)
-		else:
-			print("No profile found for this user.")
+func update_score(new_score_value: int) -> bool:
+	var my_id: String = get_my_id()
+	if my_id == "":
+		return false
+	var query: SupabaseQuery = SupabaseQuery.new().from("profiles").update({"score": new_score_value}).eq("id", my_id)
+	var task: DatabaseTask = Supabase.database.query(query)
+	var completed_task: DatabaseTask = await task.completed
+	return not completed_task.error
 
-func update_score(new_score_value: int):
-	var my_id = get_my_id()
-	var query = SupabaseQuery.new().from("profiles").update({"score": new_score_value}).eq("id", my_id)
-	
-	var task = Supabase.database.query(query)
-	task.completed.connect(_on_save_completed)
-
-func _on_save_completed(task):
-	if task.error:
-		print("Error saving data: ", task.error)
-	else:
-		print("Save successful!")
+func clear_profile() -> void:
+	current_username = ""
