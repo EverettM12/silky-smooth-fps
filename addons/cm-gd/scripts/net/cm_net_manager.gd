@@ -365,6 +365,9 @@ func _init_peer_for_rpc_id(peer_id: int, plrids: Array[int] = []) -> CMNetPeer:
 		if peer_id != -1 and existing.peer_id == -1:
 			existing.peer_id = peer_id
 			peer_id_to_peer[peer_id] = existing
+		for plrid in plrids:
+			if not existing.player_ids.has(plrid):
+				_net_spawn_player(plrid, peer_id)
 		return existing
 
 	var peer := CMNetPeer.new()
@@ -480,6 +483,11 @@ func _net_rpc_handler(_is_reliable: bool, obj_path: NodePath, method_name: Strin
 						can_call = true
 				
 				var from_peer := get_peer_from_rpc_id(from_peer_id)
+
+				if from_peer == null:
+					var connected_peer_ids: PackedInt32Array = multiplayer.get_peers()
+					if from_peer_id == my_peer_id or connected_peer_ids.has(from_peer_id):
+						from_peer = _init_peer_for_rpc_id(from_peer_id)
 
 				if from_peer == null:
 					push_error("_net_rpc_handler: received RPC from invalid peer with peer_id %d" % from_peer_id)
