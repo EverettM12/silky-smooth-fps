@@ -1652,7 +1652,7 @@ attack_point = NodePath("AssaultRifleModel/AssaultRifleAttackPoint")
 muzzle_flash_spawner = NodePath("AssaultRifleModel/AssaultRifleMuzzleFlashSpawner")
 
 [node name="AssaultRifleModel" type="Node3D" parent="WeaponManager/WeaponContainer/AssaultRifle" unique_id=283046339]
-transform = Transform3D(0.17364818, 0, 0.9848075, 0, 1, 0, -0.9848075, 0, 0.17364818, 0, 0, -0.006)
+transform = Transform3D(0.17364818, 0, 0.98480743, 0, 1, 0, -0.98480743, 0, 0.17364818, 0, 0, -0.006)
 
 [node name="AssaultRifle" type="MeshInstance3D" parent="WeaponManager/WeaponContainer/AssaultRifle/AssaultRifleModel" unique_id=247862400]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0014336891, -2.3283064e-10, 0)

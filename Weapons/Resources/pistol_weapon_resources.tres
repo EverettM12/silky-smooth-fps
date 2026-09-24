@@ -21,7 +21,6 @@ total_ammo_in_mag = 15
 total_ammo_in_mag_ref = 15
 equip_time = 0.2
 unequip_time = 0.2
-can_auto_shoot = true
 min_spread = -0.03
 max_spread = 0.03
 max_range = 220.0

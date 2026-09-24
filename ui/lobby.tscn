@@ -1,8 +1,8 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3 uid="uid://bc56upvm4s5qm"]
 
-[ext_resource type="Script" path="res://ui/lobby.gd" id="1"]
+[ext_resource type="Script" uid="uid://cmbhkkv1bwtp8" path="res://ui/lobby.gd" id="1"]
 
-[node name="Lobby" type="Control"]
+[node name="Lobby" type="Control" unique_id=536371403]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -11,22 +11,20 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="Background" type="ColorRect" parent="." unique_id=549725966]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.035, 0.04, 0.05, 1)
 mouse_filter = 2
+color = Color(0.035, 0.04, 0.05, 1)
 
-[node name="Title" type="Label" parent="."]
+[node name="Title" type="Label" parent="." unique_id=911558422]
 layout_mode = 0
 anchor_left = 0.5
-anchor_top = 0.0
 anchor_right = 0.5
-anchor_bottom = 0.0
 offset_left = -260.0
 offset_top = 28.0
 offset_right = 260.0
@@ -35,12 +33,10 @@ theme_override_font_sizes/font_size = 34
 text = "PARTY"
 horizontal_alignment = 1
 
-[node name="PartyCode" type="Label" parent="."]
+[node name="PartyCode" type="Label" parent="." unique_id=1192705924]
 layout_mode = 0
 anchor_left = 0.5
-anchor_top = 0.0
 anchor_right = 0.5
-anchor_bottom = 0.0
 offset_left = -220.0
 offset_top = 78.0
 offset_right = 220.0
@@ -49,7 +45,7 @@ theme_override_font_sizes/font_size = 18
 text = "Party Code: --"
 horizontal_alignment = 1
 
-[node name="PartyStage" type="Control" parent="."]
+[node name="PartyStage" type="Control" parent="." unique_id=762933780]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -58,148 +54,181 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="Slot1" type="PanelContainer" parent="PartyStage"]
-layout_mode = 0
-anchor_left = 0.5
-anchor_top = 0.45
-anchor_right = 0.5
-anchor_bottom = 0.45
-offset_left = -170.0
-offset_top = -70.0
-offset_right = 170.0
-offset_bottom = 70.0
+[node name="MarginContainer" type="MarginContainer" parent="PartyStage" unique_id=1985297504]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_bottom = 350
 
-[node name="Username" type="Label" parent="PartyStage/Slot1"]
+[node name="HBoxContainer" type="HBoxContainer" parent="PartyStage/MarginContainer" unique_id=1081429436]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_constants/separation = 200
+
+[node name="Slot1" type="PanelContainer" parent="PartyStage/MarginContainer/HBoxContainer" unique_id=2111238823]
+layout_mode = 2
+
+[node name="Username" type="Label" parent="PartyStage/MarginContainer/HBoxContainer/Slot1" unique_id=1591594272]
 layout_mode = 2
 theme_override_font_sizes/font_size = 28
 text = "EMPTY"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Slot2" type="PanelContainer" parent="PartyStage"]
-layout_mode = 0
-anchor_left = 0.666
-anchor_top = 0.45
-anchor_right = 0.666
-anchor_bottom = 0.45
-offset_left = -150.0
-offset_top = -62.0
-offset_right = 150.0
-offset_bottom = 62.0
+[node name="Slot2" type="PanelContainer" parent="PartyStage/MarginContainer/HBoxContainer" unique_id=416339258]
+layout_mode = 2
 
-[node name="Username" type="Label" parent="PartyStage/Slot2"]
+[node name="Username" type="Label" parent="PartyStage/MarginContainer/HBoxContainer/Slot2" unique_id=908584491]
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "EMPTY"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Slot3" type="PanelContainer" parent="PartyStage"]
-layout_mode = 0
-anchor_left = 0.333
-anchor_top = 0.45
-anchor_right = 0.333
-anchor_bottom = 0.45
-offset_left = -150.0
-offset_top = -62.0
-offset_right = 150.0
-offset_bottom = 62.0
+[node name="Slot3" type="PanelContainer" parent="PartyStage/MarginContainer/HBoxContainer" unique_id=829909159]
+layout_mode = 2
 
-[node name="Username" type="Label" parent="PartyStage/Slot3"]
+[node name="Username" type="Label" parent="PartyStage/MarginContainer/HBoxContainer/Slot3" unique_id=964240005]
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "EMPTY"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Slot4" type="PanelContainer" parent="PartyStage"]
-layout_mode = 0
-anchor_left = 0.88
-anchor_top = 0.45
-anchor_right = 0.88
-anchor_bottom = 0.45
-offset_left = -140.0
-offset_top = -58.0
-offset_right = 140.0
-offset_bottom = 58.0
+[node name="Slot4" type="PanelContainer" parent="PartyStage/MarginContainer/HBoxContainer" unique_id=1503348217]
+layout_mode = 2
 
-[node name="Username" type="Label" parent="PartyStage/Slot4"]
+[node name="Username" type="Label" parent="PartyStage/MarginContainer/HBoxContainer/Slot4" unique_id=938825334]
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
 text = "EMPTY"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="BottomPanel" type="PanelContainer" parent="."]
-layout_mode = 0
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1429818197]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -360.0
-offset_top = -285.0
-offset_right = 360.0
-offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 250
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
 
-[node name="VBoxContainer" type="VBoxContainer" parent="BottomPanel"]
+[node name="BottomPanel" type="PanelContainer" parent="MarginContainer" unique_id=1462776809]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/BottomPanel" unique_id=1901951085]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="ConnectionRow" type="HBoxContainer" parent="BottomPanel/VBoxContainer"]
+[node name="MarginContainer4" type="MarginContainer" parent="MarginContainer/BottomPanel/VBoxContainer" unique_id=1525255102]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="StartGameButton" type="Button" parent="MarginContainer/BottomPanel/VBoxContainer/MarginContainer4" unique_id=1648898912]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "Start Game"
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/BottomPanel/VBoxContainer" unique_id=673629563]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="ConnectionRow" type="HBoxContainer" parent="MarginContainer/BottomPanel/VBoxContainer/MarginContainer" unique_id=124193464]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="HostButton" type="Button" parent="BottomPanel/VBoxContainer/ConnectionRow"]
+[node name="HostButton" type="Button" parent="MarginContainer/BottomPanel/VBoxContainer/MarginContainer/ConnectionRow" unique_id=869721729]
 custom_minimum_size = Vector2(130, 42)
 layout_mode = 2
 text = "Host Game"
 
-[node name="JoinInput" type="LineEdit" parent="BottomPanel/VBoxContainer/ConnectionRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-placeholder_text = "Host address"
-
-[node name="JoinButton" type="Button" parent="BottomPanel/VBoxContainer/ConnectionRow"]
+[node name="JoinButton" type="Button" parent="MarginContainer/BottomPanel/VBoxContainer/MarginContainer/ConnectionRow" unique_id=1559598306]
 custom_minimum_size = Vector2(130, 42)
 layout_mode = 2
 text = "Join Game"
 
-[node name="InviteRow" type="HBoxContainer" parent="BottomPanel/VBoxContainer"]
+[node name="JoinInput" type="LineEdit" parent="MarginContainer/BottomPanel/VBoxContainer/MarginContainer/ConnectionRow" unique_id=1892128650]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Host address"
+
+[node name="MarginContainer2" type="MarginContainer" parent="MarginContainer/BottomPanel/VBoxContainer" unique_id=1686734435]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="InviteRow" type="HBoxContainer" parent="MarginContainer/BottomPanel/VBoxContainer/MarginContainer2" unique_id=832001017]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="InviteUsername" type="LineEdit" parent="BottomPanel/VBoxContainer/InviteRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-placeholder_text = "Friend username"
-
-[node name="InviteButton" type="Button" parent="BottomPanel/VBoxContainer/InviteRow"]
+[node name="InviteButton" type="Button" parent="MarginContainer/BottomPanel/VBoxContainer/MarginContainer2/InviteRow" unique_id=1001223850]
 custom_minimum_size = Vector2(100, 38)
 layout_mode = 2
 text = "Invite"
 
-[node name="PendingInviteLabel" type="Label" parent="BottomPanel/VBoxContainer"]
+[node name="InviteUsername" type="LineEdit" parent="MarginContainer/BottomPanel/VBoxContainer/MarginContainer2/InviteRow" unique_id=745839867]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Friend username"
+
+[node name="MarginContainer3" type="MarginContainer" parent="MarginContainer/BottomPanel/VBoxContainer" unique_id=1993695181]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/BottomPanel/VBoxContainer/MarginContainer3" unique_id=160020278]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="AcceptInviteButton" type="Button" parent="MarginContainer/BottomPanel/VBoxContainer/MarginContainer3/VBoxContainer" unique_id=612185476]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+text = "Accept Invite"
+
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/BottomPanel/VBoxContainer/MarginContainer3/VBoxContainer" unique_id=323754820]
+layout_mode = 2
+
+[node name="SwitchAccountButton" type="Button" parent="MarginContainer/BottomPanel/VBoxContainer/MarginContainer3/VBoxContainer" unique_id=814236856]
+layout_mode = 2
+text = "Switch Account"
+
+[node name="MarginContainer5" type="MarginContainer" parent="MarginContainer/BottomPanel/VBoxContainer" unique_id=554790161]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/BottomPanel/VBoxContainer/MarginContainer5" unique_id=1243355744]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="PendingInviteLabel" type="Label" parent="MarginContainer/BottomPanel/VBoxContainer/MarginContainer5/VBoxContainer" unique_id=2135295128]
 layout_mode = 2
 text = "Party invite"
 horizontal_alignment = 1
 autowrap_mode = 2
 
-[node name="AcceptInviteButton" type="Button" parent="BottomPanel/VBoxContainer"]
-custom_minimum_size = Vector2(0, 38)
-layout_mode = 2
-text = "Accept Invite"
-
-[node name="StartGameButton" type="Button" parent="BottomPanel/VBoxContainer"]
-custom_minimum_size = Vector2(0, 48)
-layout_mode = 2
-text = "Start Game"
-
-[node name="StatusLabel" type="Label" parent="BottomPanel/VBoxContainer"]
+[node name="StatusLabel" type="Label" parent="MarginContainer/BottomPanel/VBoxContainer/MarginContainer5/VBoxContainer" unique_id=436972028]
 layout_mode = 2
 text = "Host a party or join a friend's party."
 horizontal_alignment = 1
 autowrap_mode = 2
-
-[node name="SwitchAccountButton" type="Button" parent="BottomPanel/VBoxContainer"]
-layout_mode = 2
-text = "Switch Account"

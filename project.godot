@@ -37,14 +37,12 @@ Shortcuts/density_decrement=Object(Shortcut,"resource_local_to_scene":false,"res
 config/name="silky-smooth-fps"
 run/main_scene="res://ui/startup.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
-run/max_fps=300
 
 [autoload]
 
 SimpleGrass="*uid://bfq0snth8sj3h"
 CloseGame="*uid://c0ojvjqll0l67"
 Supabase="*uid://w2nx6eeq2fyf"
-SavedAccounts="*res://systems/saved_accounts.gd"
 MultiplayerSessionManager="*res://systems/multiplayer_session_manager.gd"
 NetworkTime="*uid://cnqdxyjptkfvp"
 NetworkTimeSynchronizer="*uid://5rmn2ik3kjo8"
@@ -53,12 +51,14 @@ NetworkEvents="*uid://bdmobxxptryj0"
 NetworkPerformance="*uid://cqgf7aqmjfoa3"
 UserProfile="*uid://ck0jsbfwm0os"
 InviteManager="*uid://b14uqqlgl32b1"
+SavedAccounts="*res://systems/saved_accounts.gd"
 
 [display]
 
 window/size/mode=3
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
+window/vsync/vsync_mode=0
 
 [editor_plugins]
 
