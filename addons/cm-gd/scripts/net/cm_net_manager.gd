@@ -94,6 +94,7 @@ func _enter_tree() -> void:
 	super()
 	if Engine.is_editor_hint(): return
 	multiplayer.peer_disconnected.connect(_peer_disconnected)
+	multiplayer.peer_connected.connect(_peer_connected)
 	multiplayer.connected_to_server.connect(_connected_to_server)
 	multiplayer.connection_failed.connect(_connection_failed)
 	multiplayer.server_disconnected.connect(_disconnected_from_server)
@@ -195,8 +196,14 @@ func _cleanup_net(except_local: bool = false) -> void:
 func _connection_failed() -> void:
 	server_connection_failure.emit()
 
+func _peer_connected(peer_id: int) -> void:
+	if peer_id == multiplayer.get_unique_id():
+		return
+	_init_peer_from_rpc_id(peer_id)
+
 func _connected_to_server() -> void:
 	my_peer_id = multiplayer.get_unique_id()
+	_init_peer_for_rpc_id(my_peer_id)
 	_debug_update_wintitle()
 	# request peer from server
 	_net_req_peer.rpc_id(1)
@@ -427,13 +434,15 @@ func _rpc_raw(peer: int, object: Object, method_name: StringName, args: Array) -
 			
 			var call_myself_too := false
 			
-			if peer == 0: # Call every remote peers (everyone)
+			var active_peer_ids: PackedInt32Array = multiplayer.get_peers()
+			if peer == 0:
 				for pid in remote_peers:
-					rpc2call.rpc_id(pid.peer_id, n.get_path(), method_name, args)
+					if active_peer_ids.has(pid.peer_id):
+						rpc2call.rpc_id(pid.peer_id, n.get_path(), method_name, args)
 				call_myself_too = true
-			elif peer == my_peer_id: # Call yourself
+			elif peer == my_peer_id:
 				call_myself_too = true
-			else: # (Call a specific peer)
+			elif active_peer_ids.has(peer):
 				rpc2call.rpc_id(peer, n.get_path(), method_name, args)
 			
 			# Handle call_local
@@ -480,6 +489,11 @@ func _net_rpc_handler(_is_reliable: bool, obj_path: NodePath, method_name: Strin
 						can_call = true
 				
 				var from_peer := get_peer_from_rpc_id(from_peer_id)
+
+				if from_peer == null:
+					var active_peer_ids: PackedInt32Array = multiplayer.get_peers()
+					if from_peer_id == my_peer_id or active_peer_ids.has(from_peer_id):
+						from_peer = _init_peer_for_rpc_id(from_peer_id)
 
 				if from_peer == null:
 					push_error("_net_rpc_handler: received RPC from invalid peer with peer_id %d" % from_peer_id)
