@@ -10,6 +10,10 @@ extends CharacterBody3D
 @export var minimum_pitch_degrees: float = -89.0
 @export var maximum_pitch_degrees: float = 89.0
 
+@export_group("Health")
+@export var max_health: float = 100.0
+var health: float = 100.0
+
 @export_group("Cursor")
 @export var capture_mouse_on_ready: bool = true
 @export_group("")
@@ -18,6 +22,11 @@ extends CharacterBody3D
 @onready var player_input: PlayerInput = $PlayerInput
 @onready var player_movement: PlayerMovement = $PlayerMovement
 @onready var camera: Camera3D = $Head/CameraMotion/Camera3D
+@onready var health_ui: Control = $HealthUI/Root
+@onready var health_bar: ProgressBar = $HealthUI/Root/MarginContainer/VBoxContainer/HealthBar
+@onready var health_label: Label = $HealthUI/Root/MarginContainer/VBoxContainer/HealthLabel
+
+signal health_changed(current_health: float, current_max_health: float)
 
 var target_pitch: float = 0.0
 var smoothed_look_input: Vector2 = Vector2.ZERO
@@ -39,6 +48,9 @@ func configure_networked(local: bool, player_id: int, authority_id: int) -> void
 		_apply_network_mode()
 
 func _ready() -> void:
+	health = clampf(max_health, 0.0, max_health)
+	health_changed.connect(_update_health_ui)
+	_update_health_ui(health, max_health)
 	if networked:
 		_apply_network_mode()
 	elif capture_mouse_on_ready:
@@ -58,6 +70,7 @@ func _apply_network_mode() -> void:
 		if traversal_node != null:
 			traversal_node.process_mode = Node.PROCESS_MODE_DISABLED
 		camera.current = false
+		health_ui.visible = false
 		return
 	player_input.process_mode = Node.PROCESS_MODE_INHERIT
 	player_movement.process_mode = Node.PROCESS_MODE_INHERIT
@@ -68,6 +81,7 @@ func _apply_network_mode() -> void:
 	if traversal_node != null:
 		traversal_node.process_mode = Node.PROCESS_MODE_INHERIT
 	camera.current = true
+	health_ui.visible = true
 	if capture_mouse_on_ready:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	network_target_position = global_position
@@ -99,6 +113,43 @@ func _receive_network_state(target_position: Vector3, target_velocity: Vector3, 
 
 func _send_network_state() -> void:
 	_receive_network_state.rpc(global_position, velocity, rotation.y, head.rotation.x)
+
+func apply_weapon_damage(damage: float) -> void:
+	if damage <= 0.0 or health <= 0.0:
+		return
+	if networked and multiplayer.has_multiplayer_peer():
+		if is_multiplayer_authority():
+			_apply_damage_authority(damage)
+		else:
+			_request_damage.rpc_id(get_multiplayer_authority(), damage)
+		return
+	_apply_damage_authority(damage)
+
+@rpc("any_peer", "reliable", "call_remote")
+func _request_damage(damage: float) -> void:
+	if not is_multiplayer_authority():
+		return
+	_apply_damage_authority(damage)
+
+func _apply_damage_authority(damage: float) -> void:
+	if damage <= 0.0 or health <= 0.0:
+		return
+	health = maxf(health - damage, 0.0)
+	health_changed.emit(health, max_health)
+	if networked and multiplayer.has_multiplayer_peer():
+		_receive_health.rpc(health)
+
+@rpc("authority", "reliable", "call_remote")
+func _receive_health(current_health: float) -> void:
+	health = clampf(current_health, 0.0, max_health)
+	health_changed.emit(health, max_health)
+
+func _update_health_ui(current_health: float, current_max_health: float) -> void:
+	if health_bar == null or health_label == null:
+		return
+	health_bar.max_value = current_max_health
+	health_bar.value = current_health
+	health_label.text = "%d / %d" % [roundi(current_health), roundi(current_max_health)]
 
 func _unhandled_input(event: InputEvent) -> void:
 	if networked and not is_local_player:
