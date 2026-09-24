@@ -46,6 +46,24 @@ layout_mode = 2
 text = "Sign in to enter the multiplayer lobby."
 horizontal_alignment = 1
 
+[node name="AccountChooser" type="VBoxContainer" parent="CenterContainer/PanelContainer/VBoxContainer" unique_id=1438477201]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="AccountsTitle" type="Label" parent="CenterContainer/PanelContainer/VBoxContainer/AccountChooser" unique_id=1887277031]
+layout_mode = 2
+text = "Choose an account"
+horizontal_alignment = 1
+
+[node name="AccountsList" type="VBoxContainer" parent="CenterContainer/PanelContainer/VBoxContainer/AccountChooser" unique_id=1887277032]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="AddAccountButton" type="Button" parent="CenterContainer/PanelContainer/VBoxContainer/AccountChooser" unique_id=1887277033]
+layout_mode = 2
+text = "Add Account"
+
 [node name="EmailInput" type="LineEdit" parent="CenterContainer/PanelContainer/VBoxContainer" unique_id=684318678]
 layout_mode = 2
 placeholder_text = "Email"
@@ -76,6 +94,11 @@ text = "Register"
 [node name="SubmitButton" type="Button" parent="CenterContainer/PanelContainer/VBoxContainer" unique_id=890716623]
 layout_mode = 2
 text = "Sign In"
+
+[node name="BackToAccountsButton" type="Button" parent="CenterContainer/PanelContainer/VBoxContainer" unique_id=890716624]
+visible = false
+layout_mode = 2
+text = "Back to Accounts"
 
 [node name="StatusLabel" type="Label" parent="CenterContainer/PanelContainer/VBoxContainer" unique_id=1493395102]
 layout_mode = 2
