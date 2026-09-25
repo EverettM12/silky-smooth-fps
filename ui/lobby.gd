@@ -28,6 +28,7 @@ func _process(_delta: float) -> void:
 		_refresh_party_slots()
 
 func _ready() -> void:
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	if not MultiplayerSessionManager.network_ready.is_connected(_on_network_ready):
 		MultiplayerSessionManager.network_ready.connect(_on_network_ready)
 	if not MultiplayerSessionManager.network_failed.is_connected(_on_network_failed):
@@ -204,6 +205,7 @@ func _on_accept_invite_pressed() -> void:
 	_on_join_pressed()
 
 func _on_start_game_pressed() -> void:
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	if transitioning or not party_initialized or MultiplayerSessionManager.mpc == null:
 		return
 	if not MultiplayerSessionManager.mpc.is_server:
