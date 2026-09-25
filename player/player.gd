@@ -26,6 +26,8 @@ var health: float = 100.0
 @onready var health_bar: ProgressBar = $HealthUI/Root/MarginContainer/VBoxContainer/HealthBar
 @onready var health_label: Label = $HealthUI/Root/MarginContainer/VBoxContainer/HealthLabel
 @onready var mpp: MPPlayer = get_parent() as MPPlayer
+@onready var mp_transform_sync: MPTransformSync = get_node_or_null("MPTransformSync") as MPTransformSync
+@onready var mp_head_transform_sync: MPTransformSync = get_node_or_null("Head/MPHeadTransformSync") as MPTransformSync
 
 signal health_changed(current_health: float, current_max_health: float)
 
@@ -96,25 +98,17 @@ func _ensure_multiplay_sync_nodes() -> void:
 	if mpp == null or MPIO.mpc == null:
 		return
 
-	_ensure_transform_sync(self, "MPTransformSync", true, true)
-	_ensure_transform_sync(head, "MPHeadTransformSync", false, true)
+	if mp_transform_sync != null:
+		mp_transform_sync.sync_position = true
+		mp_transform_sync.sync_rotation = true
+		mp_transform_sync.sync_scale = false
+		mp_transform_sync.set_multiplayer_authority(get_multiplayer_authority(), true)
 
-func _ensure_transform_sync(
-	target: Node3D,
-	sync_name: String,
-	sync_position: bool,
-	sync_rotation: bool
-) -> void:
-	if target == null or target.get_node_or_null(sync_name) != null:
-		return
-
-	var sync: MPTransformSync = MPTransformSync.new()
-	sync.name = sync_name
-	sync.sync_position = sync_position
-	sync.sync_rotation = sync_rotation
-	sync.sync_scale = false
-	sync.set_multiplayer_authority(get_multiplayer_authority(), true)
-	target.add_child(sync, true)
+	if mp_head_transform_sync != null:
+		mp_head_transform_sync.sync_position = false
+		mp_head_transform_sync.sync_rotation = true
+		mp_head_transform_sync.sync_scale = false
+		mp_head_transform_sync.set_multiplayer_authority(get_multiplayer_authority(), true)
 
 func hitscan_hit(damage_val: float, _hitscan_dir: Vector3, _hitscan_pos: Vector3) -> void:
 	apply_weapon_damage(damage_val)
