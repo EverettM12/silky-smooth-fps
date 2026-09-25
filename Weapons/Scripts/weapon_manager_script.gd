@@ -35,9 +35,14 @@ signal weapon_stack_updated
 
 func _ready() -> void:
 	if player == null:
-		push_error("WeaponManager requires a Player reference.")
+		visible = false
+		process_mode = Node.PROCESS_MODE_DISABLED
 		return
 	await player.ready
+	if player.mpp != null and not player.mpp.is_local:
+		visible = false
+		process_mode = Node.PROCESS_MODE_DISABLED
+		return
 	head = player.get_node_or_null("Head") as Node3D
 	if head == null:
 		push_error("WeaponManager could not find Player/Head.")
@@ -47,6 +52,9 @@ func _ready() -> void:
 func initialize() -> void:
 	for weapon in weapon_container.get_children():
 		weapon.model.hide()
+		var resource_copy: WeaponResource = weapon.resources.duplicate(true) as WeaponResource
+		resource_copy.weapon_slot = weapon
+		weapon.resources = resource_copy
 		weapon_list[weapon.resources.weapon_id] = weapon
 		
 	for weapon in start_weapons:
