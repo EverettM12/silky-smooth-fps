@@ -113,8 +113,6 @@ func _pick_transport() -> CMNetTransportBase:
 
 func start_server() -> void:
 	_deinit_before_start_new() # Cleanup Previous Multiplayer Peer before starting a new one
-	is_server = true
-	is_connected_to_server = true
 	
 	if _is_debug and debug_warning_identifier:
 		push_warning("[CM] Server")
@@ -127,6 +125,7 @@ func start_server() -> void:
 	current_multiplayer_peer = t.net_host()
 	multiplayer.multiplayer_peer = current_multiplayer_peer
 	
+	is_server = true
 	is_net_active = true
 	
 	# Assign 1 to itself
@@ -144,8 +143,6 @@ func start_server() -> void:
 
 func start_client() -> void:
 	_deinit_before_start_new() # Cleanup Previous Multiplayer Peer before starting a new one
-	is_server = false
-	is_connected_to_server = false
 	
 	var t := _pick_transport()
 	if t == null:
@@ -182,8 +179,6 @@ func _deinit_mpeer() -> void:
 func stop_net() -> void:
 	if not is_net_active: return
 	is_net_active = false
-	is_connected_to_server = false
-	is_server = false
 	_deinit_mpeer()
 	_cleanup_net()
 	my_peer_id = 0
@@ -202,7 +197,6 @@ func _connection_failed() -> void:
 
 func _connected_to_server() -> void:
 	my_peer_id = multiplayer.get_unique_id()
-	_init_peer_for_rpc_id(my_peer_id)
 	_debug_update_wintitle()
 	# request peer from server
 	_net_req_peer.rpc_id(1)
@@ -284,14 +278,14 @@ func does_peer_owns_plr(peer: CMNetPeer, plr: CMPlayer) -> bool:
 func _init_peer_from_rpc_id(peer_id: int) -> void:
 	var peer: CMNetPeer = _init_peer_for_rpc_id(peer_id)
 	
+	# if already initalized, return
 	if peer.initializing or peer.initialized:
 		return
-	
+
 	peer.initializing = true
 	
 	for ep in connected_peers:
-		if ep == peer:
-			continue
+		# Cross introduce each other
 		_net_init_newpeer.rpc_id(ep.peer_id, peer.peer_id, peer.player_ids)
 		_net_init_newpeer.rpc_id(peer.peer_id, ep.peer_id, ep.player_ids)
 	
@@ -371,9 +365,6 @@ func _init_peer_for_rpc_id(peer_id: int, plrids: Array[int] = []) -> CMNetPeer:
 		if peer_id != -1 and existing.peer_id == -1:
 			existing.peer_id = peer_id
 			peer_id_to_peer[peer_id] = existing
-		for plrid in plrids:
-			if not existing.player_ids.has(plrid):
-				_net_spawn_player(plrid, peer_id)
 		return existing
 
 	var peer := CMNetPeer.new()
@@ -436,15 +427,13 @@ func _rpc_raw(peer: int, object: Object, method_name: StringName, args: Array) -
 			
 			var call_myself_too := false
 			
-			var active_peer_ids: PackedInt32Array = multiplayer.get_peers()
-			if peer == 0:
+			if peer == 0: # Call every remote peers (everyone)
 				for pid in remote_peers:
-					if active_peer_ids.has(pid.peer_id):
-						rpc2call.rpc_id(pid.peer_id, n.get_path(), method_name, args)
+					rpc2call.rpc_id(pid.peer_id, n.get_path(), method_name, args)
 				call_myself_too = true
-			elif peer == my_peer_id:
+			elif peer == my_peer_id: # Call yourself
 				call_myself_too = true
-			elif active_peer_ids.has(peer):
+			else: # (Call a specific peer)
 				rpc2call.rpc_id(peer, n.get_path(), method_name, args)
 			
 			# Handle call_local
@@ -491,11 +480,6 @@ func _net_rpc_handler(_is_reliable: bool, obj_path: NodePath, method_name: Strin
 						can_call = true
 				
 				var from_peer := get_peer_from_rpc_id(from_peer_id)
-
-				if from_peer == null:
-					var active_peer_ids: PackedInt32Array = multiplayer.get_peers()
-					if from_peer_id == my_peer_id or active_peer_ids.has(from_peer_id):
-						from_peer = _init_peer_for_rpc_id(from_peer_id)
 
 				if from_peer == null:
 					push_error("_net_rpc_handler: received RPC from invalid peer with peer_id %d" % from_peer_id)
