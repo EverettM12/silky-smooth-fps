@@ -17,7 +17,11 @@ func get_current_weapon(current_weapon_ref : WeaponSlot) -> void:
 	current_weapon = current_weapon_ref
 
 func _process(delta : float) -> void:
-	if current_weapon and current_weapon.model:
+	if weapon_manager != null and play_char == null:
+		play_char = weapon_manager.player
+	if weapon_manager != null and camera_holder == null:
+		camera_holder = weapon_manager.get_node_or_null("CameraHolder") as CameraHolder
+	if current_weapon and current_weapon.model and play_char != null and camera_holder != null:
 		var tilt_values : Vector3 = weapon_tilt_calculus(play_char.player_movement.input_direction, delta) #rot
 		var sway_values : Array[Vector3] = weapon_sway_calculus(camera_holder.mouse_input, delta) #pos and rot
 		var bob_values : Vector3 = weapon_bob_calculus(play_char.velocity.length(),delta) #pos
