@@ -4,7 +4,6 @@
 [ext_resource type="Material" uid="uid://jsgqge4jl1ik" path="res://world/environment/TestTexture.tres" id="1_x1qn8"]
 [ext_resource type="Material" uid="uid://6u88olfmw7p8" path="res://assets/day_sky.tres" id="4_0snqu"]
 [ext_resource type="PackedScene" path="res://ui/ui_manager.tscn" id="5_0snqu"]
-[ext_resource type="PackedScene" uid="uid://duaw88l443ytl" path="res://world/levels/player.tscn" id="7_ip6xv"]
 [ext_resource type="Script" uid="uid://d2jpda3mq5jpa" path="res://Weapons/Scripts/weapon_manager_script.gd" id="14_rvrpt"]
 [ext_resource type="Script" uid="uid://bcka80usfl4am" path="res://Weapons/Scripts/weapon_slot_script.gd" id="15_4ag61"]
 [ext_resource type="Resource" uid="uid://j42d6dl8qkaj" path="res://Weapons/Resources/pistol_weapon_resources.tres" id="16_p7740"]
@@ -1601,10 +1600,9 @@ text = "....."
 label_settings = ExtResource("31_4ag61")
 vertical_alignment = 1
 
-[node name="WeaponManager" type="Node3D" parent="." unique_id=1231999646 node_paths=PackedStringArray("player", "start_weapons", "camera_recoil_holder", "viewport_cam", "weapon_container", "shoot_manager", "reload_manager", "ammo_manager", "anim_player", "anim_manager", "hud", "link_component")]
+[node name="WeaponManager" type="Node3D" parent="." unique_id=1231999646 node_paths=PackedStringArray("start_weapons", "camera_recoil_holder", "viewport_cam", "weapon_container", "shoot_manager", "reload_manager", "ammo_manager", "anim_player", "anim_manager", "hud", "link_component")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 1.6, 0)
 script = ExtResource("14_rvrpt")
-player = NodePath("../Player")
 start_weapons = [NodePath("WeaponContainer/Pistol"), NodePath("WeaponContainer/AssaultRifle"), NodePath("WeaponContainer/Shotgun"), NodePath("WeaponContainer/SniperRifle"), NodePath("WeaponContainer/RocketLauncher")]
 camera_recoil_holder = NodePath("../CameraHolder/CameraRecoilHolder")
 viewport_cam = NodePath("../SubViewportContainer/SubViewport/ViewportCam")
@@ -1850,10 +1848,9 @@ weapon_manager = NodePath("..")
 [node name="AmmunitionManager" type="Node3D" parent="WeaponManager" unique_id=240941927]
 script = ExtResource("24_uhtiy")
 
-[node name="AnimationManager" type="Node3D" parent="WeaponManager" unique_id=1632658382 node_paths=PackedStringArray("camera_holder", "play_char", "anim_player", "weapon_manager")]
+[node name="AnimationManager" type="Node3D" parent="WeaponManager" unique_id=1632658382 node_paths=PackedStringArray("camera_holder", "anim_player", "weapon_manager")]
 script = ExtResource("25_80sse")
 camera_holder = NodePath("../../CameraHolder")
-play_char = NodePath("../../Player")
 anim_player = NodePath("../AnimationPlayer")
 weapon_manager = NodePath("..")
 
@@ -1864,10 +1861,9 @@ libraries/ = SubResource("AnimationLibrary_80sse")
 script = ExtResource("26_rond0")
 ammo_manager = NodePath("../AmmunitionManager")
 
-[node name="CameraHolder" type="Node3D" parent="." unique_id=2089703602 node_paths=PackedStringArray("player", "recoil_holder")]
+[node name="CameraHolder" type="Node3D" parent="." unique_id=2089703602 node_paths=PackedStringArray("recoil_holder")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0.715, 0)
 script = ExtResource("33_ts5xw")
-player = NodePath("../Player")
 recoil_holder = NodePath("CameraRecoilHolder")
 
 [node name="CameraRecoilHolder" type="Node3D" parent="CameraHolder" unique_id=837187915]
@@ -1879,8 +1875,6 @@ cull_mask = 1
 fov = 90.0
 near = 0.01
 far = 1000.0
-
-[node name="Player" parent="." unique_id=893122104 instance=ExtResource("7_ip6xv")]
 
 [node name="Start Pos" type="MeshInstance3D" parent="." unique_id=1242634339]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21, 1, -3)
