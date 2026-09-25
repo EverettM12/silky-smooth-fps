@@ -36,6 +36,8 @@ func _ready() -> void:
 		MultiplayerSessionManager.network_stopped.connect(_on_network_stopped)
 	if not MultiplayerSessionManager.party_updated.is_connected(_on_party_updated):
 		MultiplayerSessionManager.party_updated.connect(_on_party_updated)
+	if not MultiplayerSessionManager.game_started.is_connected(_on_game_started):
+		MultiplayerSessionManager.game_started.connect(_on_game_started)
 	if not InviteManager.invite_received.is_connected(_on_invite_received):
 		InviteManager.invite_received.connect(_on_invite_received)
 
@@ -83,6 +85,9 @@ func _on_party_updated() -> void:
 	if not party_initialized:
 		return
 	_refresh_party_slots()
+
+func _on_game_started() -> void:
+	_hide_lobby()
 
 func _refresh_party_slots() -> void:
 	if not party_initialized or MultiplayerSessionManager.mpc == null:
@@ -148,7 +153,7 @@ func _set_party_ui(connected: bool) -> void:
 
 	if connected:
 		join_input.text = ""
-	start_game_button.disabled = not is_host or not MultiplayerSessionManager.is_party_ready_to_start()
+		start_game_button.disabled = not is_host or not MultiplayerSessionManager.is_party_ready_to_start()
 		if is_host:
 			status_label.text = "Party ready. Invite players or start the game."
 		else:
