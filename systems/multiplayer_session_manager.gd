@@ -3,102 +3,110 @@ extends Node
 signal network_ready
 signal network_failed(message: String)
 signal network_stopped
+signal party_updated
 
 const DEFAULT_PORT: int = 6769
 const MAX_PLAYERS: int = 4
 
-var session: CMSession
-var transport: CMNetTransportENet
+var mpc: MultiPlayCore
+var enet_protocol: ENetProtocol
 var host_code: String = ""
 var party_code: String = ""
-var session_creation_started: bool = false
-var network_starting: bool = false
-var player_spawner: CMPlayerSpawner
+var _creating_mpc: bool = false
+var _stopping: bool = false
 
 func _ready() -> void:
-	_create_session.call_deferred()
+	_create_mpc.call_deferred()
 
-func _create_session() -> void:
-	if session != null or session_creation_started:
+func _create_mpc() -> void:
+	if mpc != null or _creating_mpc:
 		return
-	session_creation_started = true
-	session = CMSession.new()
-	session.name = "CMSession"
-	get_tree().root.add_child(session)
-	if session.net == null or session.player == null:
-		session_creation_started = false
-		network_failed.emit("CM.gd session failed to initialize.")
-		return
-	transport = CMNetTransportENet.new()
-	transport.port = DEFAULT_PORT
-	transport.max_clients = MAX_PLAYERS
-	session.net.transport = transport
-	session.net.max_players_per_peer = 1
-	session.player.max_players = MAX_PLAYERS
-	player_spawner = CMPlayerSpawner.new()
-	player_spawner.name = "PlayerSpawner"
-	session.player.add_child(player_spawner, true)
-	session.player.player_spawner = player_spawner
-	session.net.server_connected.connect(_on_server_connected)
-	session.net.server_connection_failure.connect(_on_connection_failure)
-	session.net.server_disconnected.connect(_on_server_disconnected)
-	session.net.net_stopped.connect(_on_net_stopped)
-	session_creation_started = false
+	_creating_mpc = true
+	mpc = MultiPlayCore.new()
+	mpc.name = "MultiPlayCore"
+	mpc.bind_address = "*"
+	mpc.port = DEFAULT_PORT
+	mpc.max_players = MAX_PLAYERS
+	mpc.player_scene = preload("res://world/levels/player.tscn")
+	mpc.first_scene = null
+	mpc.assign_client_authority = true
+	mpc.auto_spawn_player_scene = false
+	mpc.debug_gui_enabled = false
 
-func _ensure_session_ready() -> bool:
-	if session != null and session.net != null and transport != null:
-		return true
-	if not session_creation_started:
-		_create_session()
-	while session_creation_started:
+	enet_protocol = ENetProtocol.new()
+	enet_protocol.name = "ENetProtocol"
+	mpc.add_child(enet_protocol, true)
+
+	mpc.connected_to_server.connect(_on_connected_to_server)
+	mpc.disconnected_from_server.connect(_on_disconnected_from_server)
+	mpc.connection_error.connect(_on_connection_error)
+	mpc.player_connected.connect(_on_player_connected)
+	mpc.player_disconnected.connect(_on_player_disconnected)
+
+	get_tree().root.add_child(mpc, true)
+	_creating_mpc = false
+
+func _ensure_mpc() -> MultiPlayCore:
+	if mpc != null and is_instance_valid(mpc):
+		return mpc
+	if not _creating_mpc:
+		_create_mpc()
+	while _creating_mpc:
 		await get_tree().process_frame
-	return session != null and session.net != null and transport != null
+	return mpc
 
 func start_host() -> void:
-	@warning_ignore("shadowed_variable_base_class")
-	var ready: bool = await _ensure_session_ready()
-	if not ready:
-		network_failed.emit("CM.gd session is not ready.")
+	var multiplayer_core: MultiPlayCore = await _ensure_mpc()
+	if multiplayer_core == null:
+		network_failed.emit("MultiPlay Core is not ready.")
 		return
-	if session.net.is_net_active:
+	if multiplayer_core.online_connected or multiplayer_core.is_server:
 		return
+
+	_stopping = false
 	host_code = get_local_join_code()
 	party_code = host_code
-	transport.port = DEFAULT_PORT
-	transport.host_bind_ip = "*"
-	session.net.start_server()
-	var local_player: CMPlayer = await session.player.add_player_async()
-	if local_player == null:
-		network_failed.emit("Could not create the host player.")
-		return
-	network_ready.emit()
+	multiplayer_core.bind_address = "*"
+	multiplayer_core.port = DEFAULT_PORT
+	multiplayer_core.max_players = MAX_PLAYERS
+
+	var username: String = UserProfile.current_username.strip_edges()
+	var handshake_data: Dictionary = {"username": username}
+	multiplayer_core.start_online_host(true, handshake_data)
 
 func start_client(join_code: String) -> void:
-	@warning_ignore("shadowed_variable_base_class")
-	var ready: bool = await _ensure_session_ready()
-	if not ready:
-		network_failed.emit("CM.gd session is not ready.")
+	var multiplayer_core: MultiPlayCore = await _ensure_mpc()
+	if multiplayer_core == null:
+		network_failed.emit("MultiPlay Core is not ready.")
 		return
+
 	var address: String = join_code.strip_edges()
 	if address == "":
 		network_failed.emit("Enter the party code.")
 		return
+
 	var parts: PackedStringArray = address.split(":")
 	var host: String = address
 	var port: int = DEFAULT_PORT
 	if parts.size() == 2:
 		host = parts[0].strip_edges()
 		port = int(parts[1])
+
 	if host == "":
 		host = "127.0.0.1"
 	if port < 1 or port > 65535:
 		network_failed.emit("The party code has an invalid port.")
 		return
+
+	_stopping = false
 	host_code = ""
 	party_code = "%s:%d" % [host, port]
-	transport.port = port
-	transport.connect_address = host
-	session.net.start_client()
+	multiplayer_core.port = port
+	multiplayer_core.max_players = MAX_PLAYERS
+
+	var username: String = UserProfile.current_username.strip_edges()
+	var handshake_data: Dictionary = {"username": username}
+	multiplayer_core.start_online_join(party_code, handshake_data)
 
 func get_party_code() -> String:
 	return party_code.strip_edges()
@@ -115,76 +123,82 @@ func get_local_join_code() -> String:
 	return "127.0.0.1:%d" % DEFAULT_PORT
 
 func is_network_ready() -> bool:
-	return session != null and session.net != null and session.net.is_net_active
+	return mpc != null and is_instance_valid(mpc) and mpc.online_connected and mpc.local_player != null
 
-func ensure_local_player() -> CMPlayer:
-	if not is_network_ready():
+func get_players() -> Array[MPPlayer]:
+	var result: Array[MPPlayer] = []
+	if mpc == null or not is_instance_valid(mpc) or mpc.players == null:
+		return result
+	for player in mpc.players.get_players().values():
+		if player is MPPlayer and is_instance_valid(player):
+			result.append(player)
+	return result
+
+func get_local_player() -> MPPlayer:
+	if mpc == null or not is_instance_valid(mpc):
 		return null
-	for player in session.player.players:
-		if player.is_local:
-			return player
-		if player.net_peer != null and is_instance_valid(player.net_peer) and player.net_peer.peer_id == multiplayer.get_unique_id():
-			return player
-	var player: CMPlayer = await session.player.add_player_async()
-	return player
+	return mpc.local_player
 
 func stop_session() -> void:
-	if session == null or session.net == null:
+	if mpc == null or not is_instance_valid(mpc):
 		return
-	party_code = ""
-	host_code = ""
-	if session.net.is_net_active:
-		session.net.stop_net()
 
-func _on_server_connected() -> void:
-	network_starting = false
-	if session == null or session.net == null:
-		network_failed.emit("CM.gd session is not available.")
+	_stopping = true
+	if mpc.is_server:
+		mpc.close_server()
+	elif mpc.local_player != null:
+		mpc.local_player.disconnect_player()
+	elif mpc.online_peer != null:
+		mpc.online_peer.close()
+
+	_reset_mpc.call_deferred()
+
+func start_game_scene(scene_path: String) -> void:
+	if mpc == null or not is_instance_valid(mpc):
 		return
-	var local_player: CMPlayer = await session.player.add_player_async()
-	if local_player == null:
-		network_failed.emit("Could not create the local player.")
+	if not mpc.is_server:
 		return
+	if not mpc.online_connected:
+		return
+	mpc.load_scene(scene_path, true)
+
+func is_party_ready_to_start() -> bool:
+	if mpc == null or not is_instance_valid(mpc):
+		return false
+	if not mpc.is_server or not mpc.online_connected:
+		return false
+	return mpc.local_player != null and mpc.player_count > 0
+
+func _on_connected_to_server(_local_player: MPPlayer) -> void:
+	_stopping = false
 	network_ready.emit()
+	party_updated.emit()
 
-func _on_connection_failure() -> void:
-	network_starting = false
-	network_failed.emit("The connection to the host failed.")
+func _on_player_connected(_player: MPPlayer) -> void:
+	party_updated.emit()
 
-func _on_server_disconnected() -> void:
-	network_starting = false
-	network_failed.emit("The host disconnected.")
+func _on_player_disconnected(_player: MPPlayer) -> void:
+	party_updated.emit()
 
-func _on_net_stopped() -> void:
-	network_starting = false
+func _on_connection_error(reason: MultiPlayCore.ConnectionError) -> void:
+	if _stopping:
+		return
+	var reason_name: String = str(reason)
+	network_failed.emit("Multiplayer connection failed: " + reason_name)
+	_reset_mpc.call_deferred()
+
+func _on_disconnected_from_server(reason: String) -> void:
+	if _stopping:
+		return
+	network_failed.emit("Disconnected: " + reason)
+	_reset_mpc.call_deferred()
+
+func _reset_mpc() -> void:
+	if mpc != null and is_instance_valid(mpc):
+		mpc.queue_free()
+	mpc = null
+	enet_protocol = null
 	party_code = ""
 	host_code = ""
 	network_stopped.emit()
-
-func set_player_spawn_root(root: Node3D) -> void:
-	if player_spawner == null or not is_instance_valid(player_spawner):
-		return
-	player_spawner.spawn_root = root
-
-func start_game_scene(scene_path: String) -> void:
-	if session == null or session.net == null or not session.net.is_net_active:
-		return
-	if not session.net.is_server:
-		return
-	_load_game_scene.rpc(scene_path)
-
-@rpc("authority", "call_local", "reliable")
-func _load_game_scene(scene_path: String) -> void:
-	if scene_path.strip_edges() == "":
-		return
-	_load_game_scene_deferred.call_deferred(scene_path)
-
-func _load_game_scene_deferred(scene_path: String) -> void:
-	get_tree().change_scene_to_file(scene_path)
-
-func is_party_ready_to_start() -> bool:
-	if session == null or session.net == null:
-		return false
-	if not session.net.is_net_active or not session.net.is_server:
-		return false
-	return session.player.player_count >= session.net.connected_peers.size()
+	_stopping = false
