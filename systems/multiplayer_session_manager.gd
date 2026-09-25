@@ -169,7 +169,7 @@ func start_game_scene(scene_path: String) -> void:
 
 	for _index in range(180):
 		if _all_players_have_gameplay_nodes(mpc):
-			mpc.load_scene(scene_path, true)
+			mpc.load_scene(scene_path, false)
 			return
 		await get_tree().process_frame
 
