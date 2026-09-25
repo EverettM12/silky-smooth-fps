@@ -34,34 +34,31 @@ var smoothed_look_input: Vector2 = Vector2.ZERO
 var networked: bool = false
 var is_local_player: bool = true
 var network_player_id: int = 0
-var network_target_position: Vector3 = Vector3.ZERO
-var network_target_velocity: Vector3 = Vector3.ZERO
-var network_target_yaw: float = 0.0
-var network_target_pitch: float = 0.0
-var network_tick_counter: int = 0
 
 func configure_networked(local: bool, player_id: int, authority_id: int) -> void:
 	networked = true
 	is_local_player = local
 	network_player_id = player_id
 	set_multiplayer_authority(authority_id)
+	if multiplayer.has_multiplayer_peer():
+		is_local_player = is_local_player or player_id == multiplayer.get_unique_id()
 	if is_inside_tree():
 		_apply_network_mode()
+		_ensure_multiplay_sync_nodes.call_deferred()
 
 func _ready() -> void:
 	if mpp != null:
 		networked = true
 		is_local_player = mpp.is_local
 		network_player_id = mpp.player_id
-		network_target_position = global_position
-		network_target_velocity = velocity
-		network_target_yaw = rotation.y
-		network_target_pitch = head.rotation.x
+		if multiplayer.has_multiplayer_peer():
+			is_local_player = is_local_player or mpp.player_id == multiplayer.get_unique_id()
 	health = clampf(max_health, 0.0, max_health)
 	health_changed.connect(_update_health_ui)
 	_update_health_ui(health, max_health)
 	if networked:
 		_apply_network_mode()
+		_ensure_multiplay_sync_nodes.call_deferred()
 	elif capture_mouse_on_ready:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
@@ -98,30 +95,30 @@ func _apply_network_mode() -> void:
 	network_target_yaw = rotation.y
 	network_target_pitch = head.rotation.x
 
-func _physics_process(delta: float) -> void:
-	if not networked:
-		return
-	if is_local_player:
-		network_tick_counter += 1
-		if network_tick_counter % 2 == 0 and multiplayer.has_multiplayer_peer():
-			_send_network_state()
-		return
-	global_position = global_position.lerp(network_target_position, 1.0 - exp(-20.0 * delta))
-	rotation.y = lerp_angle(rotation.y, network_target_yaw, 1.0 - exp(-20.0 * delta))
-	head.rotation.x = lerp_angle(head.rotation.x, network_target_pitch, 1.0 - exp(-20.0 * delta))
 
-@rpc("authority", "unreliable_ordered", "call_remote")
-@warning_ignore("shadowed_variable")
-func _receive_network_state(target_position: Vector3, target_velocity: Vector3, target_yaw: float, target_pitch: float) -> void:
-	if not networked or is_local_player:
+func _ensure_multiplay_sync_nodes() -> void:
+	if mpp == null or MPIO.mpc == null:
 		return
-	network_target_position = target_position
-	network_target_velocity = target_velocity
-	network_target_yaw = target_yaw
-	network_target_pitch = target_pitch
 
-func _send_network_state() -> void:
-	_receive_network_state.rpc(global_position, velocity, rotation.y, head.rotation.x)
+	_ensure_transform_sync(self, "MPTransformSync", true, true)
+	_ensure_transform_sync(head, "MPHeadTransformSync", false, true)
+
+func _ensure_transform_sync(
+	target: Node3D,
+	sync_name: String,
+	sync_position: bool,
+	sync_rotation: bool
+) -> void:
+	if target == null or target.get_node_or_null(sync_name) != null:
+		return
+
+	var sync: MPTransformSync = MPTransformSync.new()
+	sync.name = sync_name
+	sync.sync_position = sync_position
+	sync.sync_rotation = sync_rotation
+	sync.sync_scale = false
+	sync.set_multiplayer_authority(get_multiplayer_authority(), true)
+	target.add_child(sync, true)
 
 func hitscan_hit(damage_val: float, _hitscan_dir: Vector3, _hitscan_pos: Vector3) -> void:
 	apply_weapon_damage(damage_val)
