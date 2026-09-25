@@ -25,6 +25,7 @@ var health: float = 100.0
 @onready var health_ui: Control = $HealthUI/Root
 @onready var health_bar: ProgressBar = $HealthUI/Root/MarginContainer/VBoxContainer/HealthBar
 @onready var health_label: Label = $HealthUI/Root/MarginContainer/VBoxContainer/HealthLabel
+@onready var mpp: MPPlayer = get_parent() as MPPlayer
 
 signal health_changed(current_health: float, current_max_health: float)
 
@@ -48,6 +49,14 @@ func configure_networked(local: bool, player_id: int, authority_id: int) -> void
 		_apply_network_mode()
 
 func _ready() -> void:
+	if mpp != null:
+		networked = true
+		is_local_player = mpp.is_local
+		network_player_id = mpp.player_id
+		network_target_position = global_position
+		network_target_velocity = velocity
+		network_target_yaw = rotation.y
+		network_target_pitch = head.rotation.x
 	health = clampf(max_health, 0.0, max_health)
 	health_changed.connect(_update_health_ui)
 	_update_health_ui(health, max_health)
