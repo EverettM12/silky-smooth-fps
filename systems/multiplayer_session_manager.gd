@@ -31,7 +31,7 @@ func _create_mpc() -> void:
 	mpc.player_scene = preload("res://world/levels/player.tscn")
 	mpc.first_scene = null
 	mpc.assign_client_authority = true
-	mpc.auto_spawn_player_scene = true
+	mpc.auto_spawn_player_scene = false
 	mpc.debug_gui_enabled = false
 
 	enet_protocol = ENetProtocol.new()
@@ -162,6 +162,10 @@ func start_game_scene(scene_path: String) -> void:
 		return
 	if not mpc.online_connected:
 		return
+	if mpc.players == null:
+		return
+
+	mpc.players.spawn_node_all()
 
 	for _index in range(180):
 		if _all_players_have_gameplay_nodes(mpc):
@@ -176,9 +180,7 @@ func is_party_ready_to_start() -> bool:
 		return false
 	if not mpc.is_server or not mpc.online_connected:
 		return false
-	if mpc.local_player == null or mpc.player_count <= 0:
-		return false
-	return _all_players_have_gameplay_nodes(mpc)
+	return mpc.local_player != null and mpc.player_count > 0
 
 func _all_players_have_gameplay_nodes(multiplayer_core: MultiPlayCore) -> bool:
 	if multiplayer_core == null or multiplayer_core.players == null:
