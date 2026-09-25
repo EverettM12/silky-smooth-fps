@@ -90,10 +90,6 @@ func _apply_network_mode() -> void:
 	health_ui.visible = true
 	if capture_mouse_on_ready:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-	network_target_position = global_position
-	network_target_velocity = velocity
-	network_target_yaw = rotation.y
-	network_target_pitch = head.rotation.x
 
 
 func _ensure_multiplay_sync_nodes() -> void:
