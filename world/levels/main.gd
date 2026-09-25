@@ -79,10 +79,14 @@ func _configure_player_items(mp_player: MPPlayer) -> void:
 	manager.name = "WeaponManager"
 	manager.player = target_player
 	manager.viewport_cam = target_player.camera
-	manager.camera_recoil_holder = camera_holder.recoil_holder if camera_holder != null else null
+	if camera_holder != null:
+		manager.camera_recoil_holder = camera_holder.recoil_holder
 	manager.hud = hud
 	manager.visible = mp_player.is_local
-	manager.process_mode = Node.PROCESS_MODE_INHERIT if mp_player.is_local else Node.PROCESS_MODE_DISABLED
+	if mp_player.is_local:
+		manager.process_mode = Node.PROCESS_MODE_INHERIT
+	else:
+		manager.process_mode = Node.PROCESS_MODE_DISABLED
 
 	if manager.anim_manager != null:
 		var animation_manager: AnimationManager = manager.anim_manager as AnimationManager
