@@ -12,6 +12,7 @@ extends Node
 @export var dash_action: StringName = &"dash"
 @export var grapple_action: StringName = &"grapple"
 @export var aim_action: StringName = &"aim"
+@export var heal_action: StringName = &"heal"
 
 var movement_input: Vector2 = Vector2.ZERO
 var look_input: Vector2 = Vector2.ZERO
@@ -23,6 +24,7 @@ var sprint_pressed: bool = false
 var dash_pressed: bool = false
 var grapple_pressed: bool = false
 var aim_pressed: bool = false
+var heal_just_pressed: bool = false
 
 func _physics_process(_delta: float) -> void:
 	if get_parent() is Player:
@@ -38,3 +40,4 @@ func _physics_process(_delta: float) -> void:
 	dash_pressed = Input.is_action_just_pressed(dash_action)
 	grapple_pressed = Input.is_action_just_pressed(grapple_action)
 	aim_pressed = Input.is_action_pressed(aim_action)
+	heal_just_pressed = Input.is_action_just_pressed(heal_action)
