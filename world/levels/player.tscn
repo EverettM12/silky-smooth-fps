@@ -10,6 +10,7 @@
 [ext_resource type="Script" uid="uid://cuomnnjqaqjdo" path="res://player/grapple_rope.gd" id="21_0dk2n"]
 [ext_resource type="Script" uid="uid://cuk1od7m6l02a" path="res://player/player_traversal_testing.gd" id="22_6kvj1"]
 [ext_resource type="Script" uid="uid://c2m4y5bvdd428" path="res://player/player_traversal_camera.gd" id="23_gr2o7"]
+[ext_resource type="Script" path="res://addons/MultiplayCore/synchronizers/MPTransformSync.gd" id="24_mpts"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ltcvw"]
 radius = 0.35
@@ -28,12 +29,24 @@ height = 0.16
 collision_layer = 2
 script = ExtResource("1_w4ary")
 
+[node name="MPTransformSync" type="Node" parent="."]
+script = ExtResource("24_mpts")
+sync_position = true
+sync_rotation = true
+sync_scale = false
+
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=2090540045]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95, 0)
 shape = SubResource("CapsuleShape3D_ltcvw")
 
 [node name="Head" type="Node3D" parent="." unique_id=1131617151]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.65, 0)
+
+[node name="MPHeadTransformSync" type="Node" parent="Head"]
+script = ExtResource("24_mpts")
+sync_position = false
+sync_rotation = true
+sync_scale = false
 
 [node name="CameraMotion" type="Node3D" parent="Head" unique_id=1175774674]
 
