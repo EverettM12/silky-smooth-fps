@@ -6,6 +6,7 @@ class_name Projectile
 var is_explosive : bool = false
 var direction : Vector3 
 var damage : float
+var structure_damage : float = -1.0
 var time_before_vanish : float 
 var bodies_list : Array = []
 
