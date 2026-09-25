@@ -4,6 +4,7 @@ signal network_ready
 signal network_failed(message: String)
 signal network_stopped
 signal party_updated
+signal game_started
 
 const DEFAULT_PORT: int = 6769
 const MAX_PLAYERS: int = 4
@@ -42,6 +43,7 @@ func _create_mpc() -> void:
 	mpc.connection_error.connect(_on_connection_error)
 	mpc.player_connected.connect(_on_player_connected)
 	mpc.player_disconnected.connect(_on_player_disconnected)
+	mpc.scene_loaded.connect(_on_scene_loaded)
 
 	get_tree().root.add_child(mpc, true)
 	_creating_mpc = false
@@ -179,6 +181,9 @@ func _on_player_connected(_player: MPPlayer) -> void:
 
 func _on_player_disconnected(_player: MPPlayer) -> void:
 	party_updated.emit()
+
+func _on_scene_loaded() -> void:
+	game_started.emit()
 
 func _on_connection_error(reason: MultiPlayCore.ConnectionError) -> void:
 	if _stopping:
