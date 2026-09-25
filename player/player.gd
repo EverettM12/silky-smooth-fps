@@ -12,7 +12,14 @@ extends CharacterBody3D
 
 @export_group("Health")
 @export var max_health: float = 100.0
+@export var heal_amount: float = 25.0
+@export var heal_duration: float = 2.0
+@export var heal_tick_interval: float = 0.1
 var health: float = 100.0
+var healing: bool = false
+var healing_remaining: float = 0.0
+var healing_amount_remaining: float = 0.0
+var healing_tick_timer: float = 0.0
 
 @export_group("Cursor")
 @export var capture_mouse_on_ready: bool = true
@@ -146,6 +153,58 @@ func _receive_health(current_health: float) -> void:
 	health = clampf(current_health, 0.0, max_health)
 	health_changed.emit(health, max_health)
 
+func _start_healing() -> void:
+	if health >= max_health or healing:
+		return
+	if networked and multiplayer.has_multiplayer_peer() and not is_multiplayer_authority():
+		_request_heal.rpc_id(get_multiplayer_authority())
+		return
+	_start_healing_authority()
+
+@rpc("any_peer", "reliable", "call_remote")
+func _request_heal() -> void:
+	if not is_multiplayer_authority():
+		return
+	var sender_id: int = multiplayer.get_remote_sender_id()
+	if sender_id != get_multiplayer_authority():
+		return
+	_start_healing_authority()
+
+func _start_healing_authority() -> void:
+	if health >= max_health or healing:
+		return
+	healing = true
+	healing_remaining = maxf(heal_duration, 0.0)
+	healing_amount_remaining = minf(heal_amount, max_health - health)
+	healing_tick_timer = 0.0
+
+func _process_healing(delta: float) -> void:
+	if not healing or not is_multiplayer_authority():
+		return
+	if health >= max_health or healing_remaining <= 0.0 or healing_amount_remaining <= 0.0:
+		healing = false
+		return
+	healing_remaining = maxf(healing_remaining - delta, 0.0)
+	healing_tick_timer -= delta
+	if healing_tick_timer > 0.0:
+		return
+	var duration: float = maxf(heal_duration, 0.001)
+	var tick_interval: float = maxf(heal_tick_interval, 0.01)
+	var heal_per_second: float = healing_amount_remaining / maxf(healing_remaining + delta, tick_interval)
+	var heal_this_tick: float = minf(
+		healing_amount_remaining,
+		minf(max_health - health, heal_per_second * tick_interval)
+	)
+	if heal_this_tick <= 0.0:
+		healing = false
+		return
+	health += heal_this_tick
+	healing_amount_remaining -= heal_this_tick
+	healing_tick_timer = tick_interval
+	health_changed.emit(health, max_health)
+	if networked and multiplayer.has_multiplayer_peer():
+		_receive_health.rpc(health)
+
 func _update_health_ui(current_health: float, current_max_health: float) -> void:
 	if health_bar == null or health_label == null:
 		return
@@ -166,6 +225,9 @@ func _unhandled_input(event: InputEvent) -> void:
 func _process(delta: float) -> void:
 	if networked and not is_local_player:
 		return
+	if player_input.heal_just_pressed:
+		_start_healing()
+	_process_healing(delta)
 	process_look(delta)
 
 func process_look(delta: float) -> void:
