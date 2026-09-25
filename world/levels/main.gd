@@ -4,7 +4,8 @@ extends Node3D
 @onready var start_pos: Node3D = get_node_or_null("Start Pos") as Node3D
 @onready var weapon_viewport_camera: Camera3D = get_node_or_null("SubViewportContainer/SubViewport/ViewportCam") as Camera3D
 @onready var camera_holder: CameraHolder = get_node_or_null("CameraHolder") as CameraHolder
-@onready var weapon_manager: WeaponManager = get_node_or_null("WeaponManager") as WeaponManager
+@onready var weapon_manager_template: WeaponManager = get_node_or_null("WeaponManager") as WeaponManager
+@onready var hud: HUD = get_node_or_null("HUD") as HUD
 
 var player: Player
 
@@ -18,6 +19,15 @@ func _ready() -> void:
 		push_error("Main: MultiPlay Core was not ready.")
 		return
 
+	if not multiplayer_core.player_connected.is_connected(_on_player_connected):
+		multiplayer_core.player_connected.connect(_on_player_connected)
+	if not multiplayer_core.player_disconnected.is_connected(_on_player_disconnected):
+		multiplayer_core.player_disconnected.connect(_on_player_disconnected)
+
+	for raw_player in multiplayer_core.players.get_players().values():
+		if raw_player is MPPlayer and is_instance_valid(raw_player):
+			_configure_player_items(raw_player as MPPlayer)
+
 	var local_mpp: MPPlayer = await _wait_for_local_player(multiplayer_core)
 	if local_mpp == null:
 		push_error("Main: Local MPPlayer was not ready.")
@@ -29,16 +39,70 @@ func _ready() -> void:
 		return
 
 	player = local_player
-	player.global_position = start_pos.global_position
+	await _wait_for_player_weapon_manager(player)
+
 	var player_camera: PlayerCamera = player.get_node_or_null("PlayerCamera") as PlayerCamera
+	var local_weapon_manager: WeaponManager = player.get_node_or_null("WeaponManager") as WeaponManager
 	if player_camera != null:
 		player_camera.weapon_viewport_camera = weapon_viewport_camera
-		player_camera.weapon_manager = weapon_manager
+		player_camera.weapon_manager = local_weapon_manager
+
+	if hud != null:
+		hud.set_weapon_manager(local_weapon_manager)
 
 	if camera_holder != null:
 		camera_holder.configure_player(player)
 
+	player.global_position = start_pos.global_position
 	start_pos.hide()
+	if is_instance_valid(weapon_manager_template):
+		weapon_manager_template.visible = false
+		weapon_manager_template.process_mode = Node.PROCESS_MODE_DISABLED
+
+func _configure_player_items(mp_player: MPPlayer) -> void:
+	if mp_player == null or not is_instance_valid(mp_player):
+		return
+	var target_player: Player = mp_player.player_node as Player
+	if target_player == null or not is_instance_valid(target_player):
+		return
+	if target_player.get_node_or_null("WeaponManager") != null:
+		return
+	if weapon_manager_template == null or not is_instance_valid(weapon_manager_template):
+		push_error("Main: WeaponManager template is missing.")
+		return
+
+	var manager: WeaponManager = weapon_manager_template.duplicate() as WeaponManager
+	if manager == null:
+		push_error("Main: Failed to duplicate WeaponManager template.")
+		return
+
+	manager.name = "WeaponManager"
+	manager.player = target_player
+	manager.viewport_cam = target_player.camera
+	manager.camera_recoil_holder = camera_holder.recoil_holder if camera_holder != null else null
+	manager.hud = hud
+	manager.visible = mp_player.is_local
+	manager.process_mode = Node.PROCESS_MODE_INHERIT if mp_player.is_local else Node.PROCESS_MODE_DISABLED
+
+	if manager.anim_manager != null:
+		var animation_manager: AnimationManager = manager.anim_manager as AnimationManager
+		if animation_manager != null:
+			animation_manager.play_char = target_player
+			animation_manager.camera_holder = camera_holder
+
+	target_player.add_child(manager)
+
+func _wait_for_player_weapon_manager(target_player: Player, max_frames: int = 180) -> void:
+	for _index in range(max_frames):
+		if target_player.get_node_or_null("WeaponManager") is WeaponManager:
+			return
+		await get_tree().process_frame
+
+func _on_player_connected(mp_player: MPPlayer) -> void:
+	_configure_player_items.call_deferred(mp_player)
+
+func _on_player_disconnected(_mp_player: MPPlayer) -> void:
+	return
 
 func _wait_for_mpc(max_frames: int = 180) -> MultiPlayCore:
 	for _index in range(max_frames):
