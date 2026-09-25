@@ -61,7 +61,7 @@ window/stretch/aspect="expand"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/StaticMeshMerger/plugin.cfg", "res://addons/cm-gd/plugin.cfg", "res://addons/instant-realistic-light/plugin.cfg", "res://addons/make_local/plugin.cfg", "res://addons/netfox.internals/plugin.cfg", "res://addons/netfox/plugin.cfg", "res://addons/proton_scatter/plugin.cfg", "res://addons/simplegrasstextured/plugin.cfg", "res://addons/supabase/plugin.cfg")
+enabled=PackedStringArray("res://addons/StaticMeshMerger/plugin.cfg", "res://addons/MultiplayCore/plugin.cfg", "res://addons/instant-realistic-light/plugin.cfg", "res://addons/make_local/plugin.cfg", "res://addons/netfox.internals/plugin.cfg", "res://addons/netfox/plugin.cfg", "res://addons/proton_scatter/plugin.cfg", "res://addons/simplegrasstextured/plugin.cfg", "res://addons/supabase/plugin.cfg")
 
 [input]
 
