@@ -31,7 +31,7 @@ func _create_mpc() -> void:
 	mpc.player_scene = preload("res://world/levels/player.tscn")
 	mpc.first_scene = null
 	mpc.assign_client_authority = true
-	mpc.auto_spawn_player_scene = false
+	mpc.auto_spawn_player_scene = true
 	mpc.debug_gui_enabled = false
 
 	enet_protocol = ENetProtocol.new()
@@ -162,14 +162,38 @@ func start_game_scene(scene_path: String) -> void:
 		return
 	if not mpc.online_connected:
 		return
-	mpc.load_scene(scene_path, true)
+
+	for _index in range(180):
+		if _all_players_have_gameplay_nodes(mpc):
+			mpc.load_scene(scene_path, true)
+			return
+		await get_tree().process_frame
+
+	network_failed.emit("Not all players were ready to enter the game.")
 
 func is_party_ready_to_start() -> bool:
 	if mpc == null or not is_instance_valid(mpc):
 		return false
 	if not mpc.is_server or not mpc.online_connected:
 		return false
-	return mpc.local_player != null and mpc.player_count > 0
+	if mpc.local_player == null or mpc.player_count <= 0:
+		return false
+	return _all_players_have_gameplay_nodes(mpc)
+
+func _all_players_have_gameplay_nodes(multiplayer_core: MultiPlayCore) -> bool:
+	if multiplayer_core == null or multiplayer_core.players == null:
+		return false
+
+	for raw_player in multiplayer_core.players.get_players().values():
+		if not raw_player is MPPlayer:
+			continue
+		var player: MPPlayer = raw_player as MPPlayer
+		if player == null or not is_instance_valid(player):
+			return false
+		if player.player_node == null or not is_instance_valid(player.player_node):
+			return false
+
+	return true
 
 func _on_connected_to_server(_local_player: MPPlayer) -> void:
 	_stopping = false
