@@ -451,7 +451,10 @@ func apply_camera_motion(delta: float, movement_data: Dictionary) -> void:
 				current_aim_fov = base_fov - aim_zoom_amount * sniper_aim_zoom_multiplier
 		target_fov = min(target_fov, current_aim_fov)
 	if aim_overlay != null:
-		aim_overlay.visible = player_input.aim_pressed
+		var is_sniper: bool = false
+		if weapon_manager != null and weapon_manager.current_weapon != null and weapon_manager.current_weapon.resources != null:
+			is_sniper = weapon_manager.current_weapon.resources.weapon_name == "SniperRifle"
+		aim_overlay.visible = player_input.aim_pressed and is_sniper
 	var fov_response_speed: float = fov_return_speed
 	if player_input.aim_pressed and target_fov < fov_value:
 		fov_response_speed = aim_fov_transition_speed
