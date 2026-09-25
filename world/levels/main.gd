@@ -29,6 +29,7 @@ func _ready() -> void:
 		return
 
 	player = local_player
+	player.global_position = start_pos.global_position
 	var player_camera: PlayerCamera = player.get_node_or_null("PlayerCamera") as PlayerCamera
 	if player_camera != null:
 		player_camera.weapon_viewport_camera = weapon_viewport_camera
